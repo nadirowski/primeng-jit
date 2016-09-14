@@ -1,6 +1,6 @@
 {
   "name": "primeng",
-  "version": "v1.0.0-beta.14",
+  "version": "v1.0.0-beta.14-jit",
   "scripts": {
     "tsc": "tsc",
     "tsc:w": "tsc -w",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/primefaces/primeng.git"
+    "url": "https://github.com/nadirowski/primeng-jit.git"
   },
   "license": "Apache-2.0",
   "dependencies": {
