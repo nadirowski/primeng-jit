@@ -10,6 +10,7 @@ export class DataTableFilterDemo implements OnInit {
 
     cars: Car[];
     brands: SelectItem[] = [];
+    defaultBrand: SelectItem;
 
     constructor(private carService: CarService) {}
 
@@ -21,6 +22,7 @@ export class DataTableFilterDemo implements OnInit {
             this.cars.forEach(car => {
                 let selectItem:SelectItem = {label:car.brand, value:car.brand};
                 this.addBrandIfNotExists(selectItem);
+                this.defaultBrand = this.brands[1] 
             })
         });
     }
