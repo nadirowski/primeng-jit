@@ -58,6 +58,7 @@ export class Column implements AfterContentInit{
     @Input() filter: boolean;
     @Input() filterMatchMode: string;
     @Input() filterValues: SelectItem[];
+    @Input() defaultFilterValue: SelectItem;
     @Input() rowspan: number;
     @Input() colspan: number;
     @Input() style: any;

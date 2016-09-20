@@ -114,7 +114,7 @@ export class RowExpansionLoader {
                                      [ngClass]="{'fa-sort-desc': (getSortOrder(col) == -1),'fa-sort-asc': (getSortOrder(col) == 1)}"></span>
 								<input type="text" pInputText class="ui-column-filter" *ngIf="col.filter && !col.filterValues" [value]="filters[col.field] ? filters[col.field].value : ''" (click)="onFilterInputClick($event)" (keyup)="onFilterKeyup($event.target.value, col.field, col.filterMatchMode)"/>
                                 <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event.target.value, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
-                                   <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues">{{elem.label}}</option>
+                                   <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="elem === col.defaultFilterValue">{{elem.label}}</option>
                                 </select>
                                 <p-dtCheckbox *ngIf="col.selectionMode=='multiple'" (onChange)="toggleRowsWithCheckbox($event)" [checked]="allSelected" [disabled]="isEmpty()"></p-dtCheckbox>
                             </th>
@@ -416,6 +416,8 @@ export class DataTable implements AfterViewChecked,AfterViewInit,OnInit,DoCheck,
     preventBlurOnEdit: boolean;
     
     columnsSubscription: Subscription;
+    
+    private initialFilterLaunched:boolean = false;
 
     constructor(protected el: ElementRef, protected domHandler: DomHandler, differs: IterableDiffers, 
         @Query(Column) cols: QueryList<Column>, protected renderer: Renderer, changeDetector: ChangeDetectorRef) {
@@ -423,6 +425,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,OnInit,DoCheck,
         this.columnsSubscription = cols.changes.subscribe(_ => {
             this.columns = cols.toArray();
             this.columnsUpdated = true;
+            this.initialFilterLaunched = false;
             changeDetector.markForCheck();
         });
     }
@@ -455,6 +458,14 @@ export class DataTable implements AfterViewChecked,AfterViewInit,OnInit,DoCheck,
             }
 
             this.columnsUpdated = false;
+        }
+        if(this.value && this.columns && !this.initialFilterLaunched){
+            this.columns.forEach(column =>{
+                if(column.filterValues && column.defaultFilterValue){
+                    this.onFilterKeyup(column.defaultFilterValue.value, column.field, undefined);
+                }    
+            })
+            this.initialFilterLaunched = true;
         }
     }
 
