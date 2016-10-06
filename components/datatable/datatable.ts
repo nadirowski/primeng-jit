@@ -422,8 +422,6 @@ export class DataTable implements AfterViewChecked,AfterViewInit,OnInit,DoCheck,
     preventBlurOnEdit: boolean;
     
     columnsSubscription: Subscription;
-    
-    private initialFilterLaunched:boolean = false;
 
     constructor(protected el: ElementRef, protected domHandler: DomHandler, differs: IterableDiffers, 
         @Query(Column) cols: QueryList<Column>, protected renderer: Renderer, changeDetector: ChangeDetectorRef) {
@@ -431,22 +429,11 @@ export class DataTable implements AfterViewChecked,AfterViewInit,OnInit,DoCheck,
         this.columnsSubscription = cols.changes.subscribe(_ => {
             this.columns = cols.toArray();
             this.columnsUpdated = true;
-            this.initialFilterLaunched = false;
             changeDetector.markForCheck();
         });
     }
 
     ngOnInit() {
-        if(this.lazy) {
-            this.onLazyLoad.emit({
-                first: this.first,
-                rows: this.rows,
-                sortField: this.sortField,
-                sortOrder: this.sortOrder,
-                filters: null,
-                multiSortMeta: this.multiSortMeta
-            });
-        }
     }
 
     ngAfterViewChecked() {
@@ -465,17 +452,23 @@ export class DataTable implements AfterViewChecked,AfterViewInit,OnInit,DoCheck,
 
             this.columnsUpdated = false;
         }
-        if(this.value && this.columns && !this.initialFilterLaunched){
-            this.columns.forEach(column =>{
-                if(column.filterValues && column.defaultFilterValue){
-                    this.onFilterKeyup(column.defaultFilterValue.value, column.field, undefined);
-                }    
-            })
-            this.initialFilterLaunched = true;
+    }
+
+    applyDefaultFilters() {
+        if(this.columns) {
+            this.columns.forEach(column => {
+                if(column.filterValues && column.defaultFilterValue) {
+                    this.filters[column.field] = {value: column.defaultFilterValue.value, matchMode: undefined};
+                }
+            });
         }
     }
 
     ngAfterViewInit() {
+        this.applyDefaultFilters();
+        if(this.lazy) {
+            this.onLazyLoad.emit(this.createLazyLoadMetadata());
+        }
         if(this.globalFilter) {
             this.globalFilterFunction = this.renderer.listen(this.globalFilter, 'keyup', () => {
                 this.filterTimeout = setTimeout(() => {
