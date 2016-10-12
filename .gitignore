@@ -23,6 +23,3 @@ typings
 # misc 
 *.log
 .DS_STORE
-
-#intelliJ Idea
-.idea

@@ -30,15 +30,8 @@ export class DataTableGroupDemo implements OnInit &#123;
     headerRows: any[];
     
     footerRows: any[];
-    
-    filterActive: SelectItem[];
-    
 
     ngOnInit() &#123;
-     	this.filterActive = [];
-        this.filterActive.push( &#123;label:'All', value:''&#125;)
-        this.filterActive.push( &#123;label:'Has 5', value:'5'&#125;)
-        this.filterActive.push( &#123;label:'Has 9', value:'9'&#125;)
         this.sales = [
             &#123;brand: 'Apple', lastYearSale: '51%', thisYearSale: '40%', lastYearProfit: '$54,406.00', thisYearProfit: '$43,342'&#125;,
             &#123;brand: 'Samsung', lastYearSale: '83%', thisYearSale: '96%', lastYearProfit: '$423,132', thisYearProfit: '$312,122'&#125;,
@@ -55,7 +48,7 @@ export class DataTableGroupDemo implements OnInit &#123;
         this.headerRows = [
             &#123;
                 columns: [
-                    &#123;header: 'Brand', rowspan: 3, filter: true, field: 'brand', sortable: true, filterMatchMode: 'contains'&#125;,
+                    &#123;header: 'Brand', rowspan: 3&#125;,
                     &#123;header: 'Sale Rate', colspan: 4&#125;
                 ]
             &#125;,
@@ -67,8 +60,8 @@ export class DataTableGroupDemo implements OnInit &#123;
             &#125;,
             &#123;
                 columns: [
-                    &#123;header: 'Last Year', filter: true, field: 'lastYearSale', sortable: true, filterMatchMode: 'contains', filterValues: this.filterActive&#125;,
-                    &#123;header: 'This Year', filter: true, field: 'thisYearSale', sortable: true, filterMatchMode: 'contains'&#125;,
+                    &#123;header: 'Last Year'&#125;,
+                    &#123;header: 'This Year'&#125;,
                     &#123;header: 'Last Year'&#125;,
                     &#123;header: 'This Year'&#125;
                 ]

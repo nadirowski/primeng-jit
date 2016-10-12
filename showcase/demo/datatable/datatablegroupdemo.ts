@@ -1,5 +1,4 @@
 import {Component,OnInit} from '@angular/core';
-import {SelectItem} from '../../../components/common/api';
 
 @Component({
     templateUrl: 'showcase/demo/datatable/datatablegroupdemo.html'
@@ -11,14 +10,8 @@ export class DataTableGroupDemo implements OnInit {
     headerRows: any[];
     
     footerRows: any[];
-    
-    filterActive: SelectItem[];
 
     ngOnInit() {
-        this.filterActive = [];
-        this.filterActive.push({label:'All', value:''})
-        this.filterActive.push({label:'Has 5', value:'5'})
-        this.filterActive.push({label:'Has 9', value:'9'})
         this.sales = [
             {brand: 'Apple', lastYearSale: '51%', thisYearSale: '40%', lastYearProfit: '$54,406.00', thisYearProfit: '$43,342'},
             {brand: 'Samsung', lastYearSale: '83%', thisYearSale: '96%', lastYearProfit: '$423,132', thisYearProfit: '$312,122'},
@@ -35,7 +28,7 @@ export class DataTableGroupDemo implements OnInit {
         this.headerRows = [
             {
                 columns: [
-                    {header: 'Brand', rowspan: 3, filter: true, field: 'brand', sortable: true, filterMatchMode: 'contains'},
+                    {header: 'Brand', rowspan: 3},
                     {header: 'Sale Rate', colspan: 4}
                 ]
             },
@@ -47,8 +40,8 @@ export class DataTableGroupDemo implements OnInit {
             },
             {
                 columns: [
-                    {header: 'Last Year', filter: true, field: 'lastYearSale', sortable: true, filterMatchMode: 'contains', filterValues: this.filterActive},
-                    {header: 'This Year', filter: true, field: 'thisYearSale', sortable: true, filterMatchMode: 'contains'},
+                    {header: 'Last Year'},
+                    {header: 'This Year'},
                     {header: 'Last Year'},
                     {header: 'This Year'}
                 ]
