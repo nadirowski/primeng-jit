@@ -33,6 +33,7 @@ cp -r ./primeng-jit ./primeng-1.0.0-beta.14
 rm ./primeng-1.0.0-beta.14/primeng-1.0.0-beta.14.tar.gz
 rm -rf ./primeng-1.0.0-beta.14/.git
 rm -r ./primeng-1.0.0-beta.14/.idea
+rm -r ./primeng-1.0.0-beta.14/node_modules
 find ./primeng-1.0.0-beta.14 -name "*.ts" | grep ".d.ts" --invert-match | xargs rm
 rm ./primeng-1.0.0-beta.14.tar.gz
 tar -zcf primeng-1.0.0-beta.14.tar.gz "primeng-1.0.0-beta.14"
