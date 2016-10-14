@@ -13,7 +13,7 @@
         <i class="fa fa-search" style="float:left;margin:4px 4px 0 0"></i>
         <input #gb type="text" pInputText size="50" style="float:left" placeholder="Global Filter">
     </div>
-    <p-dataTable [value]="cars" [rows]="10" [paginator]="true" [globalFilter]="gb">
+    <p-dataTable [value]="cars" [rows]="10" [paginator]="true" [globalFilter]="gb" [lazy]="true" [totalRecords]="totalRecords" (onLazyLoad)="loadCarsLazy($event)">
         <header>List of Cars</header>
         <p-column field="vin" header="Vin (startsWith)" [filter]="true"></p-column>
         <p-column field="year" header="Year (contains)" [filter]="true" filterMatchMode="contains"></p-column>
