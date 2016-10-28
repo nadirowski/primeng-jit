@@ -9,6 +9,7 @@ export class MultiSelectDemo {
     cars: SelectItem[];
 
     selectedCars: string[] = [];
+    selectedCars2: string[] = [];
 
     constructor() {
         this.cars = [];
@@ -23,4 +24,14 @@ export class MultiSelectDemo {
         this.cars.push({label: 'VW', value: 'VW'});
         this.cars.push({label: 'Volvo', value: 'Volvo'});
     }
+
+    public updateLabel(items:any[], defaultLabel:string): string {
+        if (items && items.length) {
+            return "Chosen: " + items.length;
+        }
+        else {
+            return defaultLabel;
+        }
+    }
+
 }

@@ -77,6 +77,8 @@ export class MultiSelect implements OnInit,AfterViewInit,AfterViewChecked,DoChec
     
     @Input() defaultLabel: string = 'Choose';
 
+    @Input() updateLabelFunction: Function = this.updateLabel;
+
     @Input() style: any;
 
     @Input() styleClass: string;
@@ -120,7 +122,7 @@ export class MultiSelect implements OnInit,AfterViewInit,AfterViewChecked,DoChec
     }
     
     ngOnInit() {
-        this.updateLabel();
+        this.valuesAsString = this.updateLabelFunction(this.value, this.defaultLabel);
         
         this.documentClickListener = this.renderer.listenGlobal('body', 'click', () => {
             if(!this.selfClick && this.overlayVisible) {
@@ -152,7 +154,7 @@ export class MultiSelect implements OnInit,AfterViewInit,AfterViewChecked,DoChec
         let changes = this.differ.diff(this.value);
         
         if(changes) {
-            this.updateLabel();
+            this.valuesAsString = this.updateLabelFunction(this.value, this.defaultLabel);
         }
     }
     
@@ -283,22 +285,22 @@ export class MultiSelect implements OnInit,AfterViewInit,AfterViewChecked,DoChec
         this.onModelTouched();
     }
     
-    updateLabel() {
-        if(this.value && this.value.length) {
+    updateLabel(value: any[], defaultLabel: string): string {
+        if(value && value.length) {
             let label = '';
-            for(let i = 0; i < this.value.length; i++) {
+            for(let i = 0; i < value.length; i++) {
                 if(i != 0) {
                     label = label + ',';
                 }
-                label = label + this.findLabelByValue(this.value[i]);
+                label = label + this.findLabelByValue(value[i]);
             }
-            this.valuesAsString = label;
+            return label;
         }
         else {
-            this.valuesAsString = this.defaultLabel;
+            return defaultLabel;
         }
     }
-    
+
     findLabelByValue(val: any): string {
         let label = null;
         for(let i = 0; i < this.options.length; i++) {
