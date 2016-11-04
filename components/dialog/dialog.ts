@@ -126,7 +126,7 @@ export class Dialog implements AfterViewInit,AfterViewChecked,OnDestroy {
             this.onBeforeShow.emit({});
             
             if(!this.positionInitialized) {
-                this.center();
+                this.moveToTop();
                 this.positionInitialized = true;
             }
             
@@ -213,6 +213,29 @@ export class Dialog implements AfterViewInit,AfterViewChecked,OnDestroy {
 
         container.style.left = x + 'px';
         container.style.top = y + 'px';
+    }
+
+    moveToTop() {
+        let container = this.el.nativeElement.children[0];
+        let elementWidth = this.domHandler.getOuterWidth(container);
+        let elementHeight = this.domHandler.getOuterHeight(container);
+        if(elementWidth == 0 && elementHeight == 0) {
+            container.style.visibility = 'hidden';
+            container.style.display = 'block';
+            elementWidth = this.domHandler.getOuterWidth(container);
+            elementHeight = this.domHandler.getOuterHeight(container);
+            container.style.display = 'none';
+            container.style.visibility = 'visible';
+        }
+        let viewport = this.domHandler.getViewport();
+        let x = (viewport.width - elementWidth) / 2;
+
+        container.style.left = x + 'px';
+        container.style.top = '150px';
+        container.style.left = '50%';
+        if(this.width){
+            container.style.margin = '0 0 0 -'+(this.width/2)+'px';
+        }
     }
     
     enableModality() {
