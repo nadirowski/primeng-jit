@@ -126,7 +126,8 @@ export class Dialog implements AfterViewInit,AfterViewChecked,OnDestroy {
             this.onBeforeShow.emit({});
             
             if(!this.positionInitialized) {
-                this.moveToTop();
+//                this.moveToTop();
+                this.center();
                 this.positionInitialized = true;
             }
             
