@@ -10,11 +10,6 @@
     <p>Selected Cars: {{selectedCars}}</p>
 </div>
 
-<div class="ContentSideSections Implementation">
-    <p-multiSelect [options]="cars" [(ngModel)]="selectedCars2" [updateLabelFunction]="updateLabel"></p-multiSelect>
-    <p>Selected Cars: {{selectedCars2}}</p>
-</div>
-
 <div class="ContentSideSections Source">
     <p-tabView effect="fade">
         <p-tabPanel header="Documentation">
@@ -57,27 +52,6 @@ export class MyModel &#123;
 </code>
 </pre>
 
-            <h3>Custom label</h3>
-            <p>You can also specify custom label by providing function to generate it.</p>
-<pre>
-<code class="language-markup" pCode>
-&lt;p-multiSelect [options]="cars" [(ngModel)]="selectedCars2" [updateLabelFunction]="updateLabel"&gt;&lt;/p-multiSelect&gt;
-</code>
-</pre>
-            <p>You just need to implement it.</p>
-            <pre>
-<code class="language-typescript" pCode>
-    public updateLabel(items:any[], defaultLabel:string): string &#123;
-        if (items && items.length) &#123;
-            return "Chosen: " + items.length;
-        &#125;
-        else &#123;
-            return defaultLabel;
-        &#125;
-    &#125;
-</code>
-</pre>
-
             <h3>Model Driven Forms</h3>
             <p>MultiSelect can be used in a model driven form as well.</p>
 <pre>
@@ -115,12 +89,6 @@ export class MyModel &#123;
                             <td>string</td>
                             <td>Choose</td>
                             <td>Label to display when there are no selections.</td>
-                        </tr>
-                        <tr>
-                            <td>updateLabelFunction</td>
-                            <td>Function</td>
-                            <td>defaultLabel or list of items selected</td>
-                            <td>Function to create label text. Takes two parameters: items:any[] and defaultLabel:string</td>
                         </tr>
                         <tr>
                             <td>style</td>
@@ -229,10 +197,6 @@ export class MyModel &#123;
 &lt;p-multiSelect [options]="cars" [(ngModel)]="selectedCars"&gt;&lt;/p-multiSelect&gt;
 
 &lt;p&gt;Selected Cars: {{selectedCars}}&lt;/p&gt;
-
-&lt;p-multiSelect [options]="cars" [(ngModel)]="selectedCars2" [updateLabelFunction]="updateLabel"&gt;&lt;/p-multiSelect&gt;
-
-&lt;p&gt;Selected Cars: {{selectedCars2}}&lt;/p&gt;
 </code>
 </pre>
 
@@ -243,7 +207,6 @@ export class MultiSelectDemo &#123;
     cars: SelectItem[];
 
     selectedCars: string[] = [];
-    selectedCars2: string[] = [];
 
     constructor() &#123;
         this.cars = [];
@@ -257,15 +220,6 @@ export class MultiSelectDemo &#123;
         this.cars.push(&#123;label: 'Renault', value: 'Renault'&#125;);
         this.cars.push(&#123;label: 'VW', value: 'VW'&#125;);
         this.cars.push(&#123;label: 'Volvo', value: 'Volvo'&#125;);
-    &#125;
-
-    public updateLabel(items:any[], defaultLabel:string): string &#123;
-        if (items && items.length) &#123;
-            return "Chosen: " + items.length;
-        &#125;
-        else &#123;
-            return defaultLabel;
-        &#125;
     &#125;
 &#125;
 </code>

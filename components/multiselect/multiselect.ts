@@ -17,7 +17,7 @@ export const MULTISELECT_VALUE_ACCESSOR: any = {
         <div [ngClass]="{'ui-multiselect ui-widget ui-state-default ui-corner-all':true,'ui-state-focus': focus,'ui-state-disabled': disabled}" [ngStyle]="style" [class]="styleClass"
             (mouseenter)="onMouseenter($event)" (mouseleave)="onMouseleave($event)" (click)="onMouseclick($event,in)">
             <div class="ui-helper-hidden-accessible">
-                <input #in type="text" readonly="readonly" (focus)="onFocus($event)" (blur)="onBlur($event)">
+                <input #in type="text" readonly="readonly" (focus)="onFocus($event)" (blur)="onBlur($event)" [disabled]="disabled">
             </div>
             <div class="ui-multiselect-label-container" [title]="valuesAsString">
                 <label [ngClass]="{'ui-multiselect-label ui-corner-all':true,'ui-state-hover':hover,'ui-state-focus':focus}">{{valuesAsString}}</label>
@@ -87,37 +87,39 @@ export class MultiSelect implements OnInit,AfterViewInit,AfterViewChecked,DoChec
     
     @Input() overlayVisible: boolean;
     
-    value: any[];
+    public value: any[];
     
-    onModelChange: Function = () => {};
+    public onModelChange: Function = () => {};
     
-    onModelTouched: Function = () => {};
+    public onModelTouched: Function = () => {};
     
-    protected valuesAsString: string;
+    public valuesAsString: string;
     
-    protected hover: boolean;
+    public hover: boolean;
     
-    protected focus: boolean;
+    public focus: boolean;
     
-    protected documentClickListener: any;
+    public documentClickListener: any;
     
-    protected panel: any;
+    public panel: any;
     
-    protected container: any;
+    public container: any;
     
-    protected selfClick: boolean;
+    public selfClick: boolean;
     
-    protected panelClick: boolean;
+    public panelClick: boolean;
     
-    protected filterValue: string;
+    public filterValue: string;
     
-    protected visibleOptions: SelectItem[];
+    public visibleOptions: SelectItem[];
     
-    protected filtered: boolean;
+    public filtered: boolean;
     
-    differ: any;
+    public hoverToggleAll: boolean;
     
-    constructor(protected el: ElementRef, protected domHandler: DomHandler, protected renderer: Renderer, differs: IterableDiffers) {
+    public differ: any;
+    
+    constructor(public el: ElementRef, public domHandler: DomHandler, public renderer: Renderer, differs: IterableDiffers) {
         this.differ = differs.find([]).create(null);
     }
     
@@ -285,22 +287,22 @@ export class MultiSelect implements OnInit,AfterViewInit,AfterViewChecked,DoChec
         this.onModelTouched();
     }
     
-    updateLabel(value: any[], defaultLabel: string): string {
-        if(value && value.length) {
+    updateLabel() {
+        if(this.value && this.value.length) {
             let label = '';
-            for(let i = 0; i < value.length; i++) {
+            for(let i = 0; i < this.value.length; i++) {
                 if(i != 0) {
                     label = label + ',';
                 }
-                label = label + this.findLabelByValue(value[i]);
+                label = label + this.findLabelByValue(this.value[i]);
             }
-            return label;
+            this.valuesAsString = label;
         }
         else {
-            return defaultLabel;
+            this.valuesAsString = this.defaultLabel;
         }
     }
-
+    
     findLabelByValue(val: any): string {
         let label = null;
         for(let i = 0; i < this.options.length; i++) {

@@ -1,11 +1,11 @@
 import {NgModule,Component,ElementRef,AfterViewInit,OnDestroy,DoCheck,Input,Output,EventEmitter,IterableDiffers} from '@angular/core';
 import {CommonModule} from '@angular/common';
 
+declare var jQuery: any;
+
 @Component({
     selector: 'p-schedule',
-    template: `
-        <div [ngStyle]="style" [class]="styleClass"></div>
-    `
+    template: '<div [ngStyle]="style" [class]="styleClass"></div>'
 })
 export class Schedule implements AfterViewInit,DoCheck,OnDestroy {
     
@@ -81,6 +81,8 @@ export class Schedule implements AfterViewInit,DoCheck,OnDestroy {
 
     @Input() eventRender: Function;
     
+    @Input() dayRender: Function;
+    
     @Output() onDayClick: EventEmitter<any> = new EventEmitter();
     
     @Output() onEventClick: EventEmitter<any> = new EventEmitter();
@@ -111,7 +113,7 @@ export class Schedule implements AfterViewInit,DoCheck,OnDestroy {
     
     schedule: any;
 
-    constructor(protected el: ElementRef, differs: IterableDiffers) {
+    constructor(public el: ElementRef, differs: IterableDiffers) {
         this.differ = differs.find([]).create(null);
         this.initialized = false;
     }
@@ -152,6 +154,7 @@ export class Schedule implements AfterViewInit,DoCheck,OnDestroy {
             eventOverlap: this.eventOverlap,
             eventConstraint: this.eventConstraint,
             eventRender: this.eventRender,
+            dayRender: this.dayRender,
             events: (start, end, timezone, callback) => {
                 callback(this.events);
             },

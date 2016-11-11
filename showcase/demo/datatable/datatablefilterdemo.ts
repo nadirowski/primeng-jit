@@ -9,7 +9,6 @@ import {LazyLoadEvent} from "../../../components/common/api";
 })
 export class DataTableFilterDemo implements OnInit {
 
-    datasource: Car[];
     totalRecords: number;
     cars: Car[];
     brands: SelectItem[] = [];
@@ -18,8 +17,6 @@ export class DataTableFilterDemo implements OnInit {
     constructor(private carService: CarService) {}
 
     ngOnInit() {
-
-        this.carService.getCarsLarge().then(cars => {this.datasource = cars; this.totalRecords = this.datasource.length;});
         this.carService.getCarsMedium().then(cars =>{ 
             this.cars = cars;
             this.brands = [];
@@ -31,20 +28,6 @@ export class DataTableFilterDemo implements OnInit {
         });
     }
 
-    loadCarsLazy(event: LazyLoadEvent) {
-        //in a real application, make a remote request to load data using state metadata from event
-        //event.first = First row offset
-        //event.rows = Number of rows per page
-        //event.sortField = Field name to sort with
-        //event.sortOrder = Sort order as number, 1 for asc and -1 for dec
-        //filters: FilterMetadata object having field as key and filter value, filter matchMode as value
-        console.log(event)
-        //imitate db connection over a network
-        setTimeout(() => {
-            this.cars = this.datasource.slice(event.first, (event.first + event.rows));
-        }, 250);
-    }
-    
     addBrandIfNotExists(item:SelectItem):void {
       let found = this.brands.some(function (elem:SelectItem) {
         return elem.label === item.label && elem.value === item.value ;

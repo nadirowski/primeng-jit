@@ -24,7 +24,7 @@ export class PrimeTemplate {
     
     @Input() type: string;
     
-    constructor(protected template: TemplateRef<any>) {}
+    constructor(public template: TemplateRef<any>) {}
 }
 
 @Directive({
@@ -36,7 +36,7 @@ export class TemplateWrapper implements OnInit {
     
     @Input('pTemplateWrapper') templateRef: TemplateRef<any>;
     
-    constructor(protected viewContainer: ViewContainerRef) {}
+    constructor(public viewContainer: ViewContainerRef) {}
     
     ngOnInit() {
         let view = this.viewContainer.createEmbeddedView(this.templateRef, {
@@ -66,13 +66,14 @@ export class Column implements AfterContentInit{
     @Input() hidden: boolean;
     @Input() expander: boolean;
     @Input() selectionMode: string;
+    @Input() filterPlaceholder: string;
     @Output() sortFunction: EventEmitter<any> = new EventEmitter();
     @ContentChildren(PrimeTemplate) templates: QueryList<any>;
     @ContentChild(TemplateRef) template: TemplateRef<any>;
     
-    protected headerTemplate: TemplateRef<any>;
-    protected bodyTemplate: TemplateRef<any>;    
-    protected footerTemplate: TemplateRef<any>;
+    public headerTemplate: TemplateRef<any>;
+    public bodyTemplate: TemplateRef<any>;    
+    public footerTemplate: TemplateRef<any>;
     
     ngAfterContentInit():void {
         this.templates.forEach((item) => {
@@ -98,6 +99,34 @@ export class Column implements AfterContentInit{
 }
 
 @Component({
+    selector: 'p-row',
+    template: ``
+})
+export class Row {
+    
+    @ContentChildren(Column) columns: QueryList<Column>;
+    
+}
+
+@Component({
+    selector: 'p-headerColumnGroup',
+    template: ``
+})
+export class HeaderColumnGroup {
+        
+    @ContentChildren(Row) rows: QueryList<any>;
+}
+
+@Component({
+    selector: 'p-footerColumnGroup',
+    template: ``
+})
+export class FooterColumnGroup {
+        
+    @ContentChildren(Row) rows: QueryList<any>;
+}
+
+@Component({
     selector: 'p-columnBodyTemplateLoader',
     template: ``
 })
@@ -109,7 +138,7 @@ export class ColumnBodyTemplateLoader {
     
     @Input() rowIndex: number;
     
-    constructor(protected viewContainer: ViewContainerRef) {}
+    constructor(public viewContainer: ViewContainerRef) {}
     
     ngOnInit() {
         let view = this.viewContainer.createEmbeddedView(this.column.bodyTemplate, {
@@ -128,7 +157,7 @@ export class ColumnHeaderTemplateLoader {
         
     @Input() column: any;
             
-    constructor(protected viewContainer: ViewContainerRef) {}
+    constructor(public viewContainer: ViewContainerRef) {}
     
     ngOnInit() {
         let view = this.viewContainer.createEmbeddedView(this.column.headerTemplate, {
@@ -145,7 +174,7 @@ export class ColumnFooterTemplateLoader {
         
     @Input() column: any;
             
-    constructor(protected viewContainer: ViewContainerRef) {}
+    constructor(public viewContainer: ViewContainerRef) {}
     
     ngOnInit() {
         let view = this.viewContainer.createEmbeddedView(this.column.footerTemplate, {
@@ -162,7 +191,7 @@ export class TemplateLoader {
         
     @Input() template: TemplateRef<any>;
             
-    constructor(protected viewContainer: ViewContainerRef) {}
+    constructor(public viewContainer: ViewContainerRef) {}
     
     ngOnInit() {
         if(this.template) {
@@ -173,7 +202,7 @@ export class TemplateLoader {
 
 @NgModule({
     imports: [CommonModule],
-    exports: [Header,Footer,Column,TemplateWrapper,ColumnHeaderTemplateLoader,ColumnBodyTemplateLoader,ColumnFooterTemplateLoader,PrimeTemplate,TemplateLoader],
-    declarations: [Header,Footer,Column,TemplateWrapper,ColumnHeaderTemplateLoader,ColumnBodyTemplateLoader,ColumnFooterTemplateLoader,PrimeTemplate,TemplateLoader]
+    exports: [Header,Footer,Column,TemplateWrapper,ColumnHeaderTemplateLoader,ColumnBodyTemplateLoader,ColumnFooterTemplateLoader,PrimeTemplate,TemplateLoader,Row,HeaderColumnGroup,FooterColumnGroup],
+    declarations: [Header,Footer,Column,TemplateWrapper,ColumnHeaderTemplateLoader,ColumnBodyTemplateLoader,ColumnFooterTemplateLoader,PrimeTemplate,TemplateLoader,Row,HeaderColumnGroup,FooterColumnGroup]
 })
 export class SharedModule { }
