@@ -118,8 +118,8 @@ export class RowExpansionLoader {
                                 </span>
                                 <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
                                      [ngClass]="{'fa-sort-desc': (getSortOrder(col) == -1),'fa-sort-asc': (getSortOrder(col) == 1)}"></span>
-                                <input type="text" pInputText class="ui-column-filter" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" [value]="filters[col.field] ? filters[col.field].value : ''" (click)="onFilterInputClick($event)" (keyup)="onFilterKeyup($event.target.value, col.field, col.filterMatchMode)"/>
-                                 <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event.target.value, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
+                                <input type="text" pInputText class="ui-column-filter" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" [value]="filters[col.field] ? filters[col.field].value : ''" (click)="onFilterInputClick($event)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
+                                 <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
                                    <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
                                 </select>
                                 <p-dtCheckbox *ngIf="col.selectionMode=='multiple'" (onChange)="toggleRowsWithCheckbox($event)" [checked]="allSelected" [disabled]="isEmpty()"></p-dtCheckbox>
@@ -139,8 +139,8 @@ export class RowExpansionLoader {
                                     </span>
                                     <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
                                          [ngClass]="{'fa-sort-desc': (getSortOrder(col) == -1),'fa-sort-asc': (getSortOrder(col) == 1)}"></span>
-                                    <input type="text" pInputText class="ui-column-filter" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" [value]="filters[col.field] ? filters[col.field].value : ''" (click)="onFilterInputClick($event)" (keyup)="onFilterKeyup($event.target.value, col.field, col.filterMatchMode)"/>
-                                    <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event.target.value, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
+                                    <input type="text" pInputText class="ui-column-filter" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" [value]="filters[col.field] ? filters[col.field].value : ''" (click)="onFilterInputClick($event)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
+                                    <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
                                        <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
                                     </select>
                                     
@@ -223,8 +223,8 @@ export class RowExpansionLoader {
                                     </span>
                                     <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
                                          [ngClass]="{'fa-sort-desc': (col.field === sortField) && (sortOrder == -1),'fa-sort-asc': (col.field === sortField) && (sortOrder == 1)}"></span>
-                                    <input type="text" pInputText class="ui-column-filter" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" (click)="onFilterInputClick($event)" (keyup)="onFilterKeyup($event.target.value, col.field, col.filterMatchMode)"/>
-                                      <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event.target.value, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
+                                    <input type="text" pInputText class="ui-column-filter" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" (click)="onFilterInputClick($event)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
+                                      <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
                                       <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
                                     </select>
                                     <p-dtCheckbox *ngIf="col.selectionMode=='multiple'" (onChange)="toggleRowsWithCheckbox($event)" [checked]="allSelected" [disabled]="isEmpty()"></p-dtCheckbox>
@@ -316,7 +316,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
     
     @Output() onContextMenuSelect: EventEmitter<any> = new EventEmitter();
 
-    @Input() filterDelay: number = 300;
+    @Input() filterDelay: number = 400;
 
     @Input() lazy: boolean;
 
@@ -1007,16 +1007,17 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
         return val;
     }
 
-    onFilterKeyup(value, field, matchMode) {
+    onFilterKeyup(event, field, matchMode) {
+        
         if(this.filterTimeout) {
             clearTimeout(this.filterTimeout);
         }
 
         this.filterTimeout = setTimeout(() => {
-            this.filters[field] = {value: value, matchMode: matchMode};
+            this.filters[field] = {value: event.target.value, matchMode: matchMode};
             this.filter();
             this.filterTimeout = null;
-        }, this.filterDelay);
+        }, event.keyCode == 13 ? this.filterDelay: -1);
     }
 
     filter() {
