@@ -504,8 +504,12 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
       applyDefaultFilters() {
         if(this.columns) {
             this.columns.forEach(column => {
-                if(column.filterValues && column.defaultFilterValue) {
-                    this.filters[column.field] = {value: column.defaultFilterValue.value, matchMode: undefined};
+                if(column.filterValues) {
+                    if (column.defaultFilterValue) {
+                        this.filters[column.field] = {value: column.defaultFilterValue.value, matchMode: undefined};
+                    } else if (column.filterValues.length > 0) {
+                        this.filters[column.field] = {value: column.filterValues[0].value, matchMode: undefined};
+                    }
                 }
             });
         }
