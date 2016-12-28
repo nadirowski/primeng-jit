@@ -118,7 +118,8 @@ export class RowExpansionLoader {
                                 </span>
                                 <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
                                      [ngClass]="{'fa-sort-desc': (getSortOrder(col) == -1),'fa-sort-asc': (getSortOrder(col) == 1)}"></span>
-                                <input type="text" pInputText class="ui-column-filter" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" [value]="filters[col.field] ? filters[col.field].value : ''" (click)="onFilterInputClick($event)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
+                                <input type="text" pInputText class="ui-column-filter" [attr.type]="col.filterNumeric ? 'number' : 'text'" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" [value]="filters[col.field] ? filters[col.field].value : ''" 
+                                    (click)="onFilterInputClick($event)" (change)="onFilterInputChange($event)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
                                  <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
                                    <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
                                 </select>
@@ -139,7 +140,8 @@ export class RowExpansionLoader {
                                     </span>
                                     <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
                                          [ngClass]="{'fa-sort-desc': (getSortOrder(col) == -1),'fa-sort-asc': (getSortOrder(col) == 1)}"></span>
-                                    <input type="text" pInputText class="ui-column-filter" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" [value]="filters[col.field] ? filters[col.field].value : ''" (click)="onFilterInputClick($event)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
+                                    <input type="text" pInputText class="ui-column-filter" [attr.type]="col.filterNumeric ? 'number' : 'text'" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" [value]="filters[col.field] ? filters[col.field].value : ''" 
+                                        (click)="onFilterInputClick($event)" (change)="onFilterInputChange($event)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
                                     <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
                                        <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
                                     </select>
@@ -223,7 +225,8 @@ export class RowExpansionLoader {
                                     </span>
                                     <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
                                          [ngClass]="{'fa-sort-desc': (col.field === sortField) && (sortOrder == -1),'fa-sort-asc': (col.field === sortField) && (sortOrder == 1)}"></span>
-                                    <input type="text" pInputText class="ui-column-filter" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" (click)="onFilterInputClick($event)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
+                                    <input type="text" pInputText class="ui-column-filter" [attr.type]="col.filterNumeric ? 'number' : 'text'" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" (click)="onFilterInputClick($event)" 
+                                        (change)="onFilterInputChange($event)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
                                       <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
                                       <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
                                     </select>
@@ -1011,18 +1014,53 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
         return val;
     }
 
+    //for supporting spinner arrows on number typed input
+    onFilterInputChange(event){
+        if(event.target.type === "number" && this.isNotAllowedForNumericFilter(event)){
+            event.stopPropagation();
+        }
+        else
+        {
+            event.target.dispatchEvent(new Event('keyup'));
+        }
+    }
+
     onFilterKeyup(event, field, matchMode) {
         
         if(this.filterTimeout) {
             clearTimeout(this.filterTimeout);
         }
 
+        let filterTimeoutDelay = this.filterDelay;
+        if(event.target.type === "number" && this.isNotAllowedForNumericFilter(event)){
+            //setTimeout using a 32 bit int to store the delay so the max value allowed would be:
+            filterTimeoutDelay = 2147483647;
+        }
+       //enter
+        else if(event.keyCode == 13){
+            filterTimeoutDelay = -1;
+        }
+
         this.filterTimeout = setTimeout(() => {
             this.filters[field] = {value: event.target.value, matchMode: matchMode};
             this.filter();
             this.filterTimeout = null;
-        }, event.keyCode == 13 ? this.filterDelay: -1);
+        }, filterTimeoutDelay);
     }
+
+    isNotAllowedForNumericFilter(event){
+        if(event.key == "."){
+            return true;
+        }
+
+        let filterNumber = +event.target.value;
+        let maxIntValue = 2147483647;
+        if(filterNumber >= maxIntValue){ 
+            return true;
+        }
+
+        return false;
+     }
 
     filter() {
         this.first = 0;
