@@ -1038,6 +1038,8 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
             clearTimeout(this.filterTimeout);
         }
 
+        this.filters[field] = {value: event.target.value, matchMode: matchMode};
+        
         let filterTimeoutDelay = this.filterDelay;
         if(this.areFiltersValuesInvalid()){
             //setTimeout using a 32 bit int to store the delay so the max value allowed would be:
@@ -1049,7 +1051,6 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
         }
 
         this.filterTimeout = setTimeout(() => {
-            this.filters[field] = {value: event.target.value, matchMode: matchMode};
             this.filter();
             this.filterTimeout = null;
         }, filterTimeoutDelay);
