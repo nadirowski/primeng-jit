@@ -181,6 +181,10 @@
     margin-top: 4px;
 }
 
+.ui-datatable .ui-column-filter-error {
+    border: 1px solid red
+}
+
 /* Editing */
 .ui-datatable td.ui-cell-editing {
     padding: 0px;

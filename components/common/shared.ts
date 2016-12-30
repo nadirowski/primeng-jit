@@ -68,6 +68,10 @@ export class Column implements AfterContentInit{
     @Input() selectionMode: string;
     @Input() filterPlaceholder: string;
     @Input() filterNumeric: boolean;
+    @Input() filterAllowDecimals: boolean;
+    @Input() filterNumericMaxValue: number;
+    @Input() filterNumericMinValue: number;
+    @Input() isFilterValid: boolean = true;
     @Output() sortFunction: EventEmitter<any> = new EventEmitter();
     @ContentChildren(PrimeTemplate) templates: QueryList<any>;
     @ContentChild(TemplateRef) template: TemplateRef<any>;
