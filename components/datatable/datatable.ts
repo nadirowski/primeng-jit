@@ -1068,7 +1068,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
 
     numericFilterValidator(filterValue, prop){
         let column = this.columnsDictionary[prop];
-        if(column.filterNumeric)
+        if(column.filterNumeric && filterValue != "")
         {
             let reg = new RegExp('');
             if(column.filterAllowDecimals){
