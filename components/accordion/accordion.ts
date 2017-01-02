@@ -76,6 +76,8 @@ export class AccordionTab {
 
     @Input() disabled: boolean;
     
+    @Input() name:string;
+    
     @Output() selectedChange: EventEmitter<any> = new EventEmitter();
 
     @ContentChild(Header) headerFacet;
