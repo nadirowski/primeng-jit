@@ -24,6 +24,8 @@ export class Accordion implements BlockableUI {
     
     @Input() styleClass: string;
     
+    @Input() businessObject: any;
+    
     public tabs: AccordionTab[] = [];
 
     constructor(public el: ElementRef) {}
