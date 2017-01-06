@@ -13,7 +13,15 @@
         <i class="fa fa-search" style="float:left;margin:4px 4px 0 0"></i>
         <input #gb type="text" pInputText size="50" style="float:left" placeholder="Global Filter">
     </div>
-    <p-dataTable [value]="cars" [rows]="10" [paginator]="true" [globalFilter]="gb">
+    <p-dataTable [value]="cars" [rows]="10" [paginator]="true" [globalFilter]="gb" [seqNum]="1">
+        <header>List of Cars</header>
+        <p-column field="vin" header="Vin (startsWith)" [filter]="true" filterPlaceholder="Search"></p-column>
+        <p-column field="year" header="Year (contains)" [filter]="true" filterMatchMode="contains"></p-column>
+        <p-column field="brand" header="Brand (select)" [filter]="true" [filterValues]="brands" [sortable]="true"  [defaultFilterValue]="defaultBrand">
+        </p-column>
+        <p-column field="color" header="Color (endsWith)" [filter]="true" filterMatchMode="endsWith"></p-column>
+    </p-dataTable>
+    <p-dataTable [value]="cars" [rows]="10" [paginator]="true" [globalFilter]="gb" [seqNum]="2">
         <header>List of Cars</header>
         <p-column field="vin" header="Vin (startsWith)" [filter]="true" filterPlaceholder="Search"></p-column>
         <p-column field="year" header="Year (contains)" [filter]="true" filterMatchMode="contains"></p-column>

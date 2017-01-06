@@ -174,7 +174,7 @@ export class RowExpansionLoader {
                     </tfoot>
                     <tbody class="ui-datatable-data ui-widget-content">
                         <template ngFor let-rowData [ngForOf]="dataToRender" let-even="even" let-odd="odd" let-rowIndex="index">
-                            <tr tabindex="{{-rowIndex}}" #rowElement class="ui-widget-content tabable" (mouseenter)="hoveredRow = $event.target" (mouseleave)="hoveredRow = null" (keydown)="rowKeyDown($event, rowIndex)"
+                            <tr tabindex="{{calculateIndex(rowIndex)}}" #rowElement class="ui-widget-content tabable" (mouseenter)="hoveredRow = $event.target" (mouseleave)="hoveredRow = null" (keydown)="rowKeyDown($event, rowIndex)"
                                     (click)="handleRowClick($event, rowData)" (dblclick)="rowDblclick($event,rowData)" (contextmenu)="onRowRightClick($event,rowData)" (touchstart)="handleRowTap($event, rowData)"
                                     [ngClass]="{'ui-datatable-even':even,'ui-datatable-odd':odd,'ui-state-hover': (selectionMode && rowElement == hoveredRow), 'ui-state-highlight': isSelected(rowData)}">
                                 <td *ngFor="let col of columns;let colIndex = index" [ngStyle]="col.style" [class]="col.styleClass" [style.display]="col.hidden ? 'none' : 'table-cell'"
@@ -241,7 +241,7 @@ export class RowExpansionLoader {
                 <table [class]="tableStyleClass" [ngStyle]="tableStyle">
                     <tbody class="ui-datatable-data ui-widget-content">
                         <template ngFor let-rowData [ngForOf]="dataToRender" let-even="even" let-odd="odd" let-rowIndex="index">
-                            <tr tabindex="{{-rowIndex}}" #rowElement class="ui-widget-content tabable" (mouseenter)="hoveredRow = $event.target" (mouseleave)="hoveredRow = null" (keydown)="rowKeyDown($event, rowIndex)"
+                            <tr tabindex="{{calculateIndex(rowIndex)}}" #rowElement class="ui-widget-content tabable" (mouseenter)="hoveredRow = $event.target" (mouseleave)="hoveredRow = null" (keydown)="rowKeyDown($event, rowIndex)"
                                     (click)="handleRowClick($event, rowData)" (dblclick)="rowDblclick($event,rowData)" (contextmenu)="onRowRightClick($event,rowData)"
                                     [ngClass]="{'ui-datatable-even':even,'ui-datatable-odd':odd,'ui-state-hover': (selectionMode && rowElement == hoveredRow), 'ui-state-highlight': isSelected(rowData)}">
                                 <td *ngFor="let col of columns; let colIndex = index;" [ngStyle]="col.style" [class]="col.styleClass" [style.display]="col.hidden ? 'none' : 'table-cell'"
@@ -282,6 +282,8 @@ export class RowExpansionLoader {
     providers: [DomHandler]
 })
 export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentInit,OnInit,DoCheck,OnDestroy,BlockableUI {
+
+    @Input() seqNum:number = 1;
 
     @Input() value: any[];
 
@@ -823,7 +825,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
     }
 
     rowKeyDown(event, index){
-        let tabindex = -index;
+        let tabindex = this.calculateIndex(index);
         if(event.code === 'ArrowDown'){
             event.preventDefault();
             if(this.dataToRender.length > index){
@@ -838,6 +840,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
             }
         }else if (event.keyCode == 13){
             this.rowDblclick(event, this.dataToRender[index])
+            event.target.blur();
         }
     }
 
@@ -849,6 +852,10 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
                 break;
             }
         }
+    }
+
+    calculateIndex(index){
+        return -(index + this.seqNum * 100);
     }
     
     handleRowClick(event, rowData, forceRowClick?) {
