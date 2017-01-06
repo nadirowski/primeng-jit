@@ -174,7 +174,7 @@ export class RowExpansionLoader {
                     </tfoot>
                     <tbody class="ui-datatable-data ui-widget-content">
                         <template ngFor let-rowData [ngForOf]="dataToRender" let-even="even" let-odd="odd" let-rowIndex="index">
-                            <tr #rowElement class="ui-widget-content" (mouseenter)="hoveredRow = $event.target" (mouseleave)="hoveredRow = null"
+                            <tr tabindex="{{-rowIndex}}" #rowElement class="ui-widget-content tabable" (mouseenter)="hoveredRow = $event.target" (mouseleave)="hoveredRow = null" (keydown)="rowKeyDown($event, rowIndex)"
                                     (click)="handleRowClick($event, rowData)" (dblclick)="rowDblclick($event,rowData)" (contextmenu)="onRowRightClick($event,rowData)" (touchstart)="handleRowTap($event, rowData)"
                                     [ngClass]="{'ui-datatable-even':even,'ui-datatable-odd':odd,'ui-state-hover': (selectionMode && rowElement == hoveredRow), 'ui-state-highlight': isSelected(rowData)}">
                                 <td *ngFor="let col of columns;let colIndex = index" [ngStyle]="col.style" [class]="col.styleClass" [style.display]="col.hidden ? 'none' : 'table-cell'"
@@ -241,7 +241,7 @@ export class RowExpansionLoader {
                 <table [class]="tableStyleClass" [ngStyle]="tableStyle">
                     <tbody class="ui-datatable-data ui-widget-content">
                         <template ngFor let-rowData [ngForOf]="dataToRender" let-even="even" let-odd="odd" let-rowIndex="index">
-                            <tr #rowElement class="ui-widget-content" (mouseenter)="hoveredRow = $event.target" (mouseleave)="hoveredRow = null"
+                            <tr tabindex="{{-rowIndex}}" #rowElement class="ui-widget-content tabable" (mouseenter)="hoveredRow = $event.target" (mouseleave)="hoveredRow = null" (keydown)="rowKeyDown($event, rowIndex)"
                                     (click)="handleRowClick($event, rowData)" (dblclick)="rowDblclick($event,rowData)" (contextmenu)="onRowRightClick($event,rowData)"
                                     [ngClass]="{'ui-datatable-even':even,'ui-datatable-odd':odd,'ui-state-hover': (selectionMode && rowElement == hoveredRow), 'ui-state-highlight': isSelected(rowData)}">
                                 <td *ngFor="let col of columns; let colIndex = index;" [ngStyle]="col.style" [class]="col.styleClass" [style.display]="col.hidden ? 'none' : 'table-cell'"
@@ -503,8 +503,8 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
             this.changeDetector.markForCheck();
         });
     }
-    
-      applyDefaultFilters() {
+
+     applyDefaultFilters() {
         if(this.columns) {
             this.columns.forEach(column => {
                 if(column.filterValues) {
@@ -821,15 +821,44 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
         }
         return order;
     }
+
+    rowKeyDown(event, index){
+        let tabindex = -index;
+        if(event.code === 'ArrowDown'){
+            event.preventDefault();
+            if(this.dataToRender.length > index){
+                this.handleRowClick(event,  this.dataToRender[index+1], true)
+                this.focusOnRowWithTabIndex( tabindex-1)
+            }
+        }else if(event.code === 'ArrowUp'){
+            event.preventDefault();
+            if(index > 0){
+                this.handleRowClick(event,  this.dataToRender[index-1], true)
+                this.focusOnRowWithTabIndex( tabindex+1)
+            }
+        }else if (event.keyCode == 13){
+            this.rowDblclick(event, this.dataToRender[index])
+        }
+    }
+
+    private focusOnRowWithTabIndex(index){
+        let tabbables = document.getElementsByClassName("tabable"); //get all tabable elements
+        for(let i=0; i<tabbables.length; i++) { //loop through each element
+            if((<HTMLElement>tabbables[i]).tabIndex == (index)) { //check the tabindex to see if it's the element we want
+                (<HTMLElement>tabbables[i]).focus(); //if it's the one we want, focus it and exit the loop
+                break;
+            }
+        }
+    }
     
-    handleRowClick(event, rowData) {
+    handleRowClick(event, rowData, forceRowClick?) {
         if(this.rowTouch) {
             this.rowTouch = false;
             return false;
         }
         
         let targetNode = event.target.nodeName;
-        if(targetNode == 'TD' || (targetNode == 'SPAN' && !this.domHandler.hasClass(event.target, 'ui-c'))) {
+        if(targetNode == 'TD' || (targetNode == 'SPAN' && !this.domHandler.hasClass(event.target, 'ui-c')) || forceRowClick) {
             this.onRowClick.next({originalEvent: event, data: rowData});
             
             if(!this.selectionMode) {
