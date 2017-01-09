@@ -119,7 +119,7 @@ export class RowExpansionLoader {
                                 <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
                                      [ngClass]="{'fa-sort-desc': (getSortOrder(col) == -1),'fa-sort-asc': (getSortOrder(col) == 1)}"></span>
                                 <input type="text" pInputText class="ui-column-filter" [ngClass]="{'ui-column-filter-error': col.isFilterNotValid}" [attr.type]="col.filterNumeric ? 'number' : 'text'" [attr.min]="col.filterNumericMinValue != undefined ? col.filterNumericMinValue : null" 
-                                    [attr.max]="col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : null" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" [value]="filters[col.field] ? filters[col.field].value : ''" 
+                                    [attr.max]="col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : null" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" 
                                     (click)="onFilterInputClick($event)" (change)="onFilterInputChange($event, col.field)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
                                  <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
                                    <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
@@ -141,7 +141,7 @@ export class RowExpansionLoader {
                                     </span>
                                     <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
                                          [ngClass]="{'fa-sort-desc': (getSortOrder(col) == -1),'fa-sort-asc': (getSortOrder(col) == 1)}"></span>
-                                    <input type="text" pInputText class="ui-column-filter" [ngClass]="{'ui-column-filter-error': col.isFilterNotValid}" [attr.type]="col.filterNumeric ? 'number' : 'text'" [attr.min]="col.filterNumericMinValue != undefined ? col.filterNumericMinValue : null"                 [attr.max]="col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : null" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" [value]="filters[col.field] ? filters[col.field].value : ''" 
+                                    <input type="text" pInputText class="ui-column-filter" [ngClass]="{'ui-column-filter-error': col.isFilterNotValid}" [attr.type]="col.filterNumeric ? 'number' : 'text'" [attr.min]="col.filterNumericMinValue != undefined ? col.filterNumericMinValue : null"                 [attr.max]="col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : null" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues"
                                         (click)="onFilterInputClick($event)" (change)="onFilterInputChange($event, col.field)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
                                     <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
                                        <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
@@ -1103,6 +1103,10 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
                 });
                 //this.columns.filter(column => column.field == prop)[0].isFilterNotValid = true;
                 return true;
+            }
+            else
+            {
+                this.columns.filter(column => column.field == prop)[0].isFilterNotValid = false;
             }
         }
         return false;
