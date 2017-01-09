@@ -182,7 +182,7 @@
 }
 
 .ui-datatable .ui-column-filter-error {
-    border: 1px solid red
+    border: 1px solid #f44336 !important;
 }
 
 /* Editing */
