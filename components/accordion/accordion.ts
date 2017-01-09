@@ -24,6 +24,8 @@ export class Accordion implements BlockableUI {
     
     @Input() styleClass: string;
     
+    @Input() businessObject: any;
+    
     public tabs: AccordionTab[] = [];
 
     constructor(public el: ElementRef) {}
@@ -75,6 +77,8 @@ export class AccordionTab {
     @Input() selected: boolean;
 
     @Input() disabled: boolean;
+    
+    @Input() name:string;
     
     @Output() selectedChange: EventEmitter<any> = new EventEmitter();
 
