@@ -1101,14 +1101,12 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
                 if(this.numericFilterValidator(filter.value, column)) {
                     column.isFilterNotValid = true;
                     column.sortable = false;
-                    event.target.type = "text";
                     return true;
                 }
                 else
                 {
                     column.isFilterNotValid = false;
                     column.sortable = true;
-                    event.target.type = "number";
                     return false;
                 }
             }
