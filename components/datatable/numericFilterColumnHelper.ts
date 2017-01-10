@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
-import {Column} from '../common/shared';
+import {Column, HeaderColumnGroup} from '../common/shared';
 
 @Injectable()
-export class FilterColumnValidatorHelper{
-
-    validateNumericFilter(filterValue: any, column: Column){
+export class NumericFilterColumnHelper{
+    isNumericFilterNotValid(filterValue: any, column: Column){
         if(column.filterNumeric && filterValue != "")
         {
             if(column.filterAllowDecimals && isNaN(Number(filterValue))){
@@ -33,9 +32,26 @@ export class FilterColumnValidatorHelper{
         return false;
     }
 
-    changeColumnSortSetting(columnsDictionary: {[s: string]: Column;}, sortInitialSettings: {[s: string]: boolean;}, globalSortingEnabled: boolean) {
+    changeColumnSortSetting(columnsDictionary, sortInitialSettings, globalSortingEnabled: boolean) {
         for(let prop in columnsDictionary) {
             columnsDictionary[prop].sortable = globalSortingEnabled && sortInitialSettings[prop];
         }   
+    }
+
+    changeHeaderColumnGroupSortSetting(headerColumnGroup: HeaderColumnGroup, sortInitialSettings, globalSortingEnabled: boolean) {
+        headerColumnGroup.rows.forEach(row => {
+            row.columns.forEach(column => {
+                column.sortable = globalSortingEnabled && sortInitialSettings[column.field];
+            });
+        });
+    }
+
+    SetFilterInputInHeaderColumnGroup(headerColumnGroup: HeaderColumnGroup, prop: string, filterInputNotValid: boolean){
+        headerColumnGroup.rows.forEach(row => {
+            let columnFound = row.columns.filter(column => column.field == prop)[0];
+            if(columnFound){
+                columnFound.isFilterInputNotValid = filterInputNotValid;
+            }
+        });
     }
 }

@@ -10,7 +10,7 @@ import {LazyLoadEvent,FilterMetadata,SortMeta, SelectItem} from '../common/api';
 import {DomHandler} from '../dom/domhandler';
 import {Subscription} from 'rxjs/Subscription';
 import {BlockableUI} from '../common/api';
-import {FilterColumnValidatorHelper} from './filterColumnValidatorHelper';
+import {NumericFilterColumnHelper} from './numericFilterColumnHelper';
 
 @Component({
     selector: 'p-dtRadioButton',
@@ -280,7 +280,7 @@ export class RowExpansionLoader {
             </div>
         </div>
     `,
-    providers: [DomHandler, FilterColumnValidatorHelper]
+    providers: [DomHandler, NumericFilterColumnHelper]
 })
 export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentInit,OnInit,DoCheck,OnDestroy,BlockableUI {
 
@@ -479,7 +479,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
     columnsSubscription: Subscription;
 
     constructor(public el: ElementRef, public domHandler: DomHandler, differs: IterableDiffers, 
-            public renderer: Renderer, public filterColumnValidatorHelper: FilterColumnValidatorHelper, private changeDetector: ChangeDetectorRef) {
+            public renderer: Renderer, public filterColumnValidatorHelper: NumericFilterColumnHelper, private changeDetector: ChangeDetectorRef) {
         this.differ = differs.find([]).create(null);
     }
 
@@ -1061,7 +1061,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
 
     //for supporting spinner arrows on number typed input
     onFilterInputChange(event, field){
-        if(this.filterColumnValidatorHelper.validateNumericFilter(event.target.value, this.columnsDictionary[field])){
+        if(this.filterColumnValidatorHelper.isNumericFilterNotValid(event.target.value, this.columnsDictionary[field])){
             event.stopPropagation();
         }
         else
@@ -1096,35 +1096,35 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
     }
 
     areFiltersValuesInvalid(){
+        let filterInputNotValid = false;
         for(let prop in this.filters) {            
             let filter = this.filters[prop];
             let column = this.columnsDictionary[prop];
 
             if(column != undefined && column.filterNumeric)
             {
-                if(column.isFilterInputNotValid || this.filterColumnValidatorHelper.validateNumericFilter(filter.value, column)){
-                    column.isFilterInputNotValid = true;
-                    this.filterColumnValidatorHelper.changeColumnSortSetting(this.columnsDictionary, this.sortInitialSettings, false);
-                    
-                    if(this.headerColumnGroup){
-                        this.headerColumnGroup.rows.forEach(row => {
-                            row.forEach(column => {
-                                column.isFilterInputNotValid = true;
-                            });
-                        });
-                    }
-
-                    return true;
+                filterInputNotValid = column.isFilterInputNotValid || this.filterColumnValidatorHelper.isNumericFilterNotValid(filter.value, column);
+                column.isFilterInputNotValid = filterInputNotValid;
+                
+                if(this.headerColumnGroup) {
+                    this.filterColumnValidatorHelper.SetFilterInputInHeaderColumnGroup(this.headerColumnGroup, prop, filterInputNotValid)            
                 }
-                else
+                
+                if(filterInputNotValid)
                 {
-                    column.isFilterInputNotValid = false;
-                    this.filterColumnValidatorHelper.changeColumnSortSetting(this.columnsDictionary, this.sortInitialSettings, true);
-                    return false;
+                    break;
                 }
             }
         }
-        return false;
+
+        if(this.headerColumnGroup) {
+            this.filterColumnValidatorHelper.changeColumnSortSetting(this.columnsDictionary, this.sortInitialSettings, filterInputNotValid ? false : true);
+        }
+        else {
+            this.filterColumnValidatorHelper.changeHeaderColumnGroupSortSetting(this.headerColumnGroup, this.sortInitialSettings, filterInputNotValid ? false : true);
+        }
+
+        return filterInputNotValid;
     }
 
     filter() {
