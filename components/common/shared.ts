@@ -71,6 +71,7 @@ export class Column implements AfterContentInit{
     @Input() filterAllowDecimals: boolean;
     @Input() filterNumericMaxValue: number;
     @Input() filterNumericMinValue: number;
+    @Input() filterNumericStep: number;
     @Input() isFilterInputNotValid: boolean;
     @Output() sortFunction: EventEmitter<any> = new EventEmitter();
     @ContentChildren(PrimeTemplate) templates: QueryList<any>;

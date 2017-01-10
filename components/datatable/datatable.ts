@@ -10,6 +10,7 @@ import {LazyLoadEvent,FilterMetadata,SortMeta, SelectItem} from '../common/api';
 import {DomHandler} from '../dom/domhandler';
 import {Subscription} from 'rxjs/Subscription';
 import {BlockableUI} from '../common/api';
+import {FilterColumnValidatorHelper} from './filterColumnValidatorHelper';
 
 @Component({
     selector: 'p-dtRadioButton',
@@ -118,9 +119,8 @@ export class RowExpansionLoader {
                                 </span>
                                 <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
                                      [ngClass]="{'fa-sort-desc': (getSortOrder(col) == -1),'fa-sort-asc': (getSortOrder(col) == 1)}"></span>
-                                <input type="text" pInputText class="ui-column-filter" [ngClass]="{'ui-column-filter-error': col.isFilterInputNotValid}" [attr.type]="col.filterNumeric ? 'number' : 'text'" [attr.min]="col.filterNumericMinValue != undefined ? col.filterNumericMinValue : 0" 
-                                    [attr.max]="col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : null" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues"
-                                    (click)="onFilterInputClick($event)" (change)="onFilterInputChange($event, col.field)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
+                                <input type="text" pInputText class="ui-column-filter" [ngClass]="{'ui-column-filter-error': col.isFilterInputNotValid}" [attr.type]="col.filterNumeric ? 'number' : 'text'" [attr.min]="col.filterNumeric && col.filterNumericMinValue != undefined ?                          col.filterNumericMinValue : 0" [attr.max]="col.filterNumeric && col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : null" [attr.step]="col.filterNumeric && col.filterNumericStep != undefined ? col.filterNumericStep : 1" 
+                                    [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter && !col.filterValues" (click)="onFilterInputClick($event)" (change)="onFilterInputChange($event, col.field)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
                                  <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
                                    <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
                                 </select>
@@ -141,8 +141,8 @@ export class RowExpansionLoader {
                                     </span>
                                     <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
                                          [ngClass]="{'fa-sort-desc': (getSortOrder(col) == -1),'fa-sort-asc': (getSortOrder(col) == 1)}"></span>
-                                    <input type="text" pInputText class="ui-column-filter" [ngClass]="{'ui-column-filter-error': col.isFilterInputNotValid}" [attr.type]="col.filterNumeric ? 'number' : 'text'" [attr.min]="col.filterNumericMinValue != undefined ? col.filterNumericMinValue : 0"                 [attr.max]="col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : null" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues"
-                                        (click)="onFilterInputClick($event)" (change)="onFilterInputChange($event, col.field)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
+                                    <input type="text" pInputText class="ui-column-filter" [ngClass]="{'ui-column-filter-error': col.isFilterInputNotValid}" [attr.type]="col.filterNumeric ? 'number' : 'text'" [attr.min]="col.filterNumeric && col.filterNumericMinValue != undefined ?                      col.filterNumericMinValue : 0" [attr.max]="col.filterNumeric && col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : null" [attr.step]="col.filterNumeric && col.filterNumericStep != undefined ? col.filterNumericStep : 1" 
+                                        [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" (click)="onFilterInputClick($event)" (change)="onFilterInputChange($event, col.field)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
                                     <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
                                        <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
                                     </select>
@@ -226,10 +226,9 @@ export class RowExpansionLoader {
                                     </span>
                                     <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
                                          [ngClass]="{'fa-sort-desc': (col.field === sortField) && (sortOrder == -1),'fa-sort-asc': (col.field === sortField) && (sortOrder == 1)}"></span>
-                                    <input type="text" pInputText class="ui-column-filter" [ngClass]="{'ui-column-filter-error': col.isFilterInputNotValid}" [attr.type]="col.filterNumeric ? 'number' : 'text'" [attr.min]="col.filterNumericMinValue != undefined ? col.filterNumericMinValue : 0" 
-                                        [attr.max]="col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : null" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" (click)="onFilterInputClick($event)" 
-                                        (change)="onFilterInputChange($event, col.field)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
-                                      <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
+                                    <input type="text" pInputText class="ui-column-filter" [ngClass]="{'ui-column-filter-error': col.isFilterInputNotValid}" [attr.type]="col.filterNumeric ? 'number' : 'text'" [attr.min]="col.filterNumeric && col.filterNumericMinValue != undefined ?                      col.filterNumericMinValue : 0" [attr.max]="col.filterNumeric && col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : null" [attr.step]="col.filterNumeric && col.filterNumericStep != undefined ? col.filterNumericStep : 1" 
+                                        [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" (click)="onFilterInputClick($event)" (change)="onFilterInputChange($event, col.field)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
+                                    <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
                                       <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
                                     </select>
                                     <p-dtCheckbox *ngIf="col.selectionMode=='multiple'" (onChange)="toggleRowsWithCheckbox($event)" [checked]="allSelected" [disabled]="isEmpty()"></p-dtCheckbox>
@@ -281,7 +280,7 @@ export class RowExpansionLoader {
             </div>
         </div>
     `,
-    providers: [DomHandler]
+    providers: [DomHandler, FilterColumnValidatorHelper]
 })
 export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentInit,OnInit,DoCheck,OnDestroy,BlockableUI {
 
@@ -480,7 +479,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
     columnsSubscription: Subscription;
 
     constructor(public el: ElementRef, public domHandler: DomHandler, differs: IterableDiffers, 
-            public renderer: Renderer, private changeDetector: ChangeDetectorRef) {
+            public renderer: Renderer, public filterColumnValidatorHelper: FilterColumnValidatorHelper, private changeDetector: ChangeDetectorRef) {
         this.differ = differs.find([]).create(null);
     }
 
@@ -1062,7 +1061,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
 
     //for supporting spinner arrows on number typed input
     onFilterInputChange(event, field){
-        if(this.numericFilterValidator(event.target.value, this.columnsDictionary[field])){
+        if(this.filterColumnValidatorHelper.validateNumericFilter(event.target.value, this.columnsDictionary[field])){
             event.stopPropagation();
         }
         else
@@ -1080,6 +1079,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
         this.filters[field] = {value: event.target.value, matchMode: matchMode};
         this.columnsDictionary[field].isFilterInputNotValid = event.target.validity.badInput;
         let filterTimeoutDelay = this.filterDelay;
+
         if(this.areFiltersValuesInvalid()){
             //setTimeout using a 32 bit int to store the delay so the max value allowed would be:
             filterTimeoutDelay = 2147483647;
@@ -1099,62 +1099,23 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
         for(let prop in this.filters) {            
             let filter = this.filters[prop];
             let column = this.columnsDictionary[prop];
+
             if(column.filterNumeric)
             {
-                if(column.isFilterInputNotValid){
-                    this.changeColumnSortSetting(false);
-                    return true;
-                }
-                else if(this.numericFilterValidator(filter.value, column)) {
+                if(column.isFilterInputNotValid || this.filterColumnValidatorHelper.validateNumericFilter(filter.value, column)){
                     column.isFilterInputNotValid = true;
-                    this.changeColumnSortSetting(false);
+                    this.filterColumnValidatorHelper.changeColumnSortSetting(this.columnsDictionary, this.sortInitialSettings, false);
                     return true;
                 }
                 else
                 {
                     column.isFilterInputNotValid = false;
-                    this.changeColumnSortSetting(true);
+                    this.filterColumnValidatorHelper.changeColumnSortSetting(this.columnsDictionary, this.sortInitialSettings, true);
                     return false;
                 }
             }
         }
         return false;
-    }
-
-    numericFilterValidator(filterValue, column){
-        
-        if(column.filterNumeric && filterValue != "")
-        {
-            let reg = new RegExp('');
-            if(column.filterAllowDecimals){
-                reg = new RegExp('var regexp = /^[0-9]+([,.][0-9]+)?$/g;');
-            }
-            else{
-                reg = new RegExp('^[0-9]+$');
-            }
-
-            if(!reg.test(filterValue)){
-                return true;
-            } 
-
-            let maxIntValue = 2147483647;
-            filterValue = +filterValue;
-
-            if((column.filterNumericMaxValue != 0 ? filterValue > column.filterNumericMaxValue : false ) || filterValue > maxIntValue){
-                return true;
-            }
-
-            if((column.filterNumericMinValue != 0 ? filterValue < column.filterNumericMaxValue : false) || filterValue < -maxIntValue){ 
-                return true;
-            }
-        }
-        return false;
-     }
-
-    changeColumnSortSetting(globalSortingEnabled) {
-        for(let prop in this.columnsDictionary) {
-            this.columnsDictionary[prop].sortable = globalSortingEnabled && this.sortInitialSettings;
-        }   
     }
 
     filter() {
