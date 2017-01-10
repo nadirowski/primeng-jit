@@ -1105,6 +1105,15 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
                 if(column.isFilterInputNotValid || this.filterColumnValidatorHelper.validateNumericFilter(filter.value, column)){
                     column.isFilterInputNotValid = true;
                     this.filterColumnValidatorHelper.changeColumnSortSetting(this.columnsDictionary, this.sortInitialSettings, false);
+                    
+                    if(this.headerColumnGroup){
+                        this.headerColumnGroup.rows.forEach(row => {
+                            row.forEach(column => {
+                                column.isFilterInputNotValid = true;
+                            });
+                        });
+                    }
+
                     return true;
                 }
                 else
