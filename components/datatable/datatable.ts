@@ -1100,7 +1100,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
             let filter = this.filters[prop];
             let column = this.columnsDictionary[prop];
 
-            if(column.filterNumeric)
+            if(column != undefined && column.filterNumeric)
             {
                 if(column.isFilterInputNotValid || this.filterColumnValidatorHelper.validateNumericFilter(filter.value, column)){
                     column.isFilterInputNotValid = true;
