@@ -19,7 +19,6 @@ export interface LazyLoadEvent {
 export interface FilterMetadata {
     value?: string;
     matchMode?: string;
-    badInput: boolean;
 }
 
 export interface MenuItem {
