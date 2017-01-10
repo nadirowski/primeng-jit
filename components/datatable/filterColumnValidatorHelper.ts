@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {Column,Header,Footer,HeaderColumnGroup,FooterColumnGroup} from '../common/shared';
+import {Column} from '../common/shared';
 
 @Injectable()
 export class FilterColumnValidatorHelper{
@@ -10,7 +10,7 @@ export class FilterColumnValidatorHelper{
             if(column.filterAllowDecimals && isNaN(Number(filterValue))){
                 return true;
             }
-            else{
+            else if(!column.filterAllowDecimals){
                 let reg = new RegExp('');
                 reg = new RegExp('^[-+]?[0-9]+$');
                 
