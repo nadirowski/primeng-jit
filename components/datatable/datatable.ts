@@ -515,9 +515,9 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
             this.columns.forEach(column => {
                 if(column.filterValues) {
                     if (column.defaultFilterValue) {
-                        this.filters[column.field] = {value: column.defaultFilterValue.value, matchMode: undefined};
+                        this.filters[column.field] = {value: column.defaultFilterValue.value, matchMode: undefined, badInput: false};
                     } else if (column.filterValues.length > 0) {
-                        this.filters[column.field] = {value: column.filterValues[0].value, matchMode: undefined};
+                        this.filters[column.field] = {value: column.filterValues[0].value, matchMode: undefined, badInput: false};
                     }
                 }
             });
@@ -1074,10 +1074,10 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
             clearTimeout(this.filterTimeout);
         }
 
-        this.filters[field] = {value: event.target.value, matchMode: matchMode};
+        this.filters[field] = {value: event.target.value, matchMode: matchMode, badInput: event.target.validity.badInput};
         
         let filterTimeoutDelay = this.filterDelay;
-        if(this.areFiltersValuesInvalid(event)){
+        if(this.areFiltersValuesInvalid()){
             //setTimeout using a 32 bit int to store the delay so the max value allowed would be:
             filterTimeoutDelay = 2147483647;
         }
@@ -1092,13 +1092,13 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
         }, filterTimeoutDelay);
     }
 
-    areFiltersValuesInvalid(event){
+    areFiltersValuesInvalid(){
         for(let prop in this.filters) {            
             let filter = this.filters[prop];
             let column = this.columns.filter(column => column.field == prop)[0]
             if(column.filterNumeric)
             {
-                if(this.numericFilterValidator(filter.value, column)) {
+                if(filter.badInput || this.numericFilterValidator(filter.value, column)) {
                     column.isFilterNotValid = true;
                     column.sortable = false;
                     return true;
