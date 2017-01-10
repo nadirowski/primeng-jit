@@ -7,17 +7,17 @@ export class FilterColumnValidatorHelper{
     validateNumericFilter(filterValue: any, column: Column){
         if(column.filterNumeric && filterValue != "")
         {
-            let reg = new RegExp('');
-            if(column.filterAllowDecimals){
-                reg = new RegExp('/(\d+(\.\d+)?)/');
+            if(column.filterAllowDecimals && isNaN(Number(filterValue))){
+                return true;
             }
             else{
-                reg = new RegExp('^[0-9]+$');
+                let reg = new RegExp('');
+                reg = new RegExp('^[-+]?[0-9]+$');
+                
+                if(!reg.test(filterValue)){
+                    return true;
+                } 
             }
-
-            if(!reg.test(filterValue)){
-                return true;
-            } 
 
             let maxIntValue = 2147483647;
             filterValue = +filterValue;
