@@ -26,7 +26,7 @@ export class FilterColumnValidatorHelper{
                 return true;
             }
 
-            if((column.filterNumericMinValue != undefined ? filterValue < column.filterNumericMinValue : false) || filterValue < -maxIntValue){ 
+            if((column.filterNumericMinValue != undefined ? filterValue < column.filterNumericMinValue : false) || filterValue < 0){ 
                 return true;
             }
         }
