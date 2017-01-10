@@ -1075,7 +1075,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
         }
 
         this.filters[field] = {value: event.target.value, matchMode: matchMode};
-        this.columns[field].isFilterInputNotValid = event.target.validity.badInput;
+        this.columnsDictionary[field].isFilterInputNotValid = event.target.validity.badInput;
         let filterTimeoutDelay = this.filterDelay;
         if(this.areFiltersValuesInvalid()){
             //setTimeout using a 32 bit int to store the delay so the max value allowed would be:
@@ -1095,7 +1095,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
     areFiltersValuesInvalid(){
         for(let prop in this.filters) {            
             let filter = this.filters[prop];
-            let column = this.columns.filter(column => column.field == prop)[0]
+            let column = this.columnsDictionary[prop];
             if(column.filterNumeric)
             {
                 if(column.isFilterInputNotValid){
