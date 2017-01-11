@@ -592,10 +592,22 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
     initColumns(): void {
         this.columns = this.cols.toArray();
         this.columnsChanged = true;
-        this.columns.forEach(column => {
-           this.columnsDictionary[column.field] = column;
-           this.sortInitialSettings[column.field] = column.sortable; 
-        }); 
+
+        if(this.headerColumnGroup) {
+            this.headerColumnGroup.rows.forEach(row => {
+                row.columns.forEach(column => {
+                    this.columnsDictionary[column.field] = column;
+                    this.sortInitialSettings[column.field] = column.sortable;
+                });
+            });
+        }
+        else
+        {
+            this.columns.forEach(column => {
+            this.columnsDictionary[column.field] = column;
+            this.sortInitialSettings[column.field] = column.sortable; 
+            }); 
+        }
     }
 
     resolveFieldData(data: any, field: string): any {
