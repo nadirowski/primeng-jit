@@ -3,25 +3,25 @@ import {Column, HeaderColumnGroup} from '../common/shared';
 
 @Injectable()
 export class NumericFilterColumnHelper{
+
+    public static MAX_INT_VALUE = 2147483647;
+
     isNumericFilterNotValid(filterValue: any, column: Column){
         if(column.filterNumeric && filterValue != "")
         {
-            if(column.filterAllowDecimals && isNaN(Number(filterValue))){
+            if(isNaN(Number(filterValue))){
                 return true;
             }
-            else if(!column.filterAllowDecimals){
-                let reg = new RegExp('');
-                reg = new RegExp('^[-+]?[0-9]+$');
-                
-                if(!reg.test(filterValue)){
+
+            filterValue = +filterValue;
+
+            if(!column.filterAllowDecimals){
+                if(!Number.isInteger(filterValue)){
                     return true;
                 } 
             }
 
-            let maxIntValue = 2147483647;
-            filterValue = +filterValue;
-
-            if((column.filterNumericMaxValue != undefined ? filterValue > column.filterNumericMaxValue : false ) || filterValue > maxIntValue){
+            if((column.filterNumericMaxValue != undefined ? filterValue > column.filterNumericMaxValue : false ) || filterValue > NumericFilterColumnHelper.MAX_INT_VALUE){
                 return true;
             }
 
