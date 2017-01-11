@@ -1118,10 +1118,10 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
         }
 
         if(this.headerColumnGroup) {
-            this.filterColumnValidatorHelper.changeColumnSortSetting(this.columnsDictionary, this.sortInitialSettings, filterInputNotValid ? false : true);
+            this.filterColumnValidatorHelper.changeHeaderColumnGroupSortSetting(this.headerColumnGroup, this.sortInitialSettings, filterInputNotValid ? false : true);
         }
         else {
-            this.filterColumnValidatorHelper.changeHeaderColumnGroupSortSetting(this.headerColumnGroup, this.sortInitialSettings, filterInputNotValid ? false : true);
+            this.filterColumnValidatorHelper.changeColumnSortSetting(this.columnsDictionary, this.sortInitialSettings, filterInputNotValid ? false : true);
         }
 
         return filterInputNotValid;
