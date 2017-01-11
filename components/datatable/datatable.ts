@@ -849,8 +849,6 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
         let tabindex = this.calculateIndex(index);
         if(event.code === 'ArrowDown'){
             event.preventDefault();
-            console.log(index)
-            console.log(this.dataToRender.length )
             if(this.dataToRender.length - 1 > index){
                 this.handleRowClick(event,  this.dataToRender[index+1], true)
                 this.focusOnRowWithTabIndex( tabindex-1)
