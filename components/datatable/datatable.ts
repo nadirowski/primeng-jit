@@ -1,5 +1,9 @@
-import {NgModule,Component,ElementRef,AfterContentInit,AfterViewInit,AfterViewChecked,OnInit,OnDestroy,DoCheck,Input,ViewContainerRef,
-        Output,SimpleChange,EventEmitter,ContentChild,ContentChildren,Renderer,IterableDiffers,QueryList,TemplateRef,ChangeDetectorRef} from '@angular/core';
+import {
+    NgModule, Component, ElementRef, AfterContentInit, AfterViewInit, AfterViewChecked, OnInit, OnDestroy, DoCheck,
+    Input, ViewContainerRef,
+    Output, SimpleChange, EventEmitter, ContentChild, ContentChildren, Renderer, IterableDiffers, QueryList,
+    TemplateRef, ChangeDetectorRef, ViewChild
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms'
 import {SharedModule} from '../common/shared';
@@ -11,6 +15,7 @@ import {DomHandler} from '../dom/domhandler';
 import {Subscription} from 'rxjs/Subscription';
 import {BlockableUI} from '../common/api';
 import {NumericFilterColumnHelper} from './numericFilterColumnHelper';
+import {Paginator} from "../paginator/paginator";
 
 @Component({
     selector: 'p-dtRadioButton',
@@ -100,7 +105,7 @@ export class RowExpansionLoader {
             <div class="ui-datatable-header ui-widget-header" *ngIf="header" [ngStyle]="{'width': scrollWidth}">
                 <ng-content select="header"></ng-content>
             </div>
-            <p-paginator [rows]="rows" [first]="first" [totalRecords]="totalRecords" [pageLinkSize]="pageLinks" styleClass="ui-paginator-bottom"
+            <p-paginator #topPaginator [rows]="rows" [first]="first" [totalRecords]="totalRecords" [pageLinkSize]="pageLinks" styleClass="ui-paginator-bottom"
                 (onPageChange)="paginate($event)" [rowsPerPageOptions]="rowsPerPageOptions" *ngIf="paginator && paginatorPosition!='bottom' || paginatorPosition =='both'"></p-paginator>
             <div class="ui-datatable-tablewrapper" *ngIf="!scrollable">
                 <table [class]="tableStyleClass" [ngStyle]="tableStyle">
@@ -273,7 +278,7 @@ export class RowExpansionLoader {
                     </tbody>
                 </table>
             </div>
-            <p-paginator [rows]="rows" [first]="first" [totalRecords]="totalRecords" [pageLinkSize]="pageLinks" styleClass="ui-paginator-bottom"
+            <p-paginator #bottomPaginator [rows]="rows" [first]="first" [totalRecords]="totalRecords" [pageLinkSize]="pageLinks" styleClass="ui-paginator-bottom"
                 (onPageChange)="paginate($event)" [rowsPerPageOptions]="rowsPerPageOptions" *ngIf="paginator && paginatorPosition!='top' || paginatorPosition =='both'"></p-paginator>
             <div class="ui-datatable-footer ui-widget-header" *ngIf="footer">
                 <ng-content select="footer"></ng-content>
@@ -405,7 +410,10 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
     @ContentChild(HeaderColumnGroup) headerColumnGroup: HeaderColumnGroup;
     
     @ContentChild(FooterColumnGroup) footerColumnGroup: FooterColumnGroup;
-    
+
+    @ViewChild("bottomPaginator") bottomPaginator:Paginator;
+    @ViewChild("topPaginator") topPaginator:Paginator;
+
     public dataToRender: any[];
 
     public first: number = 0;
@@ -491,14 +499,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
         this.initColumns();
         this.applyDefaultFilters();
         if(this.lazy) {
-            this.onLazyLoad.emit({
-                first: this.first,
-                rows: this.rows,
-                sortField: this.sortField,
-                sortOrder: this.sortOrder,
-                filters: this.filters,
-                multiSortMeta: this.multiSortMeta
-            });
+            this.onLazyLoad.emit(this.createLazyLoadMetadata());
         }else if(this.hasFilter()){
             this.filterTimeout = setTimeout(() => {
                 this.filter();
@@ -560,7 +561,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
                 }, this.filterDelay);
             });
         }
-        
+
         if(this.scrollable) {
             this.initScrolling();
         }
@@ -862,10 +863,27 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
         }else if (event.keyCode == 13){
             this.rowDblclick(event, this.dataToRender[index])
             event.target.blur();
+        }else if(event.code === 'ArrowRight'){
+            if(this.paginator){
+                if(this.bottomPaginator){
+                    this.bottomPaginator.changePageToNext(event);
+                }else if(this.topPaginator){
+                    this.topPaginator.changePageToNext(event);
+                }
+            }
+        }else if(event.code === 'ArrowLeft'){
+            if(this.paginator){
+                if(this.bottomPaginator){
+                    this.bottomPaginator.changePageToPrev(event);
+                }else if(this.topPaginator){
+                    this.topPaginator.changePageToPrev(event);
+                }
+            }
+
         }
     }
 
-    private focusOnRowWithTabIndex(index){
+    focusOnRowWithTabIndex(index){
         let tabbables = document.getElementsByClassName("tabable"); //get all tabable elements
         for(let i=0; i<tabbables.length; i++) { //loop through each element
             if((<HTMLElement>tabbables[i]).tabIndex == (index)) { //check the tabindex to see if it's the element we want
@@ -1613,7 +1631,8 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
             sortField: this.sortField,
             sortOrder: this.sortOrder,
             filters: this.filters,
-            multiSortMeta: this.multiSortMeta
+            multiSortMeta: this.multiSortMeta,
+            origin: this
         };
     }
     

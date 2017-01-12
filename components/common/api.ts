@@ -14,6 +14,7 @@ export interface LazyLoadEvent {
     sortOrder?: number;
     multiSortMeta?: SortMeta[];
     filters?: {[s: string]: FilterMetadata;};
+    origin?:any;
 }
 
 export interface FilterMetadata {
