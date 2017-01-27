@@ -1108,6 +1108,10 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
     }
 
     onFilterKeyup(event, field, matchMode) {
+        //space
+        if (event.keyCode == 32) {
+            event.preventDefault();
+        }
 
         if (this.filterTimeout) {
             clearTimeout(this.filterTimeout);
