@@ -13,12 +13,11 @@ export class NumericFilterColumnHelper{
                 return true;
             }
 
-            filterValue = +filterValue;
-
             if(!column.filterAllowDecimals){
-                if(!Number.isInteger(filterValue)){
+                let valueParts = (filterValue + "").split(".");
+                if(valueParts[1] && valueParts[1] != ""){
                     return true;
-                } 
+                }
             }
 
             if((column.filterNumericMaxValue != undefined ? filterValue > column.filterNumericMaxValue : false ) || filterValue > NumericFilterColumnHelper.MAX_INT_VALUE){

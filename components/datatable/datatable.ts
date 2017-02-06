@@ -488,7 +488,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
     columnsSubscription: Subscription;
 
     constructor(public el: ElementRef, public domHandler: DomHandler, differs: IterableDiffers,
-                public renderer: Renderer, public filterColumnValidatorHelper: NumericFilterColumnHelper, private changeDetector: ChangeDetectorRef) {
+                public renderer: Renderer, public numericFilterColumnHelper: NumericFilterColumnHelper, private changeDetector: ChangeDetectorRef) {
         this.differ = differs.find([]).create(null);
     }
 
@@ -1099,7 +1099,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
 
     //for supporting spinner arrows on number typed input
     onFilterInputChange(event, field) {
-        if (this.filterColumnValidatorHelper.isNumericFilterNotValid(event.target.value, this.columnsDictionary[field])) {
+        if (this.numericFilterColumnHelper.isNumericFilterNotValid(event.target.value, this.columnsDictionary[field])) {
             event.stopPropagation();
         }
         else {
@@ -1143,11 +1143,11 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
             let column = this.columnsDictionary[prop];
 
             if (column != undefined && column.filterNumeric) {
-                filterInputNotValid = column.isFilterInputNotValid || this.filterColumnValidatorHelper.isNumericFilterNotValid(filter.value, column);
+                filterInputNotValid = column.isFilterInputNotValid || this.numericFilterColumnHelper.isNumericFilterNotValid(filter.value, column);
                 column.isFilterInputNotValid = filterInputNotValid;
 
                 if (this.headerColumnGroup) {
-                    this.filterColumnValidatorHelper.SetFilterInputInHeaderColumnGroup(this.headerColumnGroup, prop, filterInputNotValid)
+                    this.numericFilterColumnHelper.SetFilterInputInHeaderColumnGroup(this.headerColumnGroup, prop, filterInputNotValid)
                 }
 
                 if (filterInputNotValid) {
@@ -1157,10 +1157,10 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
         }
 
         if (this.headerColumnGroup) {
-            this.filterColumnValidatorHelper.changeHeaderColumnGroupSortSetting(this.headerColumnGroup, this.sortInitialSettings, filterInputNotValid ? false : true);
+            this.numericFilterColumnHelper.changeHeaderColumnGroupSortSetting(this.headerColumnGroup, this.sortInitialSettings, filterInputNotValid ? false : true);
         }
         else {
-            this.filterColumnValidatorHelper.changeColumnSortSetting(this.columnsDictionary, this.sortInitialSettings, filterInputNotValid ? false : true);
+            this.numericFilterColumnHelper.changeColumnSortSetting(this.columnsDictionary, this.sortInitialSettings, filterInputNotValid ? false : true);
         }
 
         return filterInputNotValid;
