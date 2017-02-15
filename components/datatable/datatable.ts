@@ -892,6 +892,15 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
             }
         }
     }
+    focusOnRowWithItem(item) {
+        if(this.dataToRender){
+            for(let i = 0; i < this.dataToRender.length; i++){
+                if(item === this.dataToRender[i]){
+                    this.focusOnRowWithTabIndex(this.calculateIndex(i));
+                }
+            }
+        }
+    }
 
     calculateIndex(index) {
         return -(index + this.seqNum * 100);
