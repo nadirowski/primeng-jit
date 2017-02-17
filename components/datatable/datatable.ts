@@ -126,6 +126,7 @@ export class RowExpansionLoader {
                                 <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
                                      [ngClass]="{'fa-sort-desc': (getSortOrder(col) == -1),'fa-sort-asc': (getSortOrder(col) == 1)}"></span>
                                 <input type="text" pInputText class="ui-column-filter" [ngClass]="{'ui-column-filter-error': col.isFilterInputNotValid}" [attr.type]="col.filterNumeric ? 'number' : 'text'" [attr.min]="col.filterNumeric ? (col.filterNumericMinValue != undefined ?                          col.filterNumericMinValue : 0) : null" [attr.max]="col.filterNumeric && col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : null" [attr.step]="col.filterNumeric ? (col.filterNumericStep != undefined ? col.filterNumericStep : 1) : null" 
+                                    [attr.value]="col.defaultFilterValue ? col.defaultFilterValue.value : undefined"
                                     [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter && !col.filterValues" (click)="onFilterInputClick($event)" (change)="onFilterInputChange($event, col.field)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
                                  <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
                                    <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
@@ -148,6 +149,7 @@ export class RowExpansionLoader {
                                     <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
                                          [ngClass]="{'fa-sort-desc': (getSortOrder(col) == -1),'fa-sort-asc': (getSortOrder(col) == 1)}"></span>
                                     <input type="text" pInputText class="ui-column-filter" [ngClass]="{'ui-column-filter-error': col.isFilterInputNotValid}" [attr.type]="col.filterNumeric ? 'number' : 'text'" [attr.min]="col.filterNumeric ? (col.filterNumericMinValue != undefined ?                      col.filterNumericMinValue : 0) : null" [attr.max]="col.filterNumeric && col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : null" [attr.step]="col.filterNumeric ? (col.filterNumericStep != undefined ? col.filterNumericStep : 1) : null "
+                                        [attr.value]="col.defaultFilterValue ? col.defaultFilterValue.value : undefined"
                                         [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" (click)="onFilterInputClick($event)" (change)="onFilterInputChange($event, col.field)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
                                     <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
                                        <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
@@ -233,6 +235,7 @@ export class RowExpansionLoader {
                                     <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
                                          [ngClass]="{'fa-sort-desc': (col.field === sortField) && (sortOrder == -1),'fa-sort-asc': (col.field === sortField) && (sortOrder == 1)}"></span>
                                     <input type="text" pInputText class="ui-column-filter" [ngClass]="{'ui-column-filter-error': col.isFilterInputNotValid}" [attr.type]="col.filterNumeric ? 'number' : 'text'" [attr.min]="col.filterNumeric ? (col.filterNumericMinValue != undefined ?                      col.filterNumericMinValue : 0) : null" [attr.max]="col.filterNumeric && col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : null" [attr.step]="col.filterNumeric ? (col.filterNumericStep != undefined ? col.filterNumericStep : 1) : null" 
+                                        [attr.value]="col.defaultFilterValue ? col.defaultFilterValue.value : undefined"
                                         [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" (click)="onFilterInputClick($event)" (change)="onFilterInputChange($event, col.field)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
                                     <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
                                       <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
@@ -517,11 +520,16 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
         if (this.columns) {
             this.columns.forEach(column => {
                 if (column.filterValues) {
+                    // initial filter value for dropdown
                     if (column.defaultFilterValue) {
                         this.filters[column.field] = {value: column.defaultFilterValue.value, matchMode: undefined};
                     } else if (column.filterValues.length > 0) {
                         this.filters[column.field] = {value: column.filterValues[0].value, matchMode: undefined};
                     }
+                }
+                else if (column.defaultFilterValue) {
+                    // initial filter value for text input
+                    this.filters[column.field] = {value: column.defaultFilterValue.value, matchMode: column.filterMatchMode};
                 }
             });
         }
