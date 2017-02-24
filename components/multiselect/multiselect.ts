@@ -303,7 +303,7 @@ export class MultiSelect implements OnInit,AfterViewInit,AfterViewChecked,DoChec
         }
     }
     
-    findLabelByValue(val: any): string {
+     findLabelByValue(val: any): string {
         let label = null;
         for(let i = 0; i < this.options.length; i++) {
             let option = this.options[i];
@@ -345,7 +345,7 @@ export class MultiSelect implements OnInit,AfterViewInit,AfterViewChecked,DoChec
             let items = [];
             for(let i = 0; i < this.options.length; i++) {
                 let option = this.options[i];
-                if(option.label.toLowerCase().startsWith(this.filterValue.toLowerCase())) {
+                if(option.label.toLowerCase().indexOf(this.filterValue.toLowerCase()) > -1) {
                     items.push(option);
                 }
             }
