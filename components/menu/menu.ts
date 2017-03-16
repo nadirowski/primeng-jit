@@ -12,7 +12,7 @@ import {Router} from '@angular/router';
             <ul class="ui-menu-list ui-helper-reset">
                 <template ngFor let-submenu [ngForOf]="model" *ngIf="hasSubMenu()">
                     <li class="ui-widget-header ui-corner-all"><h3>{{submenu.label}}</h3></li>
-                    <li *ngFor="let item of submenu.items" class="ui-menuitem ui-widget ui-corner-all">
+                    <li *ngFor="let item of submenu.items" class="ui-menuitem ui-widget ui-corner-all" [id]="item.id || 'menuItem' + Math.random() + Math.random()">
                         <a #link [href]="item.url||'#'" class="ui-menuitem-link ui-corner-all" 
                             [ngClass]="{'ui-state-hover':link==hoveredItem&&!item.disabled,'ui-state-disabled':item.disabled}"
                             (mouseenter)="hoveredItem=$event.target" (mouseleave)="hoveredItem=null" (click)="itemClick($event, item)">

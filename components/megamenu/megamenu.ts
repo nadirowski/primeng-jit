@@ -13,7 +13,8 @@ import {Router} from '@angular/router';
             <ul class="ui-menu-list ui-helper-reset">
                 <template ngFor let-category [ngForOf]="model">
                     <li #item [ngClass]="{'ui-menuitem ui-widget ui-corner-all':true,'ui-menu-parent':category.items,'ui-menuitem-active':item==activeItem}"
-                        (mouseenter)="onItemMouseEnter($event, item, category)" (mouseleave)="onItemMouseLeave($event, item)">
+                        (mouseenter)="onItemMouseEnter($event, item, category)" (mouseleave)="onItemMouseLeave($event, item)"
+                        [id]="item.id || 'menuItem' + Math.random() + Math.random()">
                         <a #link class="ui-menuitem-link ui-corner-all ui-submenu-link" [ngClass]="{'ui-state-hover':link==activeLink&&!category.disabled,'ui-state-disabled':category.disabled}">
                             <span class="ui-submenu-icon fa fa-fw" [ngClass]="{'fa-caret-down':orientation=='horizontal','fa-caret-right':orientation=='vertical'}"></span>
                             <span class="ui-menuitem-icon fa fa-fw" [ngClass]="category.icon"></span>
