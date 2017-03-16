@@ -13,7 +13,7 @@ import {Router} from '@angular/router';
             [style.transitionProperty]="root ? 'left' : 'none'" [style.transitionDuration]="effectDuration" [style.transitionTimingFunction]="easing">
             <template ngFor let-child [ngForOf]="(root ? item : item.items)">
                 <li #listitem [ngClass]="{'ui-menuitem ui-widget ui-corner-all':true,'ui-menu-parent':child.items,'ui-menuitem-active':listitem==activeItem}"
-                    [id]="item.id || 'menuItem' + Math.random() + Math.random()">
+                    [id]="item.id || ''">
                     <a #link [href]="child.url||'#'" class="ui-menuitem-link ui-corner-all" 
                         [ngClass]="{'ui-state-hover':link==hoveredLink&&!child.disabled,'ui-menuitem-link-parent':child.items,'ui-state-disabled':child.disabled}" 
                         (click)="itemClick($event, child, listitem)" (mouseenter)="hoveredLink=link" (mouseleave)="hoveredLink=null">

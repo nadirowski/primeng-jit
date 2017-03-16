@@ -11,7 +11,8 @@ import {Router} from '@angular/router';
         <ul [ngClass]="{'ui-helper-reset':root, 'ui-widget-content ui-corner-all ui-helper-clearfix ui-menu-child ui-shadow':!root}" class="ui-menu-list"
             (click)="listClick($event)">
             <template ngFor let-child [ngForOf]="(root ? item : item.items)">
-                <li #item [ngClass]="{'ui-menuitem ui-widget ui-corner-all':true,'ui-menu-parent':child.items,'ui-menuitem-active':item==activeItem}" [id]="item.id || 'menuItem' + Math.random() + Math.random()"
+                <li #item [ngClass]="{'ui-menuitem ui-widget ui-corner-all':true,'ui-menu-parent':child.items,'ui-menuitem-active':item==activeItem}" 
+                    [id]="item.id || ''"
                     (mouseenter)="onItemMouseEnter($event,item,child)" (mouseleave)="onItemMouseLeave($event,item)">
                     <a #link [href]="child.url||'#'" class="ui-menuitem-link ui-corner-all" 
                         [ngClass]="{'ui-state-hover':link==activeLink&&!child.disabled,'ui-state-disabled':child.disabled}" (click)="itemClick($event, child)">

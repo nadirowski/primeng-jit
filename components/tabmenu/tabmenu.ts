@@ -11,7 +11,7 @@ import {Router} from '@angular/router';
     template: `
         <div [ngClass]="'ui-tabmenu ui-widget ui-widget-content ui-corner-all'" [ngStyle]="style" [class]="styleClass">
             <ul class="ui-tabmenu-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" role="tablist">
-                <li *ngFor="let item of model" [id]="item.id || 'menuItem' + Math.random() + Math.random()"
+                <li *ngFor="let item of model" [id]="item.id || ''"
                     [ngClass]="{'ui-tabmenuitem ui-state-default ui-corner-top':true,'ui-state-disabled':item.disabled,
                         'ui-tabmenuitem-hasicon':item.icon,'ui-state-hover':hoveredItem==item,'ui-state-active':activeItem==item}"
                     (mouseenter)="hoveredItem=item&&!item.disabled" (mouseleave)="hoveredItem=null">

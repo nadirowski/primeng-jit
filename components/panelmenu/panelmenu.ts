@@ -43,7 +43,8 @@ export class BasePanelMenuItem {
     selector: 'p-panelMenuSub',
     template: `
         <ul class="ui-menu-list ui-helper-reset" [style.display]="expanded ? 'block' : 'none'">
-            <li *ngFor="let child of item.items" class="ui-menuitem ui-corner-all" [ngClass]="{'ui-menu-parent':child.items}" [id]="item.id || 'menuItem' + Math.random() + Math.random()">
+            <li *ngFor="let child of item.items" class="ui-menuitem ui-corner-all" [ngClass]="{'ui-menu-parent':child.items}" 
+                [id]="item.id || ''">
                 <a #link [href]="child.url||'#'" class="ui-menuitem-link ui-corner-all" 
                     [ngClass]="{'ui-menuitem-link-hasicon':child.icon&&child.items,'ui-state-hover':(hoveredLink==link&&!child.disabled),'ui-state-disabled':child.disabled}" 
                     (click)="handleClick($event,child)"
@@ -58,7 +59,7 @@ export class BasePanelMenuItem {
     `
 })
 export class PanelMenuSub extends BasePanelMenuItem {
-    
+
     @Input() item: MenuItem;
     
     @Input() expanded: boolean;
