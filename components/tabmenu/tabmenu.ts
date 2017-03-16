@@ -2,7 +2,6 @@ import {NgModule,Component,ElementRef,OnDestroy,Input,Output,EventEmitter} from 
 import {CommonModule} from '@angular/common';
 import {DomHandler} from '../dom/domhandler';
 import {MenuItem} from '../common/api';
-import {Guid} from '../common/shared';
 import {Location} from '@angular/common';
 import {Router} from '@angular/router';
 
