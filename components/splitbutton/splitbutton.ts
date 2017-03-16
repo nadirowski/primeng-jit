@@ -30,7 +30,7 @@ import {Router} from '@angular/router';
                     [ngStyle]="menuStyle" [class]="menuStyleClass">
                 <ul class="ui-menu-list ui-helper-reset">
                     <li class="ui-menuitem ui-widget ui-corner-all" role="menuitem" *ngFor="let item of model"
-                        (mouseenter)="hoveredItem=item" (mouseleave)="hoveredItem=null">
+                        (mouseenter)="hoveredItem=item" (mouseleave)="hoveredItem=null" [id]="item.id || ''">
                         <a [href]="item.url||'#'" 
                         [ngClass]="{'ui-menuitem-link ui-corner-all':true,'ui-state-hover':(hoveredItem==item&&!item.disabled),'ui-state-disabled':item.disabled}" 
                         (click)="itemClick($event,item)">

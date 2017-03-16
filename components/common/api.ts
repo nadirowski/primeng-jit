@@ -23,6 +23,7 @@ export interface FilterMetadata {
 }
 
 export interface MenuItem {
+    id?: string;
     label?: string;
     icon?: string;
     command?: (event?: any) => void;

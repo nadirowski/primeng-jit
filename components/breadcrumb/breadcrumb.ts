@@ -11,7 +11,7 @@ import {Router} from '@angular/router';
             <ul>
                 <li class="fa fa-home"></li>
                 <template ngFor let-item let-end="last" [ngForOf]="model">
-                    <li role="menuitem">
+                    <li role="menuitem" [id]="item.id || ''">
                         <a [href]="item.url||'#'" class="ui-menuitem-link" (click)="itemClick($event, item)" [ngClass]="{'ui-state-disabled':item.disabled}">
                             <span class="ui-menuitem-text">{{item.label}}</span>
                         </a>
