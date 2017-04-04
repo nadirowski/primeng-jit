@@ -33,7 +33,7 @@ export class TabPanel {
     
     public closed: boolean;
     
-    public lazy: boolean;
+    @Input() public lazy: boolean;
 }
 
 @Component({
@@ -97,9 +97,9 @@ export class TabView implements AfterContentInit,BlockableUI {
     
     initTabs(): void {
         this.tabs = this.tabPanels.toArray();
-        for(let tab of this.tabs) {
-            tab.lazy = this.lazy;
-        }
+        // for(let tab of this.tabs) {
+        //     tab.lazy = this.lazy;
+        // }
 
         let selectedTab: TabPanel = this.findSelectedTab();
         if(!selectedTab && this.tabs.length) {
