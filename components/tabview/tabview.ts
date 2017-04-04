@@ -6,7 +6,7 @@ import {BlockableUI} from '../common/api';
     selector: 'p-tabPanel',
     template: `
         <div class="ui-tabview-panel ui-widget-content" [style.display]="selected ? 'block' : 'none'" 
-            *ngIf="!closed" role="tabpanel" [attr.aria-hidden]="!selected">
+            *ngIf="closed ? false : (lazy ? selected : true)" role="tabpanel" [attr.aria-hidden]="!selected">
             <ng-content></ng-content>
         </div>
     `,
@@ -32,6 +32,8 @@ export class TabPanel {
     public hoverHeader: boolean;
     
     public closed: boolean;
+    
+    public lazy: boolean;
 }
 
 @Component({
@@ -69,6 +71,8 @@ export class TabView implements AfterContentInit,BlockableUI {
     
     @Input() controlClose: boolean;
     
+    @Input() lazy: boolean;
+    
     @ContentChildren(TabPanel) tabPanels: QueryList<TabPanel>;
 
     @Output() onChange: EventEmitter<any> = new EventEmitter();
@@ -91,6 +95,10 @@ export class TabView implements AfterContentInit,BlockableUI {
     
     initTabs(): void {
         this.tabs = this.tabPanels.toArray();
+        for(let tab of this.tabs) {
+            tab.lazy = this.lazy;
+        }
+        
         let selectedTab: TabPanel = this.findSelectedTab();
         if(!selectedTab && this.tabs.length) {
             this.tabs[0].selected = true;
