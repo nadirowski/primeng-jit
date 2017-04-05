@@ -327,6 +327,8 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
 
     @Output() onRowDblclick: EventEmitter<any> = new EventEmitter();
 
+    @Outpit() onRowKeyDown: EventEmitter<any> = new EventEmitter();
+
     @Output() onHeaderCheckboxToggle: EventEmitter<any> = new EventEmitter();
 
     @Output() onContextMenuSelect: EventEmitter<any> = new EventEmitter();
@@ -859,17 +861,17 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
         if (event.code === 'ArrowDown') {
             event.preventDefault();
             if (this.dataToRender.length - 1 > index) {
-                this.handleRowClick(event, this.dataToRender[index + 1], true)
-                this.focusOnRowWithTabIndex(tabindex - 1)
+                this.handleRowClick(event, this.dataToRender[index + 1], true);
+                this.focusOnRowWithTabIndex(tabindex - 1);
             }
         } else if (event.code === 'ArrowUp') {
             event.preventDefault();
             if (index > 0) {
-                this.handleRowClick(event, this.dataToRender[index - 1], true)
-                this.focusOnRowWithTabIndex(tabindex + 1)
+                this.handleRowClick(event, this.dataToRender[index - 1], true);
+                this.focusOnRowWithTabIndex(tabindex + 1);
             }
         } else if (event.keyCode == 13) {
-            this.rowDblclick(event, this.dataToRender[index])
+            this.rowDblclick(event, this.dataToRender[index]);
             event.target.blur();
         } else if (event.code === 'ArrowRight') {
             if (this.paginator) {
@@ -887,8 +889,8 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
                     this.topPaginator.changePageToPrev(event);
                 }
             }
-
         }
+        this.onRowKeyDown.emit({originalEvent: event, rowIndex: index, data: this.dataToRender[index]});
     }
 
     focusOnRowWithTabIndex(index) {
