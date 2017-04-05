@@ -327,7 +327,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
 
     @Output() onRowDblclick: EventEmitter<any> = new EventEmitter();
 
-    @Outpit() onRowKeyDown: EventEmitter<any> = new EventEmitter();
+    @Output() onRowKeyDown: EventEmitter<any> = new EventEmitter();
 
     @Output() onHeaderCheckboxToggle: EventEmitter<any> = new EventEmitter();
 
