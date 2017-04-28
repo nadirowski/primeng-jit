@@ -649,7 +649,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
         }
     }
 
-    paginate(event) {
+    public paginate(event) {
         this.first = event.first;
         this.rows = event.rows;
 
