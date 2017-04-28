@@ -126,9 +126,9 @@ export class RowExpansionLoader {
                                 <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
                                      [ngClass]="{'fa-sort-desc': (getSortOrder(col) == -1),'fa-sort-asc': (getSortOrder(col) == 1)}"></span>
                                 <input type="text" pInputText class="ui-column-filter" [ngClass]="{'ui-column-filter-error': col.isFilterInputNotValid}" [attr.type]="col.filterNumeric ? 'number' : 'text'" [attr.min]="col.filterNumeric ? (col.filterNumericMinValue != undefined ?                          col.filterNumericMinValue : 0) : null" [attr.max]="col.filterNumeric && col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : null" [attr.step]="col.filterNumeric ? (col.filterNumericStep != undefined ? col.filterNumericStep : 1) : null" 
-                                    [attr.value]="col.defaultFilterValue ? col.defaultFilterValue.value : undefined"
+                                    [attr.value]="col.defaultFilterValue ? col.defaultFilterValue.value : undefined" [attr.name]="col.field"
                                     [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter && !col.filterValues" (click)="onFilterInputClick($event)" (change)="onFilterInputChange($event, col.field)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
-                                 <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
+                                 <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)" [name]="col.field">
                                    <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
                                 </select>
                                 <p-dtCheckbox *ngIf="col.selectionMode=='multiple'" (onChange)="toggleRowsWithCheckbox($event)" [checked]="allSelected" [disabled]="isEmpty()"></p-dtCheckbox>
@@ -149,9 +149,9 @@ export class RowExpansionLoader {
                                     <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
                                          [ngClass]="{'fa-sort-desc': (getSortOrder(col) == -1),'fa-sort-asc': (getSortOrder(col) == 1)}"></span>
                                     <input type="text" pInputText class="ui-column-filter" [ngClass]="{'ui-column-filter-error': col.isFilterInputNotValid}" [attr.type]="col.filterNumeric ? 'number' : 'text'" [attr.min]="col.filterNumeric ? (col.filterNumericMinValue != undefined ?                      col.filterNumericMinValue : 0) : null" [attr.max]="col.filterNumeric && col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : null" [attr.step]="col.filterNumeric ? (col.filterNumericStep != undefined ? col.filterNumericStep : 1) : null "
-                                        [attr.value]="col.defaultFilterValue ? col.defaultFilterValue.value : undefined"
+                                        [attr.value]="col.defaultFilterValue ? col.defaultFilterValue.value : undefined" [attr.name]="col.field"
                                         [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" (click)="onFilterInputClick($event)" (change)="onFilterInputChange($event, col.field)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
-                                    <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
+                                    <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)" [name]="col.field">
                                        <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
                                     </select>
                                     
@@ -235,9 +235,9 @@ export class RowExpansionLoader {
                                     <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
                                          [ngClass]="{'fa-sort-desc': (col.field === sortField) && (sortOrder == -1),'fa-sort-asc': (col.field === sortField) && (sortOrder == 1)}"></span>
                                     <input type="text" pInputText class="ui-column-filter" [ngClass]="{'ui-column-filter-error': col.isFilterInputNotValid}" [attr.type]="col.filterNumeric ? 'number' : 'text'" [attr.min]="col.filterNumeric ? (col.filterNumericMinValue != undefined ?                      col.filterNumericMinValue : 0) : null" [attr.max]="col.filterNumeric && col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : null" [attr.step]="col.filterNumeric ? (col.filterNumericStep != undefined ? col.filterNumericStep : 1) : null" 
-                                        [attr.value]="col.defaultFilterValue ? col.defaultFilterValue.value : undefined"
+                                        [attr.value]="col.defaultFilterValue ? col.defaultFilterValue.value : undefined" [attr.name]="col.field"
                                         [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter  && !col.filterValues" (click)="onFilterInputClick($event)" (change)="onFilterInputChange($event, col.field)" (keyup)="onFilterKeyup($event, col.field, col.filterMatchMode)"/>
-                                    <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)">
+                                    <select class="ui-column-filter" *ngIf="col.filter && col.filterValues" (change)="onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="onFilterInputClick($event)" [name]="col.field">
                                       <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
                                     </select>
                                     <p-dtCheckbox *ngIf="col.selectionMode=='multiple'" (onChange)="toggleRowsWithCheckbox($event)" [checked]="allSelected" [disabled]="isEmpty()"></p-dtCheckbox>
@@ -326,6 +326,8 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
     @Output() onRowUnselect: EventEmitter<any> = new EventEmitter();
 
     @Output() onRowDblclick: EventEmitter<any> = new EventEmitter();
+
+    @Output() onRowKeyDown: EventEmitter<any> = new EventEmitter();
 
     @Output() onHeaderCheckboxToggle: EventEmitter<any> = new EventEmitter();
 
@@ -859,17 +861,17 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
         if (event.code === 'ArrowDown') {
             event.preventDefault();
             if (this.dataToRender.length - 1 > index) {
-                this.handleRowClick(event, this.dataToRender[index + 1], true)
-                this.focusOnRowWithTabIndex(tabindex - 1)
+                this.handleRowClick(event, this.dataToRender[index + 1], true);
+                this.focusOnRowWithTabIndex(tabindex - 1);
             }
         } else if (event.code === 'ArrowUp') {
             event.preventDefault();
             if (index > 0) {
-                this.handleRowClick(event, this.dataToRender[index - 1], true)
-                this.focusOnRowWithTabIndex(tabindex + 1)
+                this.handleRowClick(event, this.dataToRender[index - 1], true);
+                this.focusOnRowWithTabIndex(tabindex + 1);
             }
         } else if (event.keyCode == 13) {
-            this.rowDblclick(event, this.dataToRender[index])
+            this.rowDblclick(event, this.dataToRender[index]);
             event.target.blur();
         } else if (event.code === 'ArrowRight') {
             if (this.paginator) {
@@ -887,8 +889,8 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
                     this.topPaginator.changePageToPrev(event);
                 }
             }
-
         }
+        this.onRowKeyDown.emit({originalEvent: event, rowIndex: index, data: this.dataToRender[index]});
     }
 
     focusOnRowWithTabIndex(index) {

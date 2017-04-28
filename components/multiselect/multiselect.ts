@@ -52,7 +52,7 @@ export const MULTISELECT_VALUE_ACCESSOR: any = {
                             [ngClass]="{'ui-state-highlight':isSelected(option.value),'ui-state-hover':hoveredItem==item}" (mouseenter)="hoveredItem=item" (mouseleave)="hoveredItem=null">
                             <div class="ui-chkbox ui-widget">
                                 <div class="ui-helper-hidden-accessible">
-                                    <input type="checkbox" readonly="readonly" [checked]="isSelected(option.value)">
+                                    <input type="checkbox" readonly="readonly" [checked]="isSelected(option.value)" [value]="option.valueStr || ''">
                                 </div>
                                 <div class="ui-chkbox-box ui-widget ui-corner-all ui-state-default" [ngClass]="{'ui-state-active':isSelected(option.value)}">
                                     <span class="ui-chkbox-icon ui-c" [ngClass]="{'fa fa-fw fa-check':isSelected(option.value)}"></span>

@@ -104,6 +104,8 @@ export class Dialog implements AfterViewInit,AfterViewChecked,OnDestroy {
     documentResponsiveListener: any;
     
     documentEscapeListener: any;
+
+    documentTabListener: any;
     
     lastPageX: number;
     
@@ -194,6 +196,39 @@ export class Dialog implements AfterViewInit,AfterViewChecked,OnDestroy {
                 document.body.appendChild(this.container);
             else
                 this.appendTo.appendChild(this.container);
+        }
+
+        if(this.modal) {
+            this.documentTabListener = this.renderer.listenGlobal('body', 'keydown', (event) => {
+                if(event.which === 9) {
+                    //List of html elements which can be focused by tabbing.
+                    let focusableElementsInModal = this.container.querySelectorAll('a[href], input:not([disabled]), ' +
+                        'select:not([disabled]), textarea:not([disabled]), button:not([disabled]), object:not([disabled]), [tabindex]');
+                    let focusables = [];
+                    let numberOfElements = focusableElementsInModal.length;
+                    for(let i = 0; i < numberOfElements; ++i) {
+                        let element = focusableElementsInModal[i];
+                        if(!element.hasAttribute('tabindex') || parseInt(element.getAttribute('tabindex')) >= 0) {
+                            focusables.push(element);
+                        }
+                    }
+                    let firstTabElement = <HTMLElement>focusables[0];
+                    let lastTabElement = <HTMLElement>focusables[focusables.length - 1];
+                    let currentFocusedElementIsNotInDialog = focusables.indexOf(document.activeElement) === -1;
+                    if(event.shiftKey) {
+                        if(document.activeElement === firstTabElement || currentFocusedElementIsNotInDialog) {
+                            event.preventDefault();
+                            lastTabElement.focus();
+                        }
+                    }
+                    else {
+                        if(document.activeElement === lastTabElement || currentFocusedElementIsNotInDialog) {
+                            event.preventDefault();
+                            firstTabElement.focus();
+                        }
+                    }
+                }
+            });
         }
     }
     
@@ -330,6 +365,10 @@ export class Dialog implements AfterViewInit,AfterViewChecked,OnDestroy {
         
         if(this.appendTo) {
             this.el.nativeElement.appendChild(this.container);
+        }
+
+        if(this.documentTabListener) {
+            this.documentTabListener();
         }
     }
 
