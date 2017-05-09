@@ -1193,7 +1193,9 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
         }
         else {
             this.filteredValue = [];
-
+            if(this.value == null) {
+                return;
+            }
             for (let i = 0; i < this.value.length; i++) {
                 let localMatch = true;
                 let globalMatch = false;
