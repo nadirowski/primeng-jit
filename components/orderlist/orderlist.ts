@@ -1,7 +1,7 @@
-import {NgModule,Component,ElementRef,AfterViewChecked,Input,Output,ContentChild,TemplateRef,EventEmitter} from '@angular/core';
+import {NgModule,Component,ElementRef,AfterViewChecked,AfterContentInit,Input,Output,ContentChildren,QueryList,TemplateRef,EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ButtonModule} from '../button/button';
-import {SharedModule} from '../common/shared';
+import {SharedModule,PrimeTemplate} from '../common/shared';
 import {DomHandler} from '../dom/domhandler';
 
 @Component({
@@ -18,10 +18,10 @@ import {DomHandler} from '../dom/domhandler';
                 <div class="ui-grid-col-10">
                     <div class="ui-orderlist-caption ui-widget-header ui-corner-top" *ngIf="header">{{header}}</div>
                     <ul #listelement class="ui-widget-content ui-orderlist-list ui-corner-bottom" [ngStyle]="listStyle">
-                        <li *ngFor="let item of value" 
-                            [ngClass]="{'ui-orderlist-item':true,'ui-state-hover':(hoveredItem==item),'ui-state-highlight':isSelected(item)}"
-                            (mouseenter)="hoveredItem=item" (mouseleave)="hoveredItem=null" (click)="onItemClick($event,item)">
-                            <template [pTemplateWrapper]="itemTemplate" [item]="item"></template>
+                        <li *ngFor="let item of value" class="ui-orderlist-item"
+                            [ngClass]="{'ui-state-highlight':isSelected(item)}" 
+                            (click)="onItemClick($event,item)" (touchend)="onItemTouchEnd($event)">
+                            <ng-template [pTemplateWrapper]="itemTemplate" [item]="item"></ng-template>
                         </li>
                     </ul>
                 </div>
@@ -30,7 +30,7 @@ import {DomHandler} from '../dom/domhandler';
     `,
     providers: [DomHandler]
 })
-export class OrderList implements AfterViewChecked {
+export class OrderList implements AfterViewChecked,AfterContentInit {
 
     @Input() value: any[];
     
@@ -44,12 +44,16 @@ export class OrderList implements AfterViewChecked {
     
     @Input() responsive: boolean;
     
+    @Input() metaKeySelection: boolean = true;
+    
     @Output() onReorder: EventEmitter<any> = new EventEmitter();
-
-    @ContentChild(TemplateRef) itemTemplate: TemplateRef<any>;
     
-    hoveredItem: any;
+    @Output() onSelectionChange: EventEmitter<any> = new EventEmitter();
     
+    @ContentChildren(PrimeTemplate) templates: QueryList<any>;
+    
+    public itemTemplate: TemplateRef<any>;
+        
     selectedItems: any[];
     
     movedUp: boolean;
@@ -57,11 +61,27 @@ export class OrderList implements AfterViewChecked {
     movedDown: boolean;
         
     listContainer: any;
+    
+    itemTouched: boolean;
         
     constructor(public el: ElementRef, public domHandler: DomHandler) {}
          
     ngAfterViewInit() {
         this.listContainer = this.domHandler.findSingle(this.el.nativeElement, 'ul.ui-orderlist-list');
+    }
+    
+    ngAfterContentInit() {
+        this.templates.forEach((item) => {
+            switch(item.getType()) {
+                case 'item':
+                    this.itemTemplate = item.template;
+                break;
+                
+                default:
+                    this.itemTemplate = item.template;
+                break;
+            }
+        });
     }
          
     ngAfterViewChecked() {
@@ -81,17 +101,37 @@ export class OrderList implements AfterViewChecked {
     }
                 
     onItemClick(event, item) {
-        let metaKey = (event.metaKey||event.ctrlKey);
         let index = this.findIndexInList(item, this.selectedItems);
         let selected = (index != -1);
+        let metaSelection = this.itemTouched ? false : this.metaKeySelection;
         
-        if(selected && metaKey) {
-            this.selectedItems.splice(index, 1);
+        if(metaSelection) {
+            let metaKey = (event.metaKey||event.ctrlKey);
+            
+            if(selected && metaKey) {
+                this.selectedItems.splice(index, 1);
+            }
+            else {
+                this.selectedItems = (metaKey) ? this.selectedItems||[] : [];            
+                this.selectedItems.push(item);
+            }
         }
         else {
-            this.selectedItems = (metaKey) ? this.selectedItems||[] : [];            
-            this.selectedItems.push(item);
+            if(selected) {
+                this.selectedItems.splice(index, 1);
+            }
+            else {
+                this.selectedItems = this.selectedItems||[];
+                this.selectedItems.push(item);
+            }
         }
+
+        this.onSelectionChange.emit({originalEvent:event, value:this.selectedItems});
+        this.itemTouched = false;
+    }
+    
+    onItemTouchEnd(event) {
+        this.itemTouched = true;
     }
     
     isSelected(item: any) {

@@ -1,7 +1,7 @@
 import {NgModule,Component,Input,Output,EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MenuItem} from '../common/api';
-import {Router} from '@angular/router';
+import {RouterModule} from '@angular/router';
 
 @Component({
     selector: 'p-steps',
@@ -10,10 +10,13 @@ import {Router} from '@angular/router';
             <ul role="tablist">
                 <li *ngFor="let item of model; let i = index" class="ui-steps-item" #menuitem
                     [ngClass]="{'ui-state-highlight':(i === activeIndex),'ui-state-default':(i !== activeIndex),
-                        'ui-state-disabled':(i !== activeIndex && readonly),'ui-state-hover':(menuitem == hoveredItem&&!readonly)}"
-                    [id]="item.id || ''">
-                    <a class="ui-menuitem-link" (click)="itemClick($event, item, i)" (mouseenter)="hoveredItem=menuitem" (mouseleave)="hoveredItem=null">
-                        <span class="ui-steps-number">{{i}}</span>
+                        'ui-state-disabled':item.disabled||(i !== activeIndex && readonly)}" [id]="item.id || ''">
+                    <a *ngIf="!item.routerLink" [href]="item.url||'#'" class="ui-menuitem-link" (click)="itemClick($event, item, i)" [attr.target]="item.target">
+                        <span class="ui-steps-number">{{i + 1}}</span>
+                        <span class="ui-steps-title">{{item.label}}</span>
+                    </a>
+                    <a *ngIf="item.routerLink" [routerLink]="item.routerLink" [routerLinkActive]="'ui-state-active'" [routerLinkActiveOptions]="item.routerLinkActiveOptions||{exact:false}" class="ui-menuitem-link" (click)="itemClick($event, item, i)" [attr.target]="item.target">
+                        <span class="ui-steps-number">{{i + 1}}</span>
                         <span class="ui-steps-title">{{item.label}}</span>
                     </a>
                 </li>
@@ -22,7 +25,7 @@ import {Router} from '@angular/router';
     `
 })
 export class Steps {
-
+    
     @Input() activeIndex: number = 0;
     
     @Input() model: MenuItem[];
@@ -35,21 +38,15 @@ export class Steps {
     
     @Output() activeIndexChange: EventEmitter<any> = new EventEmitter();
     
-    constructor(public router: Router) {}
-    
     itemClick(event: Event, item: MenuItem, i: number) {
-        if(this.readonly) {
-            return;
-        }
-        
-        this.activeIndexChange.emit(i);
-        
-        if(item.disabled) {
+        if(this.readonly || item.disabled) {
             event.preventDefault();
             return;
         }
         
-        if(!item.url||item.routerLink) {
+        this.activeIndexChange.emit(i);
+                
+        if(!item.url) {
             event.preventDefault();
         }
         
@@ -65,17 +62,13 @@ export class Steps {
                 index: i
             });
         }
-        
-        if(item.routerLink) {
-            this.router.navigate(item.routerLink);
-        }
     }
     
 }
 
 @NgModule({
-    imports: [CommonModule],
-    exports: [Steps],
+    imports: [CommonModule,RouterModule],
+    exports: [Steps,RouterModule],
     declarations: [Steps]
 })
 export class StepsModule { }

@@ -1,4 +1,4 @@
-import {NgModule,Component,Input,Output,OnInit,AfterViewInit,OnDestroy,EventEmitter,Renderer,ElementRef} from '@angular/core';
+import {NgModule,Component,Input,Output,OnInit,AfterViewInit,OnDestroy,EventEmitter,Renderer2,ElementRef,ChangeDetectorRef} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {DomHandler} from '../dom/domhandler';
 
@@ -10,8 +10,9 @@ import {DomHandler} from '../dom/domhandler';
             <div class="ui-overlaypanel-content">
                 <ng-content></ng-content>
             </div>
-            <a href="#" *ngIf="showCloseIcon" class="ui-overlaypanel-close ui-state-default" [ngClass]="{'ui-state-hover':hoverCloseIcon}"
-                (mouseenter)="hoverCloseIcon=true" (mouseleave)="hoverCloseIcon=false" (click)="onCloseClick($event)"><span class="fa fa-fw fa-close"></span></a>
+            <a href="#" *ngIf="showCloseIcon" class="ui-overlaypanel-close ui-state-default" (click)="onCloseClick($event)">
+                <span class="fa fa-fw fa-close"></span>
+            </a>
         </div>
     `,
     providers: [DomHandler]
@@ -40,8 +41,6 @@ export class OverlayPanel implements OnInit,AfterViewInit,OnDestroy {
 
     visible: boolean = false;
 
-    hoverCloseIcon: boolean;
-
     documentClickListener: any;
     
     selfClick: boolean;
@@ -50,16 +49,17 @@ export class OverlayPanel implements OnInit,AfterViewInit,OnDestroy {
     
     target: any;
 
-    constructor(public el: ElementRef, public domHandler: DomHandler, public renderer: Renderer) {}
+    constructor(public el: ElementRef, public domHandler: DomHandler, public renderer: Renderer2, private cd: ChangeDetectorRef) {}
 
     ngOnInit() {
         if(this.dismissable) {
-            this.documentClickListener = this.renderer.listenGlobal('body', 'click', () => {
+            this.documentClickListener = this.renderer.listen('document', 'click', () => {
                 if(!this.selfClick&&!this.targetEvent) {
                     this.hide();
                 }
                 this.selfClick = false;
                 this.targetEvent = false;
+                this.cd.markForCheck();
             });
         }
     }
@@ -70,7 +70,7 @@ export class OverlayPanel implements OnInit,AfterViewInit,OnDestroy {
             if(this.appendTo === 'body')
                 document.body.appendChild(this.container);
             else
-                this.appendTo.appendChild(this.container);
+                this.domHandler.appendChild(this.container, this.appendTo);
         }
     }
     

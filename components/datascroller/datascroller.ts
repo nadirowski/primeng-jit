@@ -1,8 +1,6 @@
-import {NgModule,Component,ElementRef,AfterViewInit,OnDestroy,DoCheck,Input,Output,Renderer,EventEmitter,ContentChild,IterableDiffers,TemplateRef} from '@angular/core';
+import {NgModule,Component,ElementRef,AfterViewInit,AfterContentInit,OnDestroy,Input,Output,Renderer2,ViewChild,EventEmitter,ContentChild,ContentChildren,QueryList,TemplateRef} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {Header} from '../common/shared';
-import {Footer} from '../common/shared';
-import {SharedModule} from '../common/shared';
+import {Header,Footer,PrimeTemplate,SharedModule} from '../common/shared';
 import {DomHandler} from '../dom/domhandler';
 
 @Component({
@@ -10,25 +8,23 @@ import {DomHandler} from '../dom/domhandler';
     template: `
     <div [ngClass]="{'ui-datascroller ui-widget': true, 'ui-datascroller-inline': inline}" [ngStyle]="style" [class]="styleClass">
         <div class="ui-datascroller-header ui-widget-header ui-corner-top" *ngIf="header">
-            <ng-content select="header"></ng-content>
+            <ng-content select="p-header"></ng-content>
         </div>
-        <div class="ui-datascroller-content ui-widget-content" [ngStyle]="{'max-height': scrollHeight}">
+        <div #content class="ui-datascroller-content ui-widget-content" [ngStyle]="{'max-height': scrollHeight}">
             <ul class="ui-datascroller-list">
                 <li *ngFor="let item of dataToRender">
-                    <template [pTemplateWrapper]="itemTemplate" [item]="item"></template>
+                    <ng-template [pTemplateWrapper]="itemTemplate" [item]="item"></ng-template>
                 </li>
             </ul>
         </div>
         <div class="ui-datascroller-footer ui-widget-header ui-corner-bottom" *ngIf="footer">
-            <ng-content select="footer"></ng-content>
+            <ng-content select="p-footer"></ng-content>
         </div>
     </div>
     `,
     providers: [DomHandler]
 })
-export class DataScroller implements AfterViewInit,DoCheck,OnDestroy {
-
-    @Input() value: any[];
+export class DataScroller implements AfterViewInit,OnDestroy {
 
     @Input() rows: number;
 
@@ -45,28 +41,30 @@ export class DataScroller implements AfterViewInit,DoCheck,OnDestroy {
     @Input() inline: boolean;
     
     @Input() scrollHeight: any;
+    
+    @Input() loader: any;
+    
+    @ViewChild('content') contentViewChild: ElementRef;
         
     @ContentChild(Header) header;
 
     @ContentChild(Footer) footer;
     
-    @ContentChild(TemplateRef) itemTemplate: TemplateRef<any>;
+    @ContentChildren(PrimeTemplate) templates: QueryList<any>;
     
-    @Input() loader: any;
+    public _value: any[];
+    
+    public itemTemplate: TemplateRef<any>;
 
     public dataToRender: any[] = [];
 
     public first: number = 0;
     
-    differ: any;
-    
     scrollFunction: any;
     
-    contentElement: any;
+    contentElement: HTMLDivElement;
 
-    constructor(public el: ElementRef, differs: IterableDiffers, public renderer: Renderer, public domHandler: DomHandler) {
-        this.differ = differs.find([]).create(null);
-    }
+    constructor(public el: ElementRef, public renderer: Renderer2, public domHandler: DomHandler) {}
 
     ngAfterViewInit() {
         if(this.lazy) {
@@ -83,34 +81,58 @@ export class DataScroller implements AfterViewInit,DoCheck,OnDestroy {
         }
     }
     
-    ngDoCheck() {
-        let changes = this.differ.diff(this.value);
-
-        if(changes) {
-            if(this.lazy)
-                this.dataToRender = this.value;
-            else
-                this.load();
-        }
+    ngAfterContentInit() {
+        this.templates.forEach((item) => {
+            switch(item.getType()) {
+                case 'item':
+                    this.itemTemplate = item.template;
+                break;
+                
+                default:
+                    this.itemTemplate = item.template;
+                break;
+            }
+        });
     }
     
+    @Input() get value(): any[] {
+        return this._value;
+    }
+
+    set value(val:any[]) {
+        this._value = val;
+        this.handleDataChange();
+    }
+    
+    handleDataChange() {
+        if(this.lazy)
+            this.dataToRender = this.value;
+        else
+            this.load();
+    }
+        
     load() {
         if(this.lazy) {
             this.onLazyLoad.emit({
                 first: this.first,
                 rows: this.rows
             });
+            
+            this.first = this.first + this.rows;
         }
         else {
-            for(let i = this.first; i < (this.first + this.rows); i++) {
-                if(i >= this.value.length) {
-                    break;
-                }
+            if(this.value) {
+                for(let i = this.first; i < (this.first + this.rows); i++) {
+                    if(i >= this.value.length) {
+                        break;
+                    }
 
-                this.dataToRender.push(this.value[i]);
+                    this.dataToRender.push(this.value[i]);
+                }
+                
+                this.first = this.first + this.rows;
             }
         }
-        this.first = this.first + this.rows;
     }
      
     reset() {
@@ -132,7 +154,7 @@ export class DataScroller implements AfterViewInit,DoCheck,OnDestroy {
     
     bindScrollListener() {
         if(this.inline) {
-            this.contentElement = this.domHandler.findSingle(this.el.nativeElement, 'div.ui-datascroller-content');
+            this.contentElement = this.contentViewChild.nativeElement;
             
             this.scrollFunction = this.renderer.listen(this.contentElement, 'scroll', () => {
                 let scrollTop = this.contentElement.scrollTop;
@@ -145,7 +167,7 @@ export class DataScroller implements AfterViewInit,DoCheck,OnDestroy {
             });
         }
         else {
-            this.scrollFunction = this.renderer.listenGlobal('window', 'scroll', () => {
+            this.scrollFunction = this.renderer.listen('window', 'scroll', () => {
                 let docBody = document.body;
                 let docElement = document.documentElement;
                 let scrollTop = (window.pageYOffset||document.documentElement.scrollTop);

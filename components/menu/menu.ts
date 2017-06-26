@@ -1,41 +1,49 @@
-import {NgModule,Component,ElementRef,AfterViewInit,OnDestroy,Input,Output,Renderer,EventEmitter} from '@angular/core';
+import {NgModule,Component,ElementRef,AfterViewInit,OnDestroy,Input,Output,Renderer2,HostListener,EventEmitter,ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {DomHandler} from '../dom/domhandler';
 import {MenuItem} from '../common/api';
-import {Router} from '@angular/router';
+import {RouterModule} from '@angular/router';
 
 @Component({
     selector: 'p-menu',
     template: `
-        <div [ngClass]="{'ui-menu ui-widget ui-widget-content ui-corner-all ui-helper-clearfix':true,'ui-menu-dynamic ui-shadow':popup}" 
+        <div #container [ngClass]="{'ui-menu ui-widget ui-widget-content ui-corner-all ui-helper-clearfix':true,'ui-menu-dynamic ui-shadow':popup}" 
             [class]="styleClass" [ngStyle]="style" (click)="preventDocumentDefault=true">
             <ul class="ui-menu-list ui-helper-reset">
-                <template ngFor let-submenu [ngForOf]="model" *ngIf="hasSubMenu()">
+                <ng-template ngFor let-submenu [ngForOf]="model" *ngIf="hasSubMenu()">
                     <li class="ui-widget-header ui-corner-all"><h3>{{submenu.label}}</h3></li>
-                    <li *ngFor="let item of submenu.items" class="ui-menuitem ui-widget ui-corner-all" 
-                        [id]="item.id || ''">
-                        <a #link [href]="item.url||'#'" class="ui-menuitem-link ui-corner-all" 
-                            [ngClass]="{'ui-state-hover':link==hoveredItem&&!item.disabled,'ui-state-disabled':item.disabled}"
-                            (mouseenter)="hoveredItem=$event.target" (mouseleave)="hoveredItem=null" (click)="itemClick($event, item)">
+                    <li *ngFor="let item of submenu.items" class="ui-menuitem ui-widget ui-corner-all" [id]="item.id || ''">
+                        <a *ngIf="!item.routerLink" [href]="item.url||'#'" class="ui-menuitem-link ui-corner-all" [attr.target]="item.target"
+                            [ngClass]="{'ui-state-disabled':item.disabled}" (click)="itemClick($event, item)">
+                            <span class="ui-menuitem-icon fa fa-fw" *ngIf="item.icon" [ngClass]="item.icon"></span>
+                            <span class="ui-menuitem-text">{{item.label}}</span>
+                        </a>
+                        <a *ngIf="item.routerLink" [routerLink]="item.routerLink" [routerLinkActive]="'ui-state-active'" [routerLinkActiveOptions]="item.routerLinkActiveOptions||{exact:false}" class="ui-menuitem-link ui-corner-all" [attr.target]="item.target"
+                            [ngClass]="{'ui-state-disabled':item.disabled}" (click)="itemClick($event, item)">
                             <span class="ui-menuitem-icon fa fa-fw" *ngIf="item.icon" [ngClass]="item.icon"></span>
                             <span class="ui-menuitem-text">{{item.label}}</span>
                         </a>
                     </li>
-                </template>
-                <template ngFor let-item [ngForOf]="model" *ngIf="!hasSubMenu()">
-                    <li class="ui-menuitem ui-widget ui-corner-all">
-                        <a #link [href]="item.url||'#'" class="ui-menuitem-link ui-corner-all" 
-                            [ngClass]="{'ui-state-hover':link==hoveredItem&&!item.disabled,'ui-state-disabled':item.disabled}"
-                            (mouseenter)="hoveredItem=$event.target" (mouseleave)="hoveredItem=null" (click)="itemClick($event, item)">
+                </ng-template>
+                <ng-template ngFor let-item [ngForOf]="model" *ngIf="!hasSubMenu()">
+                    <li class="ui-menuitem ui-widget ui-corner-all" [id]="item.id || ''">
+                        <a *ngIf="!item.routerLink" [href]="item.url||'#'" class="ui-menuitem-link ui-corner-all" [attr.target]="item.target"
+                            [ngClass]="{'ui-state-disabled':item.disabled}" (click)="itemClick($event, item)">
+                            <span class="ui-menuitem-icon fa fa-fw" *ngIf="item.icon" [ngClass]="item.icon"></span>
+                            <span class="ui-menuitem-text">{{item.label}}</span>
+                        </a>
+                        <a *ngIf="item.routerLink" [routerLink]="item.routerLink" [routerLinkActive]="'ui-state-active'" [routerLinkActiveOptions]="item.routerLinkActiveOptions||{exact:false}" class="ui-menuitem-link ui-corner-all" [attr.target]="item.target"
+                            [ngClass]="{'ui-state-disabled':item.disabled}" (click)="itemClick($event, item)">
                             <span class="ui-menuitem-icon fa fa-fw" *ngIf="item.icon" [ngClass]="item.icon"></span>
                             <span class="ui-menuitem-text">{{item.label}}</span>
                         </a>
                     </li>
-                </template>
+                </ng-template>
             </ul>
         </div>
     `,
-    providers: [DomHandler]
+    providers: [DomHandler],
+    host: {'(window:resize)': 'onResize($event)'}
 })
 export class Menu implements AfterViewInit,OnDestroy {
 
@@ -49,26 +57,30 @@ export class Menu implements AfterViewInit,OnDestroy {
     
     @Input() appendTo: any;
     
-    container: any;
+    @ViewChild('container') containerViewChild: ElementRef;
+    
+    container: HTMLDivElement;
     
     documentClickListener: any;
     
     preventDocumentDefault: any;
+
+    onResizeTarget: any;
     
-    constructor(public el: ElementRef, public domHandler: DomHandler, public renderer: Renderer, public router: Router) {}
+    constructor(public el: ElementRef, public domHandler: DomHandler, public renderer: Renderer2) {}
 
     ngAfterViewInit() {
-        this.container = this.el.nativeElement.children[0];
+        this.container = <HTMLDivElement> this.containerViewChild.nativeElement;
         
         if(this.popup) {
             if(this.appendTo) {
                 if(this.appendTo === 'body')
-                    document.body.appendChild(this.el.nativeElement);
+                    document.body.appendChild(this.container);
                 else
-                    this.appendTo.appendChild(this.el.nativeElement);
+                    this.domHandler.appendChild(this.container, this.appendTo);
             }
                 
-            this.documentClickListener = this.renderer.listenGlobal('body', 'click', () => {
+            this.documentClickListener = this.renderer.listen('document', 'click', () => {
                 if(!this.preventDocumentDefault) {
                     this.hide();
                 }
@@ -85,16 +97,20 @@ export class Menu implements AfterViewInit,OnDestroy {
             
         this.preventDocumentDefault = true;
     }
+
+    onResize(event) {
+        if(this.onResizeTarget && this.container.offsetParent) {
+            this.domHandler.absolutePosition(this.container, this.onResizeTarget);
+        }
+    }
     
     show(event) {
-        let target = event.target;
-        if(target.parentElement.nodeName == 'BUTTON') {
-            target = target.parentElement;
-        }
-        
+        let target = event.currentTarget;
+        this.onResizeTarget = event.currentTarget;
         this.container.style.display = 'block';
         this.domHandler.absolutePosition(this.container, target);
         this.domHandler.fadeIn(this.container, 250);
+        this.preventDocumentDefault = true;
     }
     
     hide() {
@@ -107,7 +123,7 @@ export class Menu implements AfterViewInit,OnDestroy {
             return;
         }
         
-        if(!item.url||item.routerLink) {
+        if(!item.url) {
             event.preventDefault();
         }
         
@@ -126,18 +142,16 @@ export class Menu implements AfterViewInit,OnDestroy {
         if(this.popup) {
             this.hide();
         }
-        
-        if(item.routerLink) {
-            this.router.navigate(item.routerLink);
-        }
     }
     
     ngOnDestroy() {
         if(this.popup) {
-            this.documentClickListener();
+            if(this.documentClickListener) {
+                this.documentClickListener();
+            }
             
-            if(this.appendTo && this.appendTo === 'body') {
-                document.body.removeChild(this.el.nativeElement);
+            if(this.appendTo) {
+                this.el.nativeElement.appendChild(this.container);
             }
         }
         
@@ -173,8 +187,8 @@ export class Menu implements AfterViewInit,OnDestroy {
 }
 
 @NgModule({
-    imports: [CommonModule],
-    exports: [Menu],
+    imports: [CommonModule,RouterModule],
+    exports: [Menu,RouterModule],
     declarations: [Menu]
 })
 export class MenuModule { }

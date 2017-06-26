@@ -1,20 +1,20 @@
-<div class="ContentSideSections">
+<div class="content-section">
     <div>
-        <span class="fontSize30 TextShadow orange marginBottom20 dispBlock">Terminal</span>
-        <span class="defaultText">Terminal is a text based user interface. Enter "date" to display the current date.</span>
+        <span class="feature-title">Terminal</span>
+        <span>Terminal is a text based user interface. Enter "date" to display the current date.</span>
     </div>
 </div>
 
-<div class="ContentSideSections Implementation">
+<div class="content-section implementation">
     <p-terminal (handler)="onCommand($event)" [response]="response" welcomeMessage="Welcome to PrimeNG" prompt="primeng $"></p-terminal>
 </div>
 
-<div class="ContentSideSections Source">
+<div class="content-section source">
     <p-tabView effect="fade">
         <p-tabPanel header="Documentation">
             <h3>Import</h3>
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 import &#123;TerminalModule&#125; from 'primeng/primeng';
 </code>
 </pre>
@@ -23,7 +23,7 @@ import &#123;TerminalModule&#125; from 'primeng/primeng';
             <p>Terminal is defined using p-terminal element with a command handler and a response property. The entered command 
             is passed to the handler by the event parameter and the response is sent back using a binding to the response property.</p>
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 export class TerminalDemo &#123;
     
     response: string;
@@ -38,12 +38,12 @@ export class TerminalDemo &#123;
 </pre>
 
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-terminal (handler)="onCommand($event)" [response]="response" welcomeMessage="Welcome to PrimeNG" prompt="primeng $"&gt;&lt;/p-terminal&gt;
 </code>
 </pre>
 
-            <h3>Attributes</h3>
+            <h3>Properties</h3>
             <div class="doc-tablewrapper">
                 <table class="doc-table">
                     <thead>
@@ -147,13 +147,13 @@ export class TerminalDemo &#123;
 
 <p-tabPanel header="Source">
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-terminal (handler)="onCommand($event)" [response]="response" welcomeMessage="Welcome to PrimeNG" prompt="primeng $"&gt;&lt;/p-terminal&gt;
 </code>
 </pre>
     
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 export class TerminalDemo &#123;
     
     response: string;

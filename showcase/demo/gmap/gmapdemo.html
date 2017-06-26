@@ -1,54 +1,48 @@
-<div class="ContentSideSections">
+<div class="content-section">
     <div>
-        <span class="fontSize30 TextShadow orange marginBottom20 dispBlock">GMap</span>
-        <span class="defaultText">GMap component provides integration with Google Maps API. This sample demontrates
+        <span class="feature-title">GMap</span>
+        <span>GMap component provides integration with Google Maps API. This sample demontrates
         various uses cases like binding, overlays and events. Click the map to add a new item.</span>
     </div>
 </div>
 
-<div class="ContentSideSections Implementation">
+<div class="content-section implementation">
     <p-growl [value]="msgs"></p-growl>
     
     <p-gmap #gmap [style]="&#123;'width':'100%','height':'320px'&#125;" [options]="options" [overlays]="overlays" 
         (onMapClick)="handleMapClick($event)" (onOverlayClick)="handleOverlayClick($event)" (onOverlayDragEnd)="handleDragEnd($event)"></p-gmap>
     <button type="button" pButton label="Clear" icon="fa-close" (click)="clear()" style="margin-top:10px"></button>
-    <button type="button" pButton label="Reset" icon="fa-map-marker" (click)="initOverlays()" style="margin-top:10px"></button>
     <button type="button" pButton label="Zoom In" icon="fa-search-plus" (click)="zoomIn(gmap.getMap())" style="margin-top:10px"></button>
     <button type="button" pButton label="Zoom Out" icon="fa-search-minus" (click)="zoomOut(gmap.getMap())" style="margin-top:10px"></button>
 
-    <p-dialog showEffect="fade" [(visible)]="dialogVisible" header="New Location">
-        <div class="ui-grid ui-grid-pad ui-fluid" *ngIf="selectedPosition">
-            <div class="ui-grid-row">
-                <div class="ui-grid-col-2"><label for="title">Label</label></div>
-                <div class="ui-grid-col-10"><input type="text" pInputText id="title" [(ngModel)]="markerTitle"></div>
-            </div>
-            <div class="ui-grid-row">
-                <div class="ui-grid-col-2"><label for="lat">Lat</label></div>
-                <div class="ui-grid-col-10"><input id="lat" type="text" readonly pInputText [ngModel]="selectedPosition.lat()"></div>
-            </div>
-            <div class="ui-grid-row">
-                <div class="ui-grid-col-2"><label for="lng">Lng</label></div>
-                <div class="ui-grid-col-10"><input id="lng" type="text" readonly pInputText [ngModel]="selectedPosition.lng()"></div>
-            </div>
-            <div class="ui-grid-row">
-                <div class="ui-grid-col-2"><label for="drg">Drag</label></div>
-                <div class="ui-grid-col-10"><p-checkbox [(ngModel)]="draggable" binary="true"></p-checkbox></div>
-            </div>
+    <p-dialog showEffect="fade" [(visible)]="dialogVisible" header="New Location" [width]="300">
+        <div class="ui-g ui-fluid" *ngIf="selectedPosition">
+            <div class="ui-g-2"><label for="title">Label</label></div>
+            <div class="ui-g-10"><input type="text" pInputText id="title" [(ngModel)]="markerTitle"></div>
+            
+            <div class="ui-g-2"><label for="lat">Lat</label></div>
+            <div class="ui-g-10"><input id="lat" type="text" readonly pInputText [ngModel]="selectedPosition.lat()"></div>
+            
+            <div class="ui-g-2"><label for="lng">Lng</label></div>
+            <div class="ui-g-10"><input id="lng" type="text" readonly pInputText [ngModel]="selectedPosition.lng()"></div>
+            
+            <div class="ui-g-2"><label for="drg">Drag</label></div>
+            <div class="ui-g-10"><p-checkbox [(ngModel)]="draggable" binary="true" [style]="{'margin-top':'.25em'}"></p-checkbox></div>
         </div>
-        <footer>
-            <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
+        <p-footer>
+            <div class="ui-dialog-buttonpane ui-helper-clearfix">
                 <button type="button" pButton label="Add Marker" icon="fa-plus" (click)="addMarker()"></button>
             </div>
-        </footer>
+        </p-footer>
     </p-dialog>
 </div>
 
-<div class="ContentSideSections Source">
+<div class="content-section source">
     <p-tabView effect="fade">
         <p-tabPanel header="Documentation">
             <h3>Import</h3>
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 import &#123;GMapModule&#125; from 'primeng/primeng';
 </code>
 </pre>
@@ -56,13 +50,13 @@ import &#123;GMapModule&#125; from 'primeng/primeng';
             <h3>Getting Started</h3>
             <p>A map is initialized with options and dimensions. Refer to the google maps api for the list of available options.</p>
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-gmap [options]="options" [style]="&#123;'width':'100%','height':'320px'&#125;" &gt;&lt;/p-gmap&gt;
 </code>
 </pre>
 
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 export class MyModel &#123;
 
     options: any;
@@ -84,13 +78,13 @@ export class MyModel &#123;
             <p>GMap can display any type of overlay such as markers, polygons and circles. Overlay instances are bound using the overlays property array. Overlays are aware
             of one-way binding so whenever the array changes, gmap updates itself.</p>
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-gmap [options]="options" [overlays]="overlays" [style]="&#123;'width':'100%','height':'320px'&#125;" &gt;&lt;/p-gmap&gt;
 </code>
 </pre>
 
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 export class MyModel &#123;
 
     options: any;
@@ -122,14 +116,14 @@ export class MyModel &#123;
             <h3>Events</h3>
             <p>GMap provides common callbacks to hook into events including map click, overlay click and overlay dragging.</p>
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-gmap [options]="options" [overlays]="overlays" [style]="&#123;'width':'100%','height':'320px'&#125;"
             (onMapClick)="handleMapClick($event)" (onOverlayClick)="handleOverlayClick($event)"&gt;&lt;/p-gmap&gt;
 </code>
 </pre>
 
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 export class MyModel &#123;
 
     options: any;
@@ -171,7 +165,7 @@ export class MyModel &#123;
             <h3>Google Maps API</h3>
             <p>In case you need to access the map instance directly, use the getMap() method.</p>
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-gmap #gmap [options]="options"&gt;&lt;/p-gmap&gt;
 
 &lt;button type="button" pButton label="Zoom In" icon="fa-search-plus" (click)="zoomIn(gmap.getMap())"&gt;&lt;/button&gt;
@@ -179,7 +173,7 @@ export class MyModel &#123;
 </pre>
 
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 export class MyModel &#123;
 
     options: any;
@@ -199,8 +193,50 @@ export class MyModel &#123;
 &#125;
 </code>
 </pre>
+            <p>Another option is to to get the map object directly after init via (onMapReady) event.
+               In the example below, google.maps.Map is used for adjusting map bounds to markers.</p>
+<pre>
+<code class="language-markup" pCode ngNonBindable>
+&lt;p-gmap #gmap [options]="options" [overlays]="overlays" [style]="mapStyle"
+    (onMapReady)="setMap($event)"&gt;&lt;/p-gmap&gt;
+</code>
+</pre>
+            <p>Then from your component you would write</p>
+<pre>
+<code class="language-typescript" pCode ngNonBindable>
+export class MyModel &#123;
 
-            <h3>Attributes</h3>
+    options: any;
+    
+    overlays: any[];
+    
+    map: google.maps.Map;
+    
+    setMap(event) &#123;
+        this.map = event.map;
+    &#125;
+    
+    ngOnInit() &#123;
+        let bounds = new google.maps.LatLngBounds();
+        this.overlays = [
+            new google.maps.Marker(&#123;position: &#123;lat: 36.879466, lng: 30.667648&#125;, title:"Konyaalti"&#125;),
+            new google.maps.Marker(&#123;position: &#123;lat: 36.883707, lng: 30.689216&#125;, title:"Ataturk Park"&#125;),
+            new google.maps.Marker(&#123;position: &#123;lat: 36.885233, lng: 30.702323&#125;, title:"Oldtown"&#125;),
+        ]
+        // ... extend bounds
+        this.overlays.forEach(marker => &#123;
+            bounds.extend(marker.getPosition());
+        &#125;);
+        
+        setTimeout(()=> &#123; // map will need some time to load
+            this.map.fitBounds(bounds); // Map object used directly
+        &#125;, 1000);
+    &#125;
+&#125;
+</code>
+</pre>
+
+            <h3>Properties</h3>
             <div class="doc-tablewrapper">
                 <table class="doc-table">
                     <thead>
@@ -284,6 +320,11 @@ export class MyModel &#123;
                                 map: Map instance <br></td>
                             <td>Callback to invoke when an overlay drag ends.</td>
                         </tr>
+                        <tr>
+                            <td>onMapReady</td>
+                            <td>event.map: Google Maps Instance</td>
+                            <td>Callback to invoke when the map is ready to be used.</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -294,46 +335,40 @@ export class MyModel &#123;
 
         <p-tabPanel header="Source">
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-growl [value]="msgs"&gt;&lt;/p-growl&gt;
 
 &lt;p-gmap #gmap [style]="&#123;'width':'100%','height':'320px'&#125;" [options]="options" [overlays]="overlays" 
     (onMapClick)="handleMapClick($event)" (onOverlayClick)="handleOverlayClick($event)" (onOverlayDragEnd)="handleDragEnd($event)"&gt;&lt;/p-gmap&gt;
 &lt;button type="button" pButton label="Clear" icon="fa-close" (click)="clear()" style="margin-top:10px"&gt;&lt;/button&gt;
-&lt;button type="button" pButton label="Reset" icon="fa-map-marker" (click)="initOverlays()" style="margin-top:10px"&gt;&lt;/button&gt;
 &lt;button type="button" pButton label="Zoom In" icon="fa-search-plus" (click)="zoomIn(gmap.getMap())" style="margin-top:10px"&gt;&lt;/button&gt;
 &lt;button type="button" pButton label="Zoom Out" icon="fa-search-minus" (click)="zoomOut(gmap.getMap())" style="margin-top:10px"&gt;&lt;/button&gt;
 
 &lt;p-dialog showEffect="fade" [(visible)]="dialogVisible" header="New Location"&gt;
-    &lt;div class="ui-grid ui-grid-pad ui-fluid" *ngIf="selectedPosition"&gt;
-        &lt;div class="ui-grid-row"&gt;
-            &lt;div class="ui-grid-col-2"&gt;&lt;label for="title"&gt;Label&lt;/label&gt;&lt;/div&gt;
-            &lt;div class="ui-grid-col-10"&gt;&lt;input type="text" pInputText id="title" [(ngModel)]="markerTitle"&gt;&lt;/div&gt;
-        &lt;/div&gt;
-        &lt;div class="ui-grid-row"&gt;
-            &lt;div class="ui-grid-col-2"&gt;&lt;label for="lat"&gt;Lat&lt;/label&gt;&lt;/div&gt;
-            &lt;div class="ui-grid-col-10"&gt;&lt;input id="lat" type="text" readonly pInputText [ngModel]="selectedPosition.lat()"&gt;&lt;/div&gt;
-        &lt;/div&gt;
-        &lt;div class="ui-grid-row"&gt;
-            &lt;div class="ui-grid-col-2"&gt;&lt;label for="lng"&gt;Lng&lt;/label&gt;&lt;/div&gt;
-            &lt;div class="ui-grid-col-10"&gt;&lt;input id="lng" type="text" readonly pInputText [ngModel]="selectedPosition.lng()"&gt;&lt;/div&gt;
-        &lt;/div&gt;
-        &lt;div class="ui-grid-row"&gt;
-            &lt;div class="ui-grid-col-2"&gt;&lt;label for="drg"&gt;Drag&lt;/label&gt;&lt;/div&gt;
-            &lt;div class="ui-grid-col-10"&gt;&lt;p-checkbox [(ngModel)]="draggable" binary="true"&gt;&lt;/p-checkbox&gt;&lt;/div&gt;
-        &lt;/div&gt;
+    &lt;div class="ui-g ui-fluid" *ngIf="selectedPosition"&gt;
+        &lt;div class="ui-g-2"&gt;&lt;label for="title"&gt;Label&lt;/label&gt;&lt;/div&gt;
+        &lt;div class="ui-g-10"&gt;&lt;input type="text" pInputText id="title" [(ngModel)]="markerTitle"&gt;&lt;/div&gt;
+        
+        &lt;div class="ui-g-2"&gt;&lt;label for="lat"&gt;Lat&lt;/label&gt;&lt;/div&gt;
+        &lt;div class="ui-g-10"&gt;&lt;input id="lat" type="text" readonly pInputText [ngModel]="selectedPosition.lat()"&gt;&lt;/div&gt;
+        
+        &lt;div class="ui-g-2"&gt;&lt;label for="lng"&gt;Lng&lt;/label&gt;&lt;/div&gt;
+        &lt;div class="ui-g-10"&gt;&lt;input id="lng" type="text" readonly pInputText [ngModel]="selectedPosition.lng()"&gt;&lt;/div&gt;
+        
+        &lt;div class="ui-g-2"&gt;&lt;label for="drg"&gt;Drag&lt;/label&gt;&lt;/div&gt;
+        &lt;div class="ui-g-10"&gt;&lt;p-checkbox [(ngModel)]="draggable" binary="true" [style]="&#123;'margin-top':'.25em'&#125;"&gt;&lt;/p-checkbox&gt;&lt;/div&gt;
     &lt;/div&gt;
-    &lt;footer&gt;
-        &lt;div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix"&gt;
+    &lt;p-footer&gt;
+        &lt;div class="ui-dialog-buttonpane ui-helper-clearfix"&gt;
             &lt;button type="button" pButton label="Add Marker" icon="fa-plus" (click)="addMarker()"&gt;&lt;/button&gt;
         &lt;/div&gt;
-    &lt;/footer&gt;
+    &lt;/p-footer&gt;
 &lt;/p-dialog&gt;
 </code>
 </pre>
 
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 export class GMapDemo implements OnInit &#123;
 
     options: any;

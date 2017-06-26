@@ -1,4 +1,4 @@
-import {NgModule,Component,ElementRef,AfterViewInit,OnDestroy,DoCheck,Input,Output,EventEmitter,IterableDiffers} from '@angular/core';
+import {NgModule,Component,ElementRef,AfterViewInit,OnDestroy,Input,Output,EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
 
 declare var Chart: any;
@@ -11,11 +11,9 @@ declare var Chart: any;
         </div>
     `
 })
-export class UIChart implements AfterViewInit, OnDestroy, DoCheck {
+export class UIChart implements AfterViewInit, OnDestroy {
 
     @Input() type: string;
-
-    @Input() data: any;
 
     @Input() options: any;
     
@@ -26,29 +24,25 @@ export class UIChart implements AfterViewInit, OnDestroy, DoCheck {
     @Output() onDataSelect: EventEmitter<any> = new EventEmitter();
 
     initialized: boolean;
+    
+    _data: any;
 
     chart: any;
 
-    differ: any;
+    constructor(public el: ElementRef) {}
+    
+    @Input() get data(): any {
+        return this._data;
+    }
 
-    constructor(public el: ElementRef, differs: IterableDiffers) {
-        this.differ = differs.find([]).create(null);
+    set data(val:any) {
+        this._data = val;
+        this.reinit();
     }
 
     ngAfterViewInit() {
         this.initChart();
         this.initialized = true;
-    }
-
-    ngDoCheck() {
-        var changes = this.differ.diff(this.data.datasets);
-        if (changes && this.initialized) {
-            if(this.chart) {
-                this.chart.destroy();
-            }
-
-            this.initChart();
-        }
     }
 
     onCanvasClick(event) {
@@ -75,6 +69,25 @@ export class UIChart implements AfterViewInit, OnDestroy, DoCheck {
     
     getBase64Image() {
         return this.chart.toBase64Image();
+    }
+    
+    generateLegend() {
+        if(this.chart) {
+            this.chart.generateLegend();
+        }
+    }
+    
+    refresh() {
+        if(this.chart) {
+            this.chart.update();
+        }
+    }
+    
+    reinit() {
+        if(this.chart) {
+            this.chart.destroy();
+            this.initChart();
+        }
     }
     
     ngOnDestroy() {

@@ -1,11 +1,11 @@
-<div class="ContentSideSections">
+<div class="content-section">
     <div>
-        <span class="fontSize30 TextShadow orange marginBottom20 dispBlock">TabView</span>
-        <span class="defaultText">TabView is a container component to group content with tabs.</span>
+        <span class="feature-title">TabView</span>
+        <span>TabView is a container component to group content with tabs.</span>
     </div>
 </div>
 
-<div class="ContentSideSections Implementation">
+<div class="content-section implementation">
     <p-growl [value]="msgs"></p-growl>
 
     <h3 class="first">Default</h3>
@@ -24,7 +24,7 @@
     <h3>Closable</h3>
     <p-tabView>
         <p-tabPanel header="Godfather I" [selected]="true">
-            The story begi ns as Don Vito Corleone, the head of a New York Mafia family, overseeshis daughter's wedding. His beloved son ichael has just come home from the war, but does not intend to become part of his father's business. T hrough Michael's life the nature of the family business becomes clear. The business of the family is just like the head of the family, kind and benevolent to those who give respect, but given to ruthless violence whenever anything stands against the good of the family.
+            The story begins as Don Vito Corleone, the head of a New York Mafia family, overseeshis daughter's wedding. His beloved son ichael has just come home from the war, but does not intend to become part of his father's business. T hrough Michael's life the nature of the family business becomes clear. The business of the family is just like the head of the family, kind and benevolent to those who give respect, but given to ruthless violence whenever anything stands against the good of the family.
         </p-tabPanel>
         <p-tabPanel header="Godfather II" [closable]="true">
             Francis Ford Coppola's legendary continuation and sequel to his landmark 1972 film, The_Godfather parallels the young Vito Corleone's rise with his son Michael's spiritual fall, deepening The_Godfather's depiction of the dark side of the American dream. In the early 1900s, the child Vito flees his Sicilian village for America after the local Mafia kills his family. Vito struggles to make a living, legally or illegally, for his wife and growing brood in Little Italy, killing the local Black Hand Fanucci after he demands his customary cut of the tyro's business. With Fanucci gone, Vito's communal stature grows.
@@ -37,7 +37,7 @@
     <h3>Event</h3>
     <p-tabView (onChange)="onTabChange($event)">
         <p-tabPanel header="Godfather I">
-            The story begi ns as Don Vito Corleone, the head of a New York Mafia family, overseeshis daughter's wedding. His beloved son ichael has just come home from the war, but does not intend to become part of his father's business. T hrough Michael's life the nature of the family business becomes clear. The business of the family is just like the head of the family, kind and benevolent to those who give respect, but given to ruthless violence whenever anything stands against the good of the family.
+            The story begins as Don Vito Corleone, the head of a New York Mafia family, overseeshis daughter's wedding. His beloved son ichael has just come home from the war, but does not intend to become part of his father's business. T hrough Michael's life the nature of the family business becomes clear. The business of the family is just like the head of the family, kind and benevolent to those who give respect, but given to ruthless violence whenever anything stands against the good of the family.
         </p-tabPanel>
         <p-tabPanel header="Godfather II" [selected]="true">
             Francis Ford Coppola's legendary continuation and sequel to his landmark 1972 film, The_Godfather parallels the young Vito Corleone's rise with his son Michael's spiritual fall, deepening The_Godfather's depiction of the dark side of the American dream. In the early 1900s, the child Vito flees his Sicilian village for America after the local Mafia kills his family. Vito struggles to make a living, legally or illegally, for his wife and growing brood in Little Italy, killing the local Black Hand Fanucci after he demands his customary cut of the tyro's business. With Fanucci gone, Vito's communal stature grows.
@@ -64,12 +64,12 @@
     </p-tabView>
 </div>
 
-<div class="ContentSideSections Source">
+<div class="content-section source">
     <p-tabView effect="fade">
         <p-tabPanel header ="Documentation">
             <h3>Import</h3>
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 import &#123;TabViewModule&#125; from 'primeng/primeng';
 </code>
 </pre>
@@ -78,7 +78,7 @@ import &#123;TabViewModule&#125; from 'primeng/primeng';
             <p>Tabview element consists of one or more p-tabPanel elements. Header of the tab is defined using header attribute.</p>
                     
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-tabView&gt;
     &lt;p-tabPanel header="Header 1"&gt;
        Content 1
@@ -96,7 +96,7 @@ import &#123;TabViewModule&#125; from 'primeng/primeng';
             <h3>Selection</h3>
             <p>First tab is selected by default, to customize this enable selected property on another panel.</p>
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-tabView&gt;
     &lt;p-tabPanel header="Header 1"&gt;
        Content 1
@@ -114,7 +114,7 @@ import &#123;TabViewModule&#125; from 'primeng/primeng';
             <h3>Closable</h3>
             <p>When closable attribute is enabled, an icon is displayed to close the tab. onClose event is fired when a tab is closed.</p>
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-tabPanel header="Header Text" [closable]="true"&gt;
     Content 1
 &lt;/p-tabPanel&gt;
@@ -125,15 +125,17 @@ import &#123;TabViewModule&#125; from 'primeng/primeng';
             to decide at onClose event. In this case, the event gets a 3rd parameter called close callback and invoking this function
             actually closes the tab.</p>
 <pre>
-<code class="language-markup" pCode>
-&lt;p-tabPanel header="Header Text" [closable]="true" [controlClose]="true" (onClose)="handleClose($event)"&gt;
+<code class="language-markup" pCode ngNonBindable>
+&lt;p-tabView [controlClose]="true" (onClose)="handleClose($event)"&gt;
+&lt;p-tabPanel header="Header Text" [closable]="true"&gt;
     Content 1
 &lt;/p-tabPanel&gt;
+&lt;/p-tabView&gt;
 </code>
 </pre>
 
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 handleClose(e) &#123;
    if(condition)
        e.close();
@@ -144,7 +146,7 @@ handleClose(e) &#123;
             <h3>Disabled</h3>
             <p>A tab can be disabled to prevent the content to be displayed by setting the disabled property on a panel.</p>
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-tabPanel header="Header Text" [disabled]="true"&gt;
     Content 1
 &lt;/p-tabPanel&gt;
@@ -154,7 +156,7 @@ handleClose(e) &#123;
             <h3>Icons</h3>
             <p>Icons can be placed at left and right of a header using leftIcon and rightIcon properties of tabPanel.</p>
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-tabPanel header="Header Text" leftIcon="fa-bell-o" rightIcon="fa-bookmark-o"&gt;;
     Content
 &lt;/p-tabPanel&gt;
@@ -165,7 +167,7 @@ handleClose(e) &#123;
             <p>TabView has four different orientations; "top", "bottom", "left" and "right". Top is the default one
             and this can be changed using orientation attribute.</p>
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-tabView orientation="left"&gt;
 </code>
 </pre>
@@ -187,6 +189,12 @@ handleClose(e) &#123;
                             <td>string</td>
                             <td>top</td>
                             <td>Orientation of tab headers.</td>
+                        </tr>
+                        <tr>
+                            <td>activeIndex</td>
+                            <td>number</td>
+                            <td>null</td>
+                            <td>Index of the active tab to change selected tab programmatically.</td>
                         </tr>
                         <tr>
                             <td>style</td>
@@ -258,6 +266,12 @@ handleClose(e) &#123;
                             <td>false</td>
                             <td>Whether tab close is controlled at onClose event or not.</td>
                         </tr>
+                        <tr>
+                            <td>lazy</td>
+                            <td>boolean</td>
+                            <td>false</td>
+                            <td>Defines whether the elements of an inactive panel are created on load or on demand when the panel gets selected.</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -295,13 +309,13 @@ handleClose(e) &#123;
                 </table>
             </div>
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-tabView (onChange)="handleChange($event)"&gt;
 </code>
 </pre>
 
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 handleChange(e) &#123;
     var index = e.index;
 &#125;
@@ -370,7 +384,7 @@ handleChange(e) &#123;
 &lt;h3&gt;Closable&lt;/h3&gt;
 &lt;p-tabView&gt;
     &lt;p-tabPanel header="Godfather I" [selected]="true"&gt;
-        The story begi ns as Don Vito Corleone, the head of a New York Mafia family, overseeshis daughter's wedding. His beloved son ichael has just come home from the war, but does not intend to become part of his father's business. T hrough Michael's life the nature of the family business becomes clear. The business of the family is just like the head of the family, kind and benevolent to those who give respect, but given to ruthless violence whenever anything stands against the good of the family.
+        The story begins as Don Vito Corleone, the head of a New York Mafia family, overseeshis daughter's wedding. His beloved son ichael has just come home from the war, but does not intend to become part of his father's business. T hrough Michael's life the nature of the family business becomes clear. The business of the family is just like the head of the family, kind and benevolent to those who give respect, but given to ruthless violence whenever anything stands against the good of the family.
     &lt;/p-tabPanel&gt;
     &lt;p-tabPanel header="Godfather II" [closable]="true"&gt;
         Francis Ford Coppola's legendary continuation and sequel to his landmark 1972 film, The_Godfather parallels the young Vito Corleone's rise with his son Michael's spiritual fall, deepening The_Godfather's depiction of the dark side of the American dream. In the early 1900s, the child Vito flees his Sicilian village for America after the local Mafia kills his family. Vito struggles to make a living, legally or illegally, for his wife and growing brood in Little Italy, killing the local Black Hand Fanucci after he demands his customary cut of the tyro's business. With Fanucci gone, Vito's communal stature grows.
@@ -383,7 +397,7 @@ handleChange(e) &#123;
 &lt;h3&gt;Event&lt;/h3&gt;
 &lt;p-tabView (onChange)="onTabChange($event)"&gt;
     &lt;p-tabPanel header="Godfather I"&gt;
-        The story begi ns as Don Vito Corleone, the head of a New York Mafia family, overseeshis daughter's wedding. His beloved son ichael has just come home from the war, but does not intend to become part of his father's business. T hrough Michael's life the nature of the family business becomes clear. The business of the family is just like the head of the family, kind and benevolent to those who give respect, but given to ruthless violence whenever anything stands against the good of the family.
+        The story begins as Don Vito Corleone, the head of a New York Mafia family, overseeshis daughter's wedding. His beloved son ichael has just come home from the war, but does not intend to become part of his father's business. T hrough Michael's life the nature of the family business becomes clear. The business of the family is just like the head of the family, kind and benevolent to those who give respect, but given to ruthless violence whenever anything stands against the good of the family.
     &lt;/p-tabPanel&gt;
     &lt;p-tabPanel header="Godfather II" [selected]="true"&gt;
         Francis Ford Coppola's legendary continuation and sequel to his landmark 1972 film, The_Godfather parallels the young Vito Corleone's rise with his son Michael's spiritual fall, deepening The_Godfather's depiction of the dark side of the American dream. In the early 1900s, the child Vito flees his Sicilian village for America after the local Mafia kills his family. Vito struggles to make a living, legally or illegally, for his wife and growing brood in Little Italy, killing the local Black Hand Fanucci after he demands his customary cut of the tyro's business. With Fanucci gone, Vito's communal stature grows.
@@ -412,7 +426,7 @@ handleChange(e) &#123;
 </pre>
 
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 export class TabViewDemo &#123;
 
     msgs: Message[];

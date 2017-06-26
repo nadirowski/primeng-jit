@@ -1,4 +1,4 @@
-import {NgModule,Component,Input,Output,EventEmitter,forwardRef} from '@angular/core';
+import {NgModule,Component,Input,Output,EventEmitter,forwardRef,ChangeDetectorRef} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {NG_VALUE_ACCESSOR, ControlValueAccessor} from '@angular/forms';
 
@@ -11,15 +11,14 @@ export const CHECKBOX_VALUE_ACCESSOR: any = {
 @Component({
     selector: 'p-checkbox',
     template: `
-        <div class="ui-chkbox ui-widget">
+        <div [ngStyle]="style" [ngClass]="'ui-chkbox ui-widget'" [class]="styleClass">
             <div class="ui-helper-hidden-accessible">
-                <input #cb type="checkbox" [name]="name" [value]="value" [checked]="checked" (focus)="onFocus($event)" (blur)="onBlur($event)"
-                [ngClass]="{'ui-state-focus':focused}" (change)="handleChange($event)" [disabled]="disabled">
+                <input #cb type="checkbox" [attr.id]="inputId" [name]="name" [value]="value" [checked]="checked" (focus)="onFocus($event)" (blur)="onBlur($event)"
+                [ngClass]="{'ui-state-focus':focused}" (change)="handleChange($event)" [disabled]="disabled" [attr.tabindex]="tabindex">
             </div>
             <div class="ui-chkbox-box ui-widget ui-corner-all ui-state-default" (click)="onClick($event,cb,true)"
-                        (mouseover)="hover=true" (mouseout)="hover=false" 
-                        [ngClass]="{'ui-state-hover':hover&&!disabled,'ui-state-active':checked,'ui-state-disabled':disabled,'ui-state-focus':focused}">
-                <span class="ui-chkbox-icon ui-c" [ngClass]="{'fa fa-fw fa-check':checked}"></span>
+                        [ngClass]="{'ui-state-active':checked,'ui-state-disabled':disabled,'ui-state-focus':focused}">
+                <span class="ui-chkbox-icon ui-c" [ngClass]="{'fa fa-check':checked}"></span>
             </div>
         </div>
         <label class="ui-chkbox-label" (click)="onClick($event,cb,true)" *ngIf="label">{{label}}</label>
@@ -37,6 +36,14 @@ export class Checkbox implements ControlValueAccessor {
     @Input() binary: string;
     
     @Input() label: string;
+
+    @Input() tabindex: number;
+
+    @Input() inputId: string;
+    
+    @Input() style: any;
+
+    @Input() styleClass: string;
     
     @Output() onChange: EventEmitter<any> = new EventEmitter();
     
@@ -45,12 +52,12 @@ export class Checkbox implements ControlValueAccessor {
     onModelChange: Function = () => {};
     
     onModelTouched: Function = () => {};
-    
-    hover: boolean;
-    
+        
     focused: boolean = false;
     
     checked: boolean = false;
+
+    constructor(private cd: ChangeDetectorRef) {}
 
     onClick(event,checkbox,focus:boolean) {
         event.preventDefault();
@@ -70,9 +77,9 @@ export class Checkbox implements ControlValueAccessor {
     updateModel() {
         if(!this.binary) {
             if(this.checked)
-                this.addValue(this.value);
+                this.addValue();
             else
-                this.removeValue(this.value);
+                this.removeValue();
 
             this.onModelChange(this.model);
         }
@@ -89,21 +96,21 @@ export class Checkbox implements ControlValueAccessor {
     }
 
     isChecked(): boolean {
-        if(!this.binary)
-            return this.findValueIndex(this.value) !== -1;
-        else
+        if(this.binary)
             return this.model;
+        else
+            return this.model && this.model.indexOf(this.value) > -1;
     }
 
-    removeValue(value) {
-        var index = this.findValueIndex(value);
-        if(index >= 0) {
-            this.model.splice(index, 1);
-        }
+    removeValue() {
+        this.model = this.model.filter(val => val !== this.value);
     }
 
-    addValue(value) {
-        this.model.push(value);
+    addValue() {
+        if(this.model)
+            this.model = [...this.model, this.value];
+        else
+            this.model = [this.value];
     }
     
     onFocus(event) {
@@ -114,24 +121,11 @@ export class Checkbox implements ControlValueAccessor {
         this.focused = false;
         this.onModelTouched();
     }
-
-    findValueIndex(value) {
-        var index: number = -1;
-        if(this.model) {
-            for (var i = 0; i < this.model.length; i++) {
-                if(this.model[i] == value) {
-                    index = i;
-                    break;
-                }
-            }
-        }
-
-        return index;
-    }
     
     writeValue(model: any) : void {
         this.model = model;
         this.checked = this.isChecked();
+        this.cd.markForCheck();
     }
     
     registerOnChange(fn: Function): void {

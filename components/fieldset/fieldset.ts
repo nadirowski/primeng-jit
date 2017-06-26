@@ -1,15 +1,17 @@
-import {NgModule,Component,Input,Output,EventEmitter,trigger,state,transition,style,animate,ElementRef} from '@angular/core';
+import {NgModule,Component,Input,Output,EventEmitter,ElementRef} from '@angular/core';
+import {trigger,state,style,transition,animate} from '@angular/animations';
 import {CommonModule} from '@angular/common';
+import {SharedModule} from '../common/shared';
 import {BlockableUI} from '../common/api';
 
 @Component({
     selector: 'p-fieldset',
     template: `
         <fieldset [ngClass]="{'ui-fieldset ui-widget ui-widget-content ui-corner-all': true, 'ui-fieldset-toggleable': toggleable}" [ngStyle]="style" [class]="styleClass">
-            <legend class="ui-fieldset-legend ui-corner-all ui-state-default ui-unselectable-text" 
-                (mouseenter)="onLegendMouseenter($event)" (mouseleave)="onLegendMouseleave($event)" (click)="toggle($event)" [ngClass]="{'ui-state-hover':hover}">
+            <legend class="ui-fieldset-legend ui-corner-all ui-state-default ui-unselectable-text" (click)="toggle($event)">
                 <span *ngIf="toggleable" class="ui-fieldset-toggler fa fa-w" [ngClass]="{'fa-minus': !collapsed,'fa-plus':collapsed}"></span>
                 {{legend}}
+                <ng-content select="p-header"></ng-content>
             </legend>
             <div class="ui-fieldset-content-wrapper" [@fieldsetContent]="collapsed ? 'hidden' : 'visible'" 
                         [ngClass]="{'ui-fieldset-content-wrapper-overflown': collapsed||animating}">
@@ -48,24 +50,10 @@ export class Fieldset implements BlockableUI {
         
     @Input() styleClass: string
     
-    public hover: boolean;
-    
     public animating: boolean;
     
     constructor(private el: ElementRef) {}
-    
-    onLegendMouseenter(event) {
-        if(this.toggleable) {
-            this.hover = true;
-        }
-    } 
-    
-    onLegendMouseleave(event) {
-        if(this.toggleable) {
-            this.hover = false;
-        }
-    }
-    
+        
     toggle(event) {
         if(this.toggleable) {
             this.animating = true;
@@ -101,7 +89,7 @@ export class Fieldset implements BlockableUI {
 
 @NgModule({
     imports: [CommonModule],
-    exports: [Fieldset],
+    exports: [Fieldset,SharedModule],
     declarations: [Fieldset]
 })
 export class FieldsetModule { }

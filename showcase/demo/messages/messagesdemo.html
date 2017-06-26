@@ -1,39 +1,39 @@
-<div class="ContentSideSections">
+<div class="content-section">
     <div>
-        <span class="fontSize30 TextShadow orange marginBottom20 dispBlock">Messages</span>
-        <span class="defaultText">Messages is used to display messages inline.</span>
+        <span class="feature-title">Messages</span>
+        <span>Messages is used to display messages inline.</span>
     </div>
 </div>
 
-<div class="ContentSideSections Implementation">
-    <p-messages [value]="msgs"></p-messages>
+<div class="content-section implementation">
+    <p-messages [(value)]="msgs"></p-messages>
 
     <div>
-        <button type="button" pButton (click)="showSuccess()" label="Success"></button>
-        <button type="button" pButton (click)="showInfo()" label="Info"></button>
-        <button type="button" pButton (click)="showWarn()" label="Warn"></button>
-        <button type="button" pButton (click)="showError()" label="Error"></button>
+        <button type="button" pButton (click)="showSuccess()" label="Success" class="ui-button-success"></button>
+        <button type="button" pButton (click)="showInfo()" label="Info" class="ui-button-info"></button>
+        <button type="button" pButton (click)="showWarn()" label="Warn" class="ui-button-warning"></button>
+        <button type="button" pButton (click)="showError()" label="Error" class="ui-button-danger"></button>
         <button type="button" pButton (click)="showMultiple()" label="Multiple"></button>
         <button type="button" pButton (click)="clear()" icon="fa-close" style="float:right" label="Clear"></button>
     </div>
 </div>
 
-<div class="ContentSideSections Source">
+<div class="content-section source">
     <p-tabView effect="fade">
         <p-tabPanel header="Documentation">
             <h3>Import</h3>
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 import &#123;MessagesModule&#125; from 'primeng/primeng';
 </code>
 </pre>
 
             <h3>Getting Started</h3>
-            <p>A single message is specified by Message interface in PrimeNG that defines the severity, summary and detail properties.
+            <p>A single message is specified by Message interface in PrimeNG that defines the id, severity, summary and detail as the properties.
                 Messages to display are defined using the value property which should an array of Message instances.</p>
 <pre>
-<code class="language-markup" pCode>
-&lt;p-messages [value]="msgs"&gt;&lt;/p-messages&gt;
+<code class="language-markup" pCode ngNonBindable>
+&lt;p-messages [(value)]="msgs"&gt;&lt;/p-messages&gt;
 </code>
 </pre>
             
@@ -49,8 +49,8 @@ import &#123;MessagesModule&#125; from 'primeng/primeng';
             <h3>Showing Messages</h3>
             <p>Adding messages to the array is enough to display them. Similarly removing a message from the array is also removed from the UI.</p>
 <pre>
-<code class="language-markup" pCode>
-&lt;p-messages [value]="msgs"&gt;&lt;/p-messages&gt;
+<code class="language-markup" pCode ngNonBindable>
+&lt;p-messages [(value)]="msgs"&gt;&lt;/p-messages&gt;
 
 &lt;button type="button" (click)="show()"&gt;Show&lt;/button&gt;
 &lt;button type="button" (click)="clear()"&gt;Hide&lt;/button&gt;
@@ -58,7 +58,7 @@ import &#123;MessagesModule&#125; from 'primeng/primeng';
 </pre>
 
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 show() &#123;
     this.msgs.push(&#123;severity:'info', summary:'Info Message', detail:'PrimeNG rocks'&#125;);
 &#125;
@@ -72,19 +72,20 @@ hide() &#123;
             <h3>Closable</h3>
             <p>Messages are closable by default resulting in a close icon being displayed on top right corner.</p>
 <pre>
-<code class="language-markup" pCode>
-&lt;p-messages [value]="msgs"&gt;&lt;/p-messages&gt;
+<code class="language-markup" pCode ngNonBindable>
+&lt;p-messages [(value)]="msgs"&gt;&lt;/p-messages&gt;
 </code>
 </pre>
 
-            <p>In order to disable closable messages, set closable to false.</p>
+            <p>In order to disable closable messages, set closable to false. Note that in this case two-way binding is not necessary as the component
+            does not need to update its value.</p>
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-messages [value]="msgs" [closable]="false"&gt;&lt;/p-messages&gt;
 </code>
 </pre>
 
-            <h3>Attributes</h3>
+            <h3>Properties</h3>
             <div class="doc-tablewrapper">
                 <table class="doc-table">
                     <thead>
@@ -169,13 +170,14 @@ hide() &#123;
 
         <p-tabPanel header="Source">
 <pre>
-<code class="language-markup" pCode>
-&lt;p-messages [value]="msgs"&gt;&lt;/p-messages&gt;
+<code class="language-markup" pCode ngNonBindable>
+&lt;p-messages [(value)]="msgs"&gt;&lt;/p-messages&gt;
 
 &lt;div&gt;
-    &lt;button type="button" pButton (click)="showInfo()" label="Info"&gt;&lt;/button&gt;
-    &lt;button type="button" pButton (click)="showWarn()" label="Warn"&gt;&lt;/button&gt;
-    &lt;button type="button" pButton (click)="showError()" label="Error"&gt;&lt;/button&gt;
+    &lt;button type="button" pButton (click)="showSuccess()" label="Success" class="ui-button-success"&gt;&lt;/button&gt;
+    &lt;button type="button" pButton (click)="showInfo()" label="Info" class="ui-button-info"&gt;&lt;/button&gt;
+    &lt;button type="button" pButton (click)="showWarn()" label="Warn" class="ui-button-warning"&gt;&lt;/button&gt;
+    &lt;button type="button" pButton (click)="showError()" label="Error" class="ui-button-danger"&gt;&lt;/button&gt;
     &lt;button type="button" pButton (click)="showMultiple()" label="Multiple"&gt;&lt;/button&gt;
     &lt;button type="button" pButton (click)="clear()" icon="fa-close" style="float:right" label="Clear"&gt;&lt;/button&gt;
 &lt;/div&gt;
@@ -183,7 +185,7 @@ hide() &#123;
 </pre>
 
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 export class MessagesDemo &#123;
 
     msgs: Message[] = [];

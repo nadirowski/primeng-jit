@@ -1,28 +1,32 @@
-import {NgModule,Component,ElementRef,AfterViewInit,OnDestroy,Input,Output,Renderer,EventEmitter} from '@angular/core';
+import {NgModule,Component,ElementRef,AfterViewInit,OnDestroy,Input,Output,Renderer2,EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {DomHandler} from '../dom/domhandler';
 import {MenuItem} from '../common/api';
-import {Location} from '@angular/common';
-import {Router} from '@angular/router';
+import {RouterModule} from '@angular/router';
 
 @Component({
     selector: 'p-tieredMenuSub',
     template: `
         <ul [ngClass]="{'ui-helper-reset':root, 'ui-widget-content ui-corner-all ui-helper-clearfix ui-menu-child ui-shadow':!root}" class="ui-menu-list"
             (click)="listClick($event)">
-            <template ngFor let-child [ngForOf]="(root ? item : item.items)">
-                <li #item [ngClass]="{'ui-menuitem ui-widget ui-corner-all':true,'ui-menu-parent':child.items,'ui-menuitem-active':item==activeItem}"
-                    (mouseenter)="onItemMouseEnter($event, item, child)" (mouseleave)="onItemMouseLeave($event)"
-                    [id]="item.id || ''">
-                    <a #link [href]="child.url||'#'" class="ui-menuitem-link ui-corner-all" 
-                        [ngClass]="{'ui-state-hover':link==activeLink&&!child.disabled,'ui-state-disabled':child.disabled}" (click)="itemClick($event, child)">
+            <ng-template ngFor let-child [ngForOf]="(root ? item : item.items)">
+                <li #listItem [ngClass]="{'ui-menuitem ui-widget ui-corner-all':true,'ui-menu-parent':child.items,'ui-menuitem-active':listItem==activeItem}"
+                    (mouseenter)="onItemMouseEnter($event, listItem, child)" (mouseleave)="onItemMouseLeave($event)" [id]="child.id || ''">
+                    <a *ngIf="!child.routerLink" [href]="child.url||'#'" class="ui-menuitem-link ui-corner-all" [attr.target]="child.target"
+                        [ngClass]="{'ui-state-disabled':child.disabled}" (click)="itemClick($event, child)">
+                        <span class="ui-submenu-icon fa fa-fw fa-caret-right" *ngIf="child.items"></span>
+                        <span class="ui-menuitem-icon fa fa-fw" *ngIf="child.icon" [ngClass]="child.icon"></span>
+                        <span class="ui-menuitem-text">{{child.label}}</span>
+                    </a>
+                    <a *ngIf="child.routerLink" [routerLink]="child.routerLink" [routerLinkActive]="'ui-state-active'" [routerLinkActiveOptions]="child.routerLinkActiveOptions||{exact:false}" [href]="child.url||'#'" class="ui-menuitem-link ui-corner-all" [attr.target]="child.target"
+                        [ngClass]="{'ui-state-disabled':child.disabled}" (click)="itemClick($event, child)">
                         <span class="ui-submenu-icon fa fa-fw fa-caret-right" *ngIf="child.items"></span>
                         <span class="ui-menuitem-icon fa fa-fw" *ngIf="child.icon" [ngClass]="child.icon"></span>
                         <span class="ui-menuitem-text">{{child.label}}</span>
                     </a>
                     <p-tieredMenuSub class="ui-submenu" [item]="child" *ngIf="child.items"></p-tieredMenuSub>
                 </li>
-            </template>
+            </ng-template>
         </ul>
     `,
     providers: [DomHandler]
@@ -33,19 +37,16 @@ export class TieredMenuSub {
     
     @Input() root: boolean;
     
-    constructor(public domHandler: DomHandler, public router: Router, public location: Location) {}
+    constructor(public domHandler: DomHandler) {}
     
-    activeItem: Element;
-    
-    activeLink: Element;
-            
-    onItemMouseEnter(event: Event, item: HTMLElement, menuitem: MenuItem) {
+    activeItem: HTMLLIElement;
+                
+    onItemMouseEnter(event: Event, item: HTMLLIElement, menuitem: MenuItem) {
         if(menuitem.disabled) {
             return;
         }
         
         this.activeItem = item;
-        this.activeLink = item.children[0];
         let nextElement:  HTMLElement =  <HTMLElement> item.children[0].nextElementSibling;
         if(nextElement) {
             let sublist:  HTMLElement = <HTMLElement> nextElement.children[0];
@@ -58,7 +59,6 @@ export class TieredMenuSub {
     
     onItemMouseLeave(event: Event) {
         this.activeItem = null;
-        this.activeLink = null;
     }
     
     itemClick(event: Event, item: MenuItem) {
@@ -67,7 +67,7 @@ export class TieredMenuSub {
             return true;
         }
         
-        if(!item.url||item.routerLink) {
+        if(!item.url) {
             event.preventDefault();
         }
         
@@ -82,15 +82,10 @@ export class TieredMenuSub {
                 item: item
             });
         }
-
-        if(item.routerLink) {
-            this.router.navigate(item.routerLink);
-        }
     }
     
     listClick(event: Event) {
         this.activeItem = null;
-        this.activeLink = null;
     }
 }
 
@@ -120,13 +115,13 @@ export class TieredMenu implements AfterViewInit,OnDestroy {
     
     preventDocumentDefault: any;
     
-    constructor(public el: ElementRef, public domHandler: DomHandler, public renderer: Renderer) {}
+    constructor(public el: ElementRef, public domHandler: DomHandler, public renderer: Renderer2) {}
 
     ngAfterViewInit() {
         this.container = this.el.nativeElement.children[0];
         
         if(this.popup) {
-            this.documentClickListener = this.renderer.listenGlobal('body', 'click', () => {
+            this.documentClickListener = this.renderer.listen('document', 'click', () => {
                 if(!this.preventDocumentDefault) {
                     this.hide();
                 }
@@ -140,11 +135,10 @@ export class TieredMenu implements AfterViewInit,OnDestroy {
             this.hide();
         else
             this.show(event);
-            
-        this.preventDocumentDefault = true;
     }
     
     show(event: Event) {
+        this.preventDocumentDefault = true;
         this.container.style.display = 'block';
         this.domHandler.absolutePosition(this.container, event.target);
         this.domHandler.fadeIn(this.container, 250);
@@ -167,7 +161,7 @@ export class TieredMenu implements AfterViewInit,OnDestroy {
     }
         
     ngOnDestroy() {
-        if(this.popup) {
+        if(this.popup && this.documentClickListener) {
             this.documentClickListener();
         }
         
@@ -181,8 +175,8 @@ export class TieredMenu implements AfterViewInit,OnDestroy {
 }
 
 @NgModule({
-    imports: [CommonModule],
-    exports: [TieredMenu],
+    imports: [CommonModule,RouterModule],
+    exports: [TieredMenu,RouterModule],
     declarations: [TieredMenu,TieredMenuSub]
 })
 export class TieredMenuModule { }

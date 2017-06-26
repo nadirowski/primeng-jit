@@ -1,4 +1,4 @@
-import {NgModule,Component,Input,Output,EventEmitter,forwardRef} from '@angular/core';
+import {NgModule,Component,Input,Output,EventEmitter,forwardRef,ChangeDetectorRef} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {NG_VALUE_ACCESSOR, ControlValueAccessor} from '@angular/forms';
 
@@ -11,29 +11,36 @@ export const TRISTATECHECKBOX_VALUE_ACCESSOR: any = {
 @Component({
     selector: 'p-triStateCheckbox',
     template: `
-        <div class="ui-chkbox ui-tristatechkbox ui-widget">
+        <div [ngStyle]="style" [ngClass]="'ui-chkbox ui-tristatechkbox ui-widget'" [class]="styleClass">
             <div class="ui-helper-hidden-accessible">
-                <input #input type="text" [name]="name" readonly [disabled]="disabled" (keyup)="onKeyup($event)" (keydown)="onKeydown($event)" (focus)="onFocus()" (blur)="onBlur()">
+                <input #input type="text" [attr.id]="inputId" [name]="name" [attr.tabindex]="tabindex" readonly [disabled]="disabled" (keyup)="onKeyup($event)" (keydown)="onKeydown($event)" (focus)="onFocus()" (blur)="onBlur()">
             </div>
             <div class="ui-chkbox-box ui-widget ui-corner-all ui-state-default" (click)="onClick($event,input)"
-                [ngClass]="{'ui-state-hover':hover&&!disabled,'ui-state-active':value!=null,'ui-state-disabled':disabled,'ui-state-focus':focus}" 
-                    (mouseenter)="hover=true" (mouseleave)="hover=false">
-                <span class="ui-chkbox-icon fa fa-fw ui-c" [ngClass]="{'fa-check':value==true,'fa-close':value==false}"></span>
+                [ngClass]="{'ui-state-active':value!=null,'ui-state-disabled':disabled,'ui-state-focus':focus}">
+                <span class="ui-chkbox-icon fa ui-c" [ngClass]="{'fa-check':value==true,'fa-close':value==false}"></span>
             </div>
         </div>
     `,
     providers: [TRISTATECHECKBOX_VALUE_ACCESSOR]
 })
 export class TriStateCheckbox implements ControlValueAccessor  {
+    
+    constructor(private cd: ChangeDetectorRef) {}
 
     @Input() disabled: boolean;
     
     @Input() name: string;
+
+    @Input() tabindex: number;
+
+    @Input() inputId: string;
+
+    @Input() style: any;
+
+    @Input() styleClass: string;
     
     @Output() onChange: EventEmitter<any> = new EventEmitter();
-    
-    hover: boolean;
-    
+        
     focus: boolean;
 
     value: any;
@@ -97,6 +104,7 @@ export class TriStateCheckbox implements ControlValueAccessor  {
 
     writeValue(value: any) : void {
         this.value = value;
+        this.cd.markForCheck();
     }
     
     setDisabledState(disabled: boolean): void {

@@ -25,7 +25,7 @@
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
     OTHER DEALINGS IN THE SOFTWARE.
 */
-import {NgModule,Component,ElementRef,AfterViewInit,OnDestroy,HostBinding,HostListener,Input,forwardRef,Output,EventEmitter} from '@angular/core';
+import {NgModule,Component,ElementRef,OnInit,OnDestroy,HostBinding,HostListener,Input,forwardRef,Output,EventEmitter,ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {DomHandler} from '../dom/domhandler';
 import {InputTextModule} from '../inputtext/inputtext';
@@ -39,9 +39,9 @@ export const INPUTMASK_VALUE_ACCESSOR: any = {
 
 @Component({
     selector: 'p-inputMask',
-    template: `<input pInputText type="text" [name]="name" [value]="value||''" [ngStyle]="style" [ngClass]="styleClass" [placeholder]="placeholder"
+    template: `<input #input pInputText [attr.id]="inputId" [attr.type]="type" [attr.name]="name" [ngStyle]="style" [ngClass]="styleClass" [attr.placeholder]="placeholder"
         [attr.size]="size" [attr.maxlength]="maxlength" [attr.tabindex]="tabindex" [disabled]="disabled" [readonly]="readonly"
-        (focus)="onFocus($event)" (blur)="onBlur($event)" (keydown)="onKeyDown($event)" (keypress)="onKeyPress($event)"
+        (focus)="onFocus($event)" (blur)="onInputBlur($event)" (keydown)="onKeyDown($event)" (keypress)="onKeyPress($event)"
         (input)="onInput($event)" (paste)="handleInputChange($event)">`,
     host: {
         '[class.ui-inputwrapper-filled]': 'filled',
@@ -49,15 +49,19 @@ export const INPUTMASK_VALUE_ACCESSOR: any = {
     },
     providers: [INPUTMASK_VALUE_ACCESSOR,DomHandler]
 })
-export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
+export class InputMask implements OnInit,OnDestroy,ControlValueAccessor {
 
     @Input() mask: string;
+
+    @Input() type: string = 'text';
     
     @Input() slotChar: string = '_';
     
     @Input() autoClear: boolean = true;
         
     @Input() style: string;
+
+    @Input() inputId: string;
     
     @Input() styleClass: string;
     
@@ -77,7 +81,11 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
     
     @Input() name: string;
     
+    @ViewChild('input') inputViewChild: ElementRef;
+    
     @Output() onComplete: EventEmitter<any> = new EventEmitter();
+        
+    @Output() onBlur: EventEmitter<any> = new EventEmitter();
         
     value: any;
     
@@ -86,6 +94,8 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
     onModelTouched: Function = () => {};
     
     input: HTMLInputElement;
+    
+    filled: boolean;
     
     defs: any;
     
@@ -112,13 +122,10 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
     androidChrome: boolean;
     
     focus: boolean;
-    
-    filled: boolean;
             
     constructor(public el: ElementRef, public domHandler: DomHandler) {}
         
-    ngAfterViewInit() {
-        this.input = this.el.nativeElement.children[0];
+    ngOnInit() {
         this.tests = [];
         this.partialPosition = this.mask.length;
         this.len = this.mask.length;
@@ -164,22 +171,21 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
             }
         }
         this.defaultBuffer = this.buffer.join('');
-        this.focusText = this.input.value;
-        
-        this.checkVal(); //Perform initial check for existing values
     }
     
     writeValue(value: any) : void {
         this.value = value;
         
-        if(this.input) {
-            if(this.value == undefined || this.value == null) {
-                this.input.value = '';
-            }
+        if(this.inputViewChild.nativeElement) {
+            if(this.value == undefined || this.value == null)
+                this.inputViewChild.nativeElement.value = '';
+            else
+                this.inputViewChild.nativeElement.value = this.value;
+
             this.checkVal();
+            this.focusText = this.inputViewChild.nativeElement.value;
+            this.updateFilledState();
         }
-        
-        this.updateFilledState();
     }
     
     registerOnChange(fn: Function): void {
@@ -197,18 +203,18 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
     caret(first?: number, last?: number) {
         let range, begin, end;
 
-        if(!this.input.offsetParent||this.input !== document.activeElement) {
+        if(!this.inputViewChild.nativeElement.offsetParent||this.inputViewChild.nativeElement !== document.activeElement) {
             return;
         }
         
         if(typeof first == 'number') {
             begin = first;
             end = (typeof last === 'number') ? last : begin;
-            if(this.input.setSelectionRange) {
-                this.input.setSelectionRange(begin, end);
+            if(this.inputViewChild.nativeElement.setSelectionRange) {
+                this.inputViewChild.nativeElement.setSelectionRange(begin, end);
             }
-            else if(this.input['createTextRange']) {
-                range = this.input['createTextRange']();
+            else if(this.inputViewChild.nativeElement['createTextRange']) {
+                range = this.inputViewChild.nativeElement['createTextRange']();
                 range.collapse(true);
                 range.moveEnd('character', end);
                 range.moveStart('character', begin);
@@ -216,9 +222,9 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
             }
         }
         else {
-            if (this.input.setSelectionRange) {
-    			begin = this.input.selectionStart;
-    			end = this.input.selectionEnd;
+            if (this.inputViewChild.nativeElement.setSelectionRange) {
+    			begin = this.inputViewChild.nativeElement.selectionStart;
+    			end = this.inputViewChild.nativeElement.selectionEnd;
     		} 
             else if (document['selection'] && document['selection'].createRange) {
     			range = document['selection'].createRange();
@@ -299,7 +305,7 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
     }
     
     handleAndroidInput(e) {
-        var curVal = this.input.value;
+        var curVal = this.inputViewChild.nativeElement.value;
         var pos = this.caret();
         if (this.oldVal && this.oldVal.length && this.oldVal.length > curVal.length ) {
             // a deletion or backspace happened
@@ -313,11 +319,11 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
             }
             this.caret(pos.begin,pos.begin);
         } else {
-            var pos2 = this.checkVal(true);
-            while (pos.begin < this.len && !this.tests[pos.begin])
+            this.checkVal(true);
+            while (pos.begin < this.len && !this.tests[pos.begin - 1])
                   pos.begin++;
 
-            this.caret(pos.begin,pos.begin);
+			setTimeout(() => this.caret(pos.begin, pos.begin));
         }
 
         if(this.isCompleted()) {
@@ -325,17 +331,18 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
         }
     }
     
-    onBlur(e) {
+    onInputBlur(e) {
         this.focus = false;
         this.onModelTouched();
         this.checkVal();
         this.updateModel(e);
         this.updateFilledState();
+        this.onBlur.emit(e);
 
-        if (this.input.value != this.focusText) {
+        if (this.inputViewChild.nativeElement.value != this.focusText) {
             let event = document.createEvent('HTMLEvents');
             event.initEvent('change', true, false);
-            this.input.dispatchEvent(event);
+            this.inputViewChild.nativeElement.dispatchEvent(event);
         }    
     }
     
@@ -349,7 +356,7 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
             begin,
             end;
         let iPhone = /iphone/i.test(this.domHandler.getUserAgent());
-        this.oldVal = this.input.value;
+        this.oldVal = this.inputViewChild.nativeElement.value;
         
         //backspace, delete, and escape get special treatment
         if (k === 8 || k === 46 || (iPhone && k === 127)) {
@@ -369,10 +376,10 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
 
             e.preventDefault();
         } else if( k === 13 ) { // enter
-            this.onBlur(e);
+            this.onInputBlur(e);
             this.updateModel(e);
         } else if (k === 27) { // escape
-            this.input.value = this.focusText;
+            this.inputViewChild.nativeElement.value = this.focusText;
             this.caret(0, this.checkVal());
             this.updateModel(e);
             e.preventDefault();
@@ -411,8 +418,8 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
 
                     if(/android/i.test(this.domHandler.getUserAgent())){
                         //Path for CSP Violation on FireFox OS 1.1
-                        let proxy = function() {
-                            this.caret.bind(this,next)();
+                        let proxy = () => {
+                            this.caret(next);
                         };
 
                         setTimeout(proxy,0);
@@ -429,6 +436,8 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
         
         this.updateModel(e);
         
+        this.updateFilledState();
+        
         if(completed) {
             this.onComplete.emit();
         }
@@ -443,13 +452,13 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
         }
     }
 
-    writeBuffer() { 
-        this.input.value = this.buffer.join(''); 
+    writeBuffer() {
+        this.inputViewChild.nativeElement.value = this.buffer.join(''); 
     }
     
     checkVal(allow?: boolean) {
         //try to place characters where they belong
-        let test = this.input.value,
+        let test = this.inputViewChild.nativeElement.value,
             lastMatch = -1,
             i,
             c,
@@ -485,7 +494,7 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
             if (this.autoClear || this.buffer.join('') === this.defaultBuffer) {
                 // Invalid value. Remove it and replace it with the
                 // mask, which is the default behavior.
-                if(this.input.value) this.input.value = '';
+                if(this.inputViewChild.nativeElement.value) this.inputViewChild.nativeElement.value = '';
                 this.clearBuffer(0, this.len);
             } else {
                 // Invalid value, but we opt to show the value to the
@@ -494,7 +503,7 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
             }
         } else {
             this.writeBuffer();
-            this.input.value = this.input.value.substring(0, lastMatch + 1);
+            this.inputViewChild.nativeElement.value = this.inputViewChild.nativeElement.value.substring(0, lastMatch + 1);
         }
         return (this.partialPosition ? i : this.firstNonMaskPos);
     }
@@ -509,12 +518,12 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
         clearTimeout(this.caretTimeoutId);
         let pos;
 
-        this.focusText = this.input.value;
+        this.focusText = this.inputViewChild.nativeElement.value;
 
         pos = this.checkVal();
 
         this.caretTimeoutId = setTimeout(() => {
-            if(this.input !== document.activeElement){
+            if(this.inputViewChild.nativeElement !== document.activeElement){
                 return;
             }
             this.writeBuffer();
@@ -523,7 +532,6 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
             } else {
                 this.caret(pos);
             }
-            this.updateFilledState();
         }, 10);
     }
     
@@ -566,7 +574,7 @@ export class InputMask implements AfterViewInit,OnDestroy,ControlValueAccessor {
     }
     
     updateFilledState() {
-        this.filled = this.input && this.input.value != '';
+        this.filled = this.inputViewChild.nativeElement && this.inputViewChild.nativeElement.value != '';
     }
     
     ngOnDestroy() {

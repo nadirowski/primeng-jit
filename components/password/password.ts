@@ -1,4 +1,4 @@
-import {NgModule,Directive,ElementRef,HostListener,Input,AfterViewInit,OnDestroy} from '@angular/core';
+import {NgModule,Directive,ElementRef,HostListener,Input,AfterViewInit,OnDestroy,DoCheck} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {DomHandler} from '../dom/domhandler';
 
@@ -9,14 +9,11 @@ import {DomHandler} from '../dom/domhandler';
         '[class.ui-corner-all]': 'true',
         '[class.ui-state-default]': 'true',
         '[class.ui-widget]': 'true',
-        '[class.ui-state-hover]': 'hover',
-        '[class.ui-state-focus]': 'focus',
-        '[class.ui-state-disabled]': 'disabled',
         '[class.ui-state-filled]': 'filled'
     },
     providers: [DomHandler]
 })
-export class Password implements AfterViewInit,OnDestroy {
+export class Password implements AfterViewInit,OnDestroy,DoCheck {
 
     @Input() promptLabel: string = 'Please enter a password';
 
@@ -25,16 +22,16 @@ export class Password implements AfterViewInit,OnDestroy {
     @Input() mediumLabel: string = 'Medium';
 
     @Input() strongLabel: string = 'Strong';
-
-    hover: boolean;
     
-    focus: boolean;
+    @Input() feedback: boolean = true;
     
     panel: any;
     
     meter: any;
     
     info: any;
+    
+    filled: boolean;
     
     constructor(public el: ElementRef, public domHandler: DomHandler) {}
     
@@ -47,35 +44,37 @@ export class Password implements AfterViewInit,OnDestroy {
         this.info.className = 'ui-password-info';
         this.info.textContent = this.promptLabel;
         
-        this.panel.appendChild(this.meter);
-        this.panel.appendChild(this.info);
+        if(this.feedback) {
+            this.panel.appendChild(this.meter);
+            this.panel.appendChild(this.info);
+            document.body.appendChild(this.panel);
+        }
+    }
+    
+    ngDoCheck() {
+        this.updateFilledState();
+    }
+    
+    //To trigger change detection to manage ui-state-filled for material labels when there is no value binding
+    @HostListener('input', ['$event']) 
+    onInput(e) {
+        this.updateFilledState();
+    }
+    
+    updateFilledState() {
+        this.filled = this.el.nativeElement.value && this.el.nativeElement.value.length;
+    }
         
-        document.body.appendChild(this.panel);
-    }
-    
-    @HostListener('mouseover', ['$event']) 
-    onMouseover(e) {
-        this.hover = true;
-    }
-    
-    @HostListener('mouseout', ['$event']) 
-    onMouseout(e) {
-        this.hover = false;
-    }
-    
     @HostListener('focus', ['$event']) 
     onFocus(e) {
-        this.focus = true;
-        
+        this.panel.style.zIndex = String(++DomHandler.zindex);
         this.domHandler.removeClass(this.panel, 'ui-helper-hidden');
         this.domHandler.absolutePosition(this.panel, this.el.nativeElement);
         this.domHandler.fadeIn(this.panel, 250);
     }
     
     @HostListener('blur', ['$event']) 
-    onBlur(e) {
-        this.focus = false;
-        
+    onBlur(e) {        
         this.domHandler.addClass(this.panel, 'ui-helper-hidden');
     }
     
@@ -144,11 +143,10 @@ export class Password implements AfterViewInit,OnDestroy {
         return this.el.nativeElement.disabled;
     }
     
-    get filled(): boolean {
-        return this.el.nativeElement.value != '';
-    }
-    
     ngOnDestroy() {
+        if (!this.feedback)
+            return;
+            
         this.panel.removeChild(this.meter);
         this.panel.removeChild(this.info);
         document.body.removeChild(this.panel);

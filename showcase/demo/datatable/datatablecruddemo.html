@@ -1,20 +1,20 @@
 <datatable-demos></datatable-demos>
 
-<div class="ContentSideSections">
+<div class="content-section">
     <div>
-        <span class="fontSize30 TextShadow orange marginBottom20 dispBlock">DataTable</span>
-        <span class="defaultText">This samples demonstrates a CRUD implementation using various PrimeNG components.</span>
+        <span class="feature-title">DataTable</span>
+        <span>This samples demonstrates a CRUD implementation using various PrimeNG components.</span>
     </div>
 </div>
 
-<div class="ContentSideSections Implementation">
+<div class="content-section implementation">
     <p-dataTable [value]="cars" selectionMode="single" [(selection)]="selectedCar" (onRowSelect)="onRowSelect($event)" [paginator]="true" rows="15" [responsive]="true">
-        <header>CRUD for Cars</header>
+        <p-header>CRUD for Cars</p-header>
         <p-column field="vin" header="Vin" [sortable]="true"></p-column>
         <p-column field="year" header="Year" [sortable]="true"></p-column>
         <p-column field="brand" header="Brand" [sortable]="true"></p-column>
         <p-column field="color" header="Color" [sortable]="true"></p-column>
-        <footer><div class="ui-helper-clearfix" style="width:100%"><button type="button" pButton icon="fa-plus" style="float:left" (click)="showDialogToAdd()" label="Add"></button></div></footer>
+        <p-footer><div class="ui-helper-clearfix" style="width:100%"><button type="button" pButton icon="fa-plus" style="float:left" (click)="showDialogToAdd()" label="Add"></button></div></p-footer>
     </p-dataTable>
 
     <p-dialog header="Car Details" [(visible)]="displayDialog" [responsive]="true" showEffect="fade" [modal]="true">
@@ -24,8 +24,8 @@
                 <div class="ui-grid-col-8"><input pInputText id="vin" [(ngModel)]="car.vin" /></div>
             </div>
             <div class="ui-grid-row">
-                <div class="ui-grid-col-4"><label for="brand">Year</label></div>
-                <div class="ui-grid-col-8"><input pInputText id="brand" [(ngModel)]="car.year" /></div>
+                <div class="ui-grid-col-4"><label for="year">Year</label></div>
+                <div class="ui-grid-col-8"><input pInputText id="year" [(ngModel)]="car.year" /></div>
             </div>
             <div class="ui-grid-row">
                 <div class="ui-grid-col-4"><label for="brand">Brand</label></div>
@@ -36,20 +36,20 @@
                 <div class="ui-grid-col-8"><input pInputText id="color" [(ngModel)]="car.color" /></div>
             </div>
         </div>
-        <footer>
-            <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
+        <p-footer>
+            <div class="ui-dialog-buttonpane ui-helper-clearfix">
                 <button type="button" pButton icon="fa-close" (click)="delete()" label="Delete"></button>
                 <button type="button" pButton icon="fa-check" (click)="save()" label="Save"></button>
             </div>
-        </footer>
+        </p-footer>
     </p-dialog>
 </div>
 
-<div class="ContentSideSections Source">
+<div class="content-section source">
     <p-tabView effect="fade">
         <p-tabPanel header="datatablecruddemo.ts">
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 export class DataTableCrudDemo implements OnInit &#123;
 
     displayDialog: boolean;
@@ -75,17 +75,20 @@ export class DataTableCrudDemo implements OnInit &#123;
     &#125;
     
     save() &#123;
+        let cars = [...this.cars];
         if(this.newCar)
-            this.cars.push(this.car);
+            cars.push(this.car);
         else
-            this.cars[this.findSelectedCarIndex()] = this.car;
+            cars[this.findSelectedCarIndex()] = this.car;
         
+        this.cars = cars;
         this.car = null;
         this.displayDialog = false;
     &#125;
     
     delete() &#123;
-        this.cars.splice(this.findSelectedCarIndex(), 1);
+        let index = this.findSelectedCarIndex();
+        this.cars = this.cars.filter((val,i) => i!=index);
         this.car = null;
         this.displayDialog = false;
     &#125;    
@@ -119,14 +122,14 @@ class PrimeCar implements Car &#123;
 
         <p-tabPanel header="datatablecruddemo.html">
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-dataTable [value]="cars" selectionMode="single" [(selection)]="selectedCar" (onRowSelect)="onRowSelect($event)" [paginator]="true" rows="15" [responsive]="true"&gt;
-    &lt;header&gt;CRUD for Cars&lt;/header&gt;
+    &lt;p-header&gt;CRUD for Cars&lt;/p-header&gt;
     &lt;p-column field="vin" header="Vin" [sortable]="true"&gt;&lt;/p-column&gt;
     &lt;p-column field="year" header="Year" [sortable]="true"&gt;&lt;/p-column&gt;
     &lt;p-column field="brand" header="Brand" [sortable]="true"&gt;&lt;/p-column&gt;
     &lt;p-column field="color" header="Color" [sortable]="true"&gt;&lt;/p-column&gt;
-    &lt;footer&gt;&lt;div class="ui-helper-clearfix" style="width:100%"&gt;&lt;button type="button" pButton icon="fa-plus" style="float:left" (click)="showDialogToAdd()" label="Add"&gt;&lt;/button&gt;&lt;/div&gt;&lt;/footer&gt;
+    &lt;p-footer&gt;&lt;div class="ui-helper-clearfix" style="width:100%"&gt;&lt;button type="button" pButton icon="fa-plus" style="float:left" (click)="showDialogToAdd()" label="Add"&gt;&lt;/button&gt;&lt;/div&gt;&lt;/p-footer&gt;
 &lt;/p-dataTable&gt;
 
 &lt;p-dialog header="Car Details" [(visible)]="displayDialog" [responsive]="true" showEffect="fade" [modal]="true"&gt;
@@ -136,8 +139,8 @@ class PrimeCar implements Car &#123;
             &lt;div class="ui-grid-col-8"&gt;&lt;input pInputText id="vin" [(ngModel)]="car.vin" /&gt;&lt;/div&gt;
         &lt;/div&gt;
         &lt;div class="ui-grid-row"&gt;
-            &lt;div class="ui-grid-col-4"&gt;&lt;label for="brand"&gt;Year&lt;/label&gt;&lt;/div&gt;
-            &lt;div class="ui-grid-col-8"&gt;&lt;input pInputText id="brand" [(ngModel)]="car.year" /&gt;&lt;/div&gt;
+            &lt;div class="ui-grid-col-4"&gt;&lt;label for="year"&gt;Year&lt;/label&gt;&lt;/div&gt;
+            &lt;div class="ui-grid-col-8"&gt;&lt;input pInputText id="year" [(ngModel)]="car.year" /&gt;&lt;/div&gt;
         &lt;/div&gt;
         &lt;div class="ui-grid-row"&gt;
             &lt;div class="ui-grid-col-4"&gt;&lt;label for="brand"&gt;Brand&lt;/label&gt;&lt;/div&gt;
@@ -148,12 +151,12 @@ class PrimeCar implements Car &#123;
             &lt;div class="ui-grid-col-8"&gt;&lt;input pInputText id="color" [(ngModel)]="car.color" /&gt;&lt;/div&gt;
         &lt;/div&gt;
     &lt;/div&gt;
-    &lt;footer&gt;
-        &lt;div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix"&gt;
+    &lt;p-footer&gt;
+        &lt;div class="ui-dialog-buttonpane ui-helper-clearfix"&gt;
             &lt;button type="button" pButton icon="fa-close" (click)="delete()" label="Delete"&gt;&lt;/button&gt;
             &lt;button type="button" pButton icon="fa-check" (click)="save()" label="Save"&gt;&lt;/button&gt;
         &lt;/div&gt;
-    &lt;/footer&gt;
+    &lt;/p-footer&gt;
 &lt;/p-dialog&gt;
 </code>
 </pre>

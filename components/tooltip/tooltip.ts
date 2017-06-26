@@ -15,11 +15,21 @@ export class Tooltip implements OnDestroy {
     @Input() tooltipPosition: string = 'right';
     
     @Input() tooltipEvent: string = 'hover';
+    
+    @Input() appendTo: any = 'body';
+    
+    @Input() positionStyle: string;
+    
+    @Input() tooltipStyleClass: string;
+    
+    @Input("tooltipDisabled") disabled: boolean;
+    
+    @Input() escape: boolean = true;
         
     container: any;
         
     constructor(public el: ElementRef, public domHandler: DomHandler) {}
-        
+            
     @HostListener('mouseenter', ['$event']) 
     onMouseEnter(e: Event) {
         if(this.tooltipEvent === 'hover') {
@@ -49,10 +59,14 @@ export class Tooltip implements OnDestroy {
     }
     
     show() {
+        if(!this.text || this.disabled) {
+            return;
+        }
+        
         this.create();
-        let rect = this.el.nativeElement.getBoundingClientRect();
-        let targetTop = rect.top + document.body.scrollTop;
-        let targetLeft = rect.left + document.body.scrollLeft;
+        let offset = this.el.nativeElement.getBoundingClientRect();
+        let targetTop = offset.top + this.domHandler.getWindowScrollTop();
+        let targetLeft = offset.left + this.domHandler.getWindowScrollLeft();
         let left: number;
         let top: number;
         
@@ -87,14 +101,17 @@ export class Tooltip implements OnDestroy {
     }
     
     hide() {
-        this.container.style.display = 'none';
-        document.body.removeChild(this.container);
-        this.container = null;
+        this.ngOnDestroy();
     }
          
     create() {
+        let styleClass = 'ui-widget ui-tooltip ui-tooltip-' + this.tooltipPosition;
         this.container = document.createElement('div');
-        this.container.className = 'ui-widget ui-tooltip ui-tooltip-' + this.tooltipPosition;
+        if(this.tooltipStyleClass) {
+            styleClass += ' ' + this.tooltipStyleClass;
+        }
+        
+        this.container.className = styleClass;
         
         let tooltipArrow = document.createElement('div');
         tooltipArrow.className = 'ui-tooltip-arrow';
@@ -102,16 +119,34 @@ export class Tooltip implements OnDestroy {
         
         let tooltipText = document.createElement('div');
         tooltipText.className = 'ui-tooltip-text ui-shadow ui-corner-all';
-        tooltipText.innerHTML = this.text;
+		
+		if(this.escape)
+			tooltipText.appendChild(document.createTextNode(this.text));
+		else
+			tooltipText.innerHTML = this.text;
+        
+        if(this.positionStyle) {
+            this.container.style.position = this.positionStyle;
+        }
         
         this.container.appendChild(tooltipText);
         
-        document.body.appendChild(this.container);
+        if(this.appendTo === 'body')
+            document.body.appendChild(this.container);
+        else if(this.appendTo === 'target')
+            this.domHandler.appendChild(this.container, this.el.nativeElement);
+        else
+            this.domHandler.appendChild(this.container, this.appendTo);
     }
     
     ngOnDestroy() {
         if(this.container && this.container.parentElement) {
-            document.body.removeChild(this.container);
+            if(this.appendTo === 'body')
+                document.body.removeChild(this.container);
+            else if(this.appendTo === 'target')
+                this.el.nativeElement.removeChild(this.container);
+            else
+                this.domHandler.removeChild(this.container, this.appendTo);
         }
         this.container = null;
     }

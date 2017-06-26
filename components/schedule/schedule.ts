@@ -1,4 +1,4 @@
-import {NgModule,Component,ElementRef,AfterViewInit,OnDestroy,DoCheck,Input,Output,EventEmitter,IterableDiffers} from '@angular/core';
+import {NgModule,Component,ElementRef,OnDestroy,DoCheck,OnChanges,Input,Output,EventEmitter,IterableDiffers,OnInit,AfterViewChecked,SimpleChanges} from '@angular/core';
 import {CommonModule} from '@angular/common';
 
 declare var jQuery: any;
@@ -7,7 +7,7 @@ declare var jQuery: any;
     selector: 'p-schedule',
     template: '<div [ngStyle]="style" [class]="styleClass"></div>'
 })
-export class Schedule implements AfterViewInit,DoCheck,OnDestroy {
+export class Schedule implements DoCheck,OnDestroy,OnInit,OnChanges,AfterViewChecked {
     
     @Input() events: any[];
     
@@ -40,6 +40,8 @@ export class Schedule implements AfterViewInit,DoCheck,OnDestroy {
     @Input() defaultDate: any;
     
     @Input() editable: boolean;
+    
+    @Input() droppable: boolean;
     
     @Input() eventStartEditable: boolean;
     
@@ -77,13 +79,21 @@ export class Schedule implements AfterViewInit,DoCheck,OnDestroy {
         
     @Input() eventConstraint: any;
     
-    @Input() locale: any;
+    @Input() locale: string;
+
+    @Input() timezone: boolean | string = false;
+    
+    @Input() timeFormat:string | null = null;
 
     @Input() eventRender: Function;
     
     @Input() dayRender: Function;
     
+    @Input() options: any;
+    
     @Output() onDayClick: EventEmitter<any> = new EventEmitter();
+    
+    @Output() onDrop: EventEmitter<any> = new EventEmitter();
     
     @Output() onEventClick: EventEmitter<any> = new EventEmitter();
         
@@ -103,8 +113,8 @@ export class Schedule implements AfterViewInit,DoCheck,OnDestroy {
     
     @Output() onEventResize: EventEmitter<any> = new EventEmitter();
     
-    @Output() viewRender: EventEmitter<any> = new EventEmitter();
-    
+    @Output() onViewRender: EventEmitter<any> = new EventEmitter();
+        
     initialized: boolean;
     
     stopNgOnChangesPropagation: boolean;
@@ -112,15 +122,16 @@ export class Schedule implements AfterViewInit,DoCheck,OnDestroy {
     differ: any;
     
     schedule: any;
+    
+    config: any;
 
     constructor(public el: ElementRef, differs: IterableDiffers) {
         this.differ = differs.find([]).create(null);
         this.initialized = false;
     }
-
-    ngAfterViewInit() {
-        this.schedule = jQuery(this.el.nativeElement.children[0]);
-        let options = {
+    
+    ngOnInit() {
+        this.config = {
             theme: true,
             header: this.header,
             isRTL: this.rtl,
@@ -134,7 +145,11 @@ export class Schedule implements AfterViewInit,DoCheck,OnDestroy {
             aspectRatio: this.aspectRatio,
             eventLimit: this.eventLimit,
             defaultDate: this.defaultDate,
+            locale: this.locale,
+            timezone: this.timezone,
+            timeFormat: this.timeFormat,
             editable: this.editable,
+            droppable: this.droppable,
             eventStartEditable: this.eventStartEditable,
             eventDurationEditable: this.eventDurationEditable,
             defaultView: this.defaultView,
@@ -155,14 +170,19 @@ export class Schedule implements AfterViewInit,DoCheck,OnDestroy {
             eventConstraint: this.eventConstraint,
             eventRender: this.eventRender,
             dayRender: this.dayRender,
-            events: (start, end, timezone, callback) => {
-                callback(this.events);
-            },
             dayClick: (date, jsEvent, view) => {
                 this.onDayClick.emit({
                     'date': date,
                     'jsEvent': jsEvent,
                     'view': view
+                });
+            },
+            drop: (date, jsEvent, ui, resourceId) => {
+                this.onDrop.emit({
+                    'date': date,
+                    'jsEvent': jsEvent,
+                    'ui': ui,
+                    'resourceId': resourceId
                 });
             },
             eventClick: (calEvent, jsEvent, view) => {
@@ -201,6 +221,8 @@ export class Schedule implements AfterViewInit,DoCheck,OnDestroy {
                 });
             },
             eventDrop: (event, delta, revertFunc, jsEvent, ui, view) => {
+                this.updateEvent(event);
+                
                 this.onEventDrop.emit({
                     'event': event,
                     'delta': delta,
@@ -224,6 +246,8 @@ export class Schedule implements AfterViewInit,DoCheck,OnDestroy {
                 });
             },
             eventResize: (event, delta, revertFunc, jsEvent, ui, view) => {
+                this.updateEvent(event);
+                
                 this.onEventResize.emit({
                     'event': event,
                     'delta': delta,
@@ -233,28 +257,54 @@ export class Schedule implements AfterViewInit,DoCheck,OnDestroy {
                 });
             },
             viewRender: (view, element) => {
-                this.viewRender.emit({
+                this.onViewRender.emit({
                     'view': view,
                     'element': element                    
                 });
             }
         };
-        
-        if(this.locale) {
-            for(var prop in this.locale) {
-                options[prop] = this.locale[prop];
+                
+        if(this.options) {
+            for(let prop in this.options) {
+                this.config[prop] = this.options[prop];
             }
         }
-        
-        this.schedule.fullCalendar(options);
-        this.initialized = true;
+    }
+    
+    ngAfterViewChecked() {
+        if(!this.initialized && this.el.nativeElement.offsetParent) {
+            this.initialize();
+        }
+    }
+    
+    ngOnChanges(changes: SimpleChanges) {
+        if(this.schedule) {
+            let options = {};
+            for(let change in changes) {
+                if(change !== 'events') {
+                    options[change] = changes[change].currentValue;
+                }   
+            }
+            
+            if(Object.keys(options).length) {
+                this.schedule.fullCalendar('option', options);
+            }
+        }
     }
 
+    initialize() {
+        this.schedule = jQuery(this.el.nativeElement.children[0]);
+        this.schedule.fullCalendar(this.config);
+        this.schedule.fullCalendar('addEventSource', this.events);
+        this.initialized = true;
+    }
+     
     ngDoCheck() {
         let changes = this.differ.diff(this.events);
         
         if(this.schedule && changes) {
-            this.schedule.fullCalendar('refetchEvents');
+            this.schedule.fullCalendar('removeEventSources');
+            this.schedule.fullCalendar('addEventSource', this.events);
         }
     }
 
@@ -291,11 +341,37 @@ export class Schedule implements AfterViewInit,DoCheck,OnDestroy {
     incrementDate(duration: any) {
         this.schedule.fullCalendar('incrementDate', duration);
     }
+     
+    changeView(viewName: string) {
+        this.schedule.fullCalendar('changeView', viewName);   
+    }
     
     getDate() {
         return this.schedule.fullCalendar('getDate');
     }
-
+    
+    findEvent(id: string) {
+        let event;
+        if(this.events) {
+            for(let e of this.events) {
+                if(e.id === id) {
+                    event = e;
+                    break;
+                }
+            }
+        }
+        return event;
+    }
+    
+    updateEvent(event: any) {
+        let sourceEvent = this.findEvent(event.id);
+        if(sourceEvent) {
+            sourceEvent.start = event.start.format();
+            if(event.end) {
+                sourceEvent.end = event.end.format();
+            }    
+        }
+    }
 }
 
 @NgModule({

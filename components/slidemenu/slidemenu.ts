@@ -1,29 +1,35 @@
-import {NgModule,Component,ElementRef,AfterViewInit,OnDestroy,Input,Output,Renderer,EventEmitter,Inject,forwardRef} from '@angular/core';
+import {NgModule,Component,ElementRef,AfterViewInit,OnDestroy,Input,Output,Renderer2,EventEmitter,Inject,forwardRef,ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {DomHandler} from '../dom/domhandler';
 import {MenuItem} from '../common/api';
 import {Location} from '@angular/common';
-import {Router} from '@angular/router';
+import {RouterModule} from '@angular/router';
 
 @Component({
     selector: 'p-slideMenuSub',
     template: `
         <ul [ngClass]="{'ui-helper-reset ui-menu-rootlist':root, 'ui-widget-content ui-corner-all ui-helper-clearfix ui-menu-child':!root}" class="ui-menu-list"
             [style.width.px]="menuWidth" [style.left.px]="root ? slideMenu.left : slideMenu.menuWidth" 
-            [style.transitionProperty]="root ? 'left' : 'none'" [style.transitionDuration]="effectDuration" [style.transitionTimingFunction]="easing">
-            <template ngFor let-child [ngForOf]="(root ? item : item.items)">
-                <li #listitem [ngClass]="{'ui-menuitem ui-widget ui-corner-all':true,'ui-menu-parent':child.items,'ui-menuitem-active':listitem==activeItem}"
-                    [id]="item.id || ''">
-                    <a #link [href]="child.url||'#'" class="ui-menuitem-link ui-corner-all" 
-                        [ngClass]="{'ui-state-hover':link==hoveredLink&&!child.disabled,'ui-menuitem-link-parent':child.items,'ui-state-disabled':child.disabled}" 
-                        (click)="itemClick($event, child, listitem)" (mouseenter)="hoveredLink=link" (mouseleave)="hoveredLink=null">
+            [style.transitionProperty]="root ? 'left' : 'none'" [style.transitionDuration]="effectDuration + 'ms'" [style.transitionTimingFunction]="easing">
+            <ng-template ngFor let-child [ngForOf]="(root ? item : item.items)">
+                <li #listitem [ngClass]="{'ui-menuitem ui-widget ui-corner-all':true,'ui-menu-parent':child.items,'ui-slidemenuitem-active':listitem==activeItem}" [id]="child.id || ''">
+                    <a *ngIf="!item.routerLink" [href]="child.url||'#'" class="ui-menuitem-link ui-corner-all" [attr.target]="child.target"
+                        [ngClass]="{'ui-menuitem-link-parent':child.items,'ui-state-disabled':child.disabled}" 
+                        (click)="itemClick($event, child, listitem)">
+                        <span class="ui-submenu-icon fa fa-fw fa-caret-right" *ngIf="child.items"></span>
+                        <span class="ui-menuitem-icon fa fa-fw" *ngIf="child.icon" [ngClass]="child.icon"></span>
+                        <span class="ui-menuitem-text">{{child.label}}</span>
+                    </a>
+                    <a *ngIf="item.routerLink" [routerLink]="item.routerLink" [routerLinkActive]="'ui-state-active'" [routerLinkActiveOptions]="item.routerLinkActiveOptions||{exact:false}" [href]="child.url||'#'" class="ui-menuitem-link ui-corner-all" [attr.target]="child.target"
+                        [ngClass]="{'ui-menuitem-link-parent':child.items,'ui-state-disabled':child.disabled}" 
+                        (click)="itemClick($event, child, listitem)">
                         <span class="ui-submenu-icon fa fa-fw fa-caret-right" *ngIf="child.items"></span>
                         <span class="ui-menuitem-icon fa fa-fw" *ngIf="child.icon" [ngClass]="child.icon"></span>
                         <span class="ui-menuitem-text">{{child.label}}</span>
                     </a>
                     <p-slideMenuSub class="ui-submenu" [item]="child" [menuWidth]="menuWidth" *ngIf="child.items"></p-slideMenuSub>
                 </li>
-            </template>
+            </ng-template>
         </ul>
     `
 })
@@ -37,28 +43,24 @@ export class SlideMenuSub implements OnDestroy {
     
     @Input() menuWidth: string;
     
-    @Input() effectDuration: any = '1s';
+    @Input() effectDuration: any;
         
     @Input() easing: string = 'ease-out';
         
-    constructor(@Inject(forwardRef(() => SlideMenu)) public slideMenu: SlideMenu, public router: Router) {}
-    
-    activeItem: any;
+    constructor(@Inject(forwardRef(() => SlideMenu)) public slideMenu: SlideMenu) {}
         
-    hoveredLink: any;
-                
+    activeItem: any;
+                            
     itemClick(event, item: MenuItem, listitem: any) {
         if(item.disabled) {
             event.preventDefault();
             return;
         }
         
-        if(!item.url||item.routerLink) {
+        if(!item.url) {
             event.preventDefault();
         }
-        
-        this.activeItem = listitem;
-        
+                
         if(item.command) {
             if(!item.eventEmitter && item.command) {
                 item.eventEmitter = new EventEmitter();
@@ -71,17 +73,15 @@ export class SlideMenuSub implements OnDestroy {
             });
         }
         
-        if(item.items) {
+        if(item.items && !this.slideMenu.animating) {
             this.slideMenu.left -= this.slideMenu.menuWidth;
-        }
-        
-        if(item.routerLink) {
-            this.router.navigate(item.routerLink);
+            this.activeItem = listitem;
+            this.slideMenu.animating = true;
+            setTimeout(() => this.slideMenu.animating = false, this.effectDuration);
         }
     }
         
     ngOnDestroy() {
-        this.hoveredLink = null;
         this.activeItem = null;
     }
 }
@@ -89,14 +89,14 @@ export class SlideMenuSub implements OnDestroy {
 @Component({
     selector: 'p-slideMenu',
     template: `
-        <div [ngClass]="{'ui-menu ui-slidemenu ui-widget ui-widget-content ui-corner-all':true,'ui-menu-dynamic ui-shadow':popup}" 
+        <div #container [ngClass]="{'ui-menu ui-slidemenu ui-widget ui-widget-content ui-corner-all':true,'ui-menu-dynamic ui-shadow':popup}" 
             [class]="styleClass" [ngStyle]="style" (click)="onClick($event)">
             <div class="ui-slidemenu-wrapper" [style.height.px]="viewportHeight">
-                <div class="ui-slidemenu-content" [style.height.px]="viewportHeight - 30">
+                <div #slideMenuContent class="ui-slidemenu-content">
                     <p-slideMenuSub [item]="model" root="root" [menuWidth]="menuWidth" [effectDuration]="effectDuration" [easing]="easing"></p-slideMenuSub>
                 </div>
-                <div class="ui-slidemenu-backward ui-widget-header ui-corner-all" [style.display]="left ? 'block' : 'none'" (click)="goBack()">
-                    <span class="fa fa-fw fa-caret-left"></span>{{backLabel}}
+                <div #backward class="ui-slidemenu-backward ui-widget-header ui-corner-all" [style.display]="left ? 'block' : 'none'" (click)="goBack()">
+                    <span class="fa fa-fw fa-caret-left"></span><span>{{backLabel}}</span>
                 </div>
             </div>
         </div>
@@ -113,31 +113,46 @@ export class SlideMenu implements AfterViewInit,OnDestroy {
 
     @Input() styleClass: string;
     
-    @Input() menuWidth: number = 180;
+    @Input() menuWidth: number = 190;
     
     @Input() viewportHeight: number = 175;
     
-    @Input() effectDuration: any = '500ms';
+    @Input() effectDuration: any = 500;
         
     @Input() easing: string = 'ease-out';
     
     @Input() backLabel: string = 'Back';
     
-    public container: any;
+    @ViewChild('container') containerViewChild: ElementRef;
+    
+    @ViewChild('backward') backwardViewChild: ElementRef;
+    
+    @ViewChild('slideMenuContent') slideMenuContentViewChild: ElementRef;
+    
+    public container: HTMLDivElement;
+    
+    public backwardElement: HTMLDivElement;
+    
+    public slideMenuContentElement: HTMLDivElement;
     
     public documentClickListener: any;
     
     public preventDocumentDefault: any;
         
     public left: number = 0;
+    
+    public animating: boolean = false;
         
-    constructor(public el: ElementRef, public domHandler: DomHandler, public renderer: Renderer) {}
+    constructor(public el: ElementRef, public domHandler: DomHandler, public renderer: Renderer2) {}
 
     ngAfterViewInit() {
-        this.container = this.el.nativeElement.children[0];
+        this.container = <HTMLDivElement> this.containerViewChild.nativeElement;
+        this.backwardElement = <HTMLDivElement> this.backwardViewChild.nativeElement;
+        this.slideMenuContentElement = <HTMLDivElement> this.slideMenuContentViewChild.nativeElement;
+        this.slideMenuContentElement.style.height = this.viewportHeight - this.domHandler.getHiddenElementOuterHeight(this.backwardElement) + 'px';
         
         if(this.popup) {
-            this.documentClickListener = this.renderer.listenGlobal('body', 'click', () => {
+            this.documentClickListener = this.renderer.listen('document', 'click', () => {
                 if(!this.preventDocumentDefault) {
                     this.hide();
                 }
@@ -151,11 +166,10 @@ export class SlideMenu implements AfterViewInit,OnDestroy {
             this.hide();
         else
             this.show(event);
-            
-        this.preventDocumentDefault = true;
     }
     
     show(event) {
+        this.preventDocumentDefault = true;
         this.container.style.display = 'block';
         this.domHandler.absolutePosition(this.container, event.target);
         this.domHandler.fadeIn(this.container, 250);
@@ -186,7 +200,7 @@ export class SlideMenu implements AfterViewInit,OnDestroy {
     }
         
     ngOnDestroy() {
-        if(this.popup) {
+        if(this.documentClickListener) {
             this.documentClickListener();
         }
         
@@ -200,8 +214,8 @@ export class SlideMenu implements AfterViewInit,OnDestroy {
 }
 
 @NgModule({
-    imports: [CommonModule],
-    exports: [SlideMenu],
+    imports: [CommonModule,RouterModule],
+    exports: [SlideMenu,RouterModule],
     declarations: [SlideMenu,SlideMenuSub]
 })
 export class SlideMenuModule { }

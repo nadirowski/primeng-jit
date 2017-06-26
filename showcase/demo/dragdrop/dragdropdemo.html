@@ -1,11 +1,11 @@
-<div class="ContentSideSections">
+<div class="content-section">
     <div>
-        <span class="fontSize30 TextShadow orange marginBottom20 dispBlock">Drag and Drop</span>
-        <span class="defaultText">pDraggable and pDroppable directives apply drag-drop behaviors to any element.</span>
+        <span class="feature-title">Drag and Drop</span>
+        <span>pDraggable and pDroppable directives apply drag-drop behaviors to any element.</span>
     </div>
 </div>
 
-<div class="ContentSideSections Implementation">
+<div class="content-section implementation">
     <h3 class="first">Drag Only</h3>
     <div pDraggable="pnl"  dragHandle=".ui-panel-titlebar">
         <p-panel header="Drag Header">
@@ -42,12 +42,12 @@
     </div>
 </div>
 
-<div class="ContentSideSections Source">
+<div class="content-section source">
     <p-tabView effect="fade">
         <p-tabPanel header="Documentation">
             <h3>Import</h3>
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 import &#123;DragDropModule&#125; from 'primeng/primeng';
 </code>
 </pre>
@@ -57,7 +57,7 @@ import &#123;DragDropModule&#125; from 'primeng/primeng';
             and it defines the scope to match draggables with droppables. Droppable scope can also be an array to accept multiple droppables.</p>
             
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;div pDraggable="dd"&gt;Draggable Div&lt;/div&gt;
 
 &lt;div pDroppable="dd"&gt;Droppable Div&lt;/div&gt;
@@ -68,7 +68,7 @@ import &#123;DragDropModule&#125; from 'primeng/primeng';
             <p>Drag handle is used to restrict dragging unless mousedown occurs on the specified element. Panel below can only be dragged using its header.</p>
 
             <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;div pDraggable="pnl"  dragHandle=".ui-panel-titlebar"&gt;
     &lt;p-panel header="Drag Header"&gt;
         The story begins as Don Vito Corleone, the head of a New York Mafia family, oversees his daughter's wedding. 
@@ -257,7 +257,7 @@ import &#123;DragDropModule&#125; from 'primeng/primeng';
 </pre>
 
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 export class DragDropDemo &#123;
     
     availableCars: Car[];
@@ -279,8 +279,9 @@ export class DragDropDemo &#123;
     
     drop(event) &#123;
         if(this.draggedCar) &#123;
-            this.selectedCars.push(this.draggedCar);
-            this.availableCars.splice(this.findIndex(this.draggedCar), 1);
+            let draggedCarIndex = this.findIndex(this.draggedCar);
+            this.selectedCars = [...this.selectedCars, this.draggedCar];
+            this.availableCars = this.availableCars.filter((val,i) => i!=draggedCarIndex);
             this.draggedCar = null;
         &#125;
     &#125;

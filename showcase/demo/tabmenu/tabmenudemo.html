@@ -1,20 +1,20 @@
-<div class="ContentSideSections">
+<div class="content-section">
     <div>
-        <span class="fontSize30 TextShadow orange marginBottom20 dispBlock">TabMenu</span>
-        <span class="defaultText">Menu is a navigation/command component that displays items as tab headers.</span>
+        <span class="feature-title">TabMenu</span>
+        <span>Menu is a navigation/command component that displays items as tab headers.</span>
     </div>
 </div>
 
-<div class="ContentSideSections Implementation">
+<div class="content-section implementation">
     <p-tabMenu [model]="items"></p-tabMenu>
 </div>
 
-<div class="ContentSideSections Source">
+<div class="content-section source">
     <p-tabView effect="fade">
         <p-tabPanel header="Documentation">
             <h3>Import</h3>
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 import &#123;TabMenuModule,MenuItem&#125; from 'primeng/primeng';
 </code>
 </pre>
@@ -25,13 +25,13 @@ import &#123;TabMenuModule,MenuItem&#125; from 'primeng/primeng';
             <h3>Getting Started</h3>
             <p>TabMenu requires a collection of menuitems as its model.</p>
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-tabMenu [model]="items"&gt;&lt;/p-tabMenu&gt;
 </code>
 </pre>
 
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 export class TabMenuDemo &#123;
     
     private items: MenuItem[];
@@ -52,13 +52,13 @@ export class TabMenuDemo &#123;
             <h3>ActiveItem</h3>
             <p>By default, first item is activated, use activeItem property to choose the initial active item.</p>
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-tabMenu [model]="items" [activeItem]="activeItem"&gt;&lt;/p-tabMenu&gt;
 </code>
 </pre>
 
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 export class TabMenuDemo &#123;
     
     private items: MenuItem[];
@@ -80,7 +80,7 @@ export class TabMenuDemo &#123;
 </code>
 </pre>
 
-            <h3>Attributes</h3>
+            <h3>Properties</h3>
             <div class="doc-tablewrapper">
                 <table class="doc-table">
                     <thead>
@@ -100,7 +100,7 @@ export class TabMenuDemo &#123;
                         </tr>
                         <tr>
                             <td>activeItem</td>
-                            <td>MenuElement</td>
+                            <td>MenuItem</td>
                             <td>null</td>
                             <td>Defines the default active menuitem</td>
                         </tr>
@@ -165,13 +165,13 @@ export class TabMenuDemo &#123;
 
         <p-tabPanel header="Source">
 <pre>
-<code class="language-markup" pCode>
+<code class="language-markup" pCode ngNonBindable>
 &lt;p-tabMenu [model]="items"&gt;&lt;/p-tabMenu&gt;
 </code>
 </pre>
 
 <pre>
-<code class="language-typescript" pCode>
+<code class="language-typescript" pCode ngNonBindable>
 export class TabMenuDemo &#123;
     
     private items: MenuItem[];

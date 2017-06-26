@@ -4,28 +4,18 @@ import {CommonModule} from '@angular/common';
 
 @Directive({
     selector: '[pButton]',
-    host: {
-        '[class.ui-state-hover]': 'hover&&!isDisabled()',
-        '[class.ui-state-focus]': 'focus',
-        '[class.ui-state-active]': 'active',
-        '[class.ui-state-disabled]': 'isDisabled()'
-    },
     providers: [DomHandler]
 })
 export class Button implements AfterViewInit, OnDestroy {
 
-    @Input() icon: string;
-
     @Input() iconPos: string = 'left';
+    
+    @Input() cornerStyleClass: string = 'ui-corner-all';
         
     public _label: string;
     
-    public hover: boolean;
-    
-    public focus: boolean;
-    
-    public active: boolean;
-    
+    public _icon: string;
+            
     public initialized: boolean;
 
     constructor(public el: ElementRef, public domHandler: DomHandler) {}
@@ -41,48 +31,13 @@ export class Button implements AfterViewInit, OnDestroy {
         
         let labelElement = document.createElement("span");
         labelElement.className = 'ui-button-text ui-c';
-        labelElement.appendChild(document.createTextNode(this.label||'ui-button'));
+        labelElement.appendChild(document.createTextNode(this.label||'ui-btn'));
         this.el.nativeElement.appendChild(labelElement);
         this.initialized = true;
     }
         
-    @HostListener('mouseenter', ['$event']) 
-    onMouseenter(e: Event) {
-        this.hover = true;
-    }
-    
-    @HostListener('mouseleave', ['$event']) 
-    onMouseleave(e: Event) {
-        this.hover = false;
-        this.active = false;
-    }
-    
-    @HostListener('mousedown', ['$event']) 
-    onMouseDown(e: Event) {
-        this.active = true;
-    }
-    
-    @HostListener('mouseup', ['$event']) 
-    onMouseUp(e: Event) {
-        this.active = false;
-    }
-    
-    @HostListener('focus', ['$event']) 
-    onFocus(e: Event) {
-        this.focus = true;
-    }
-    
-    @HostListener('blur', ['$event']) 
-    onBlur(e: Event) {
-        this.focus = false;
-    }
-    
-    isDisabled() {
-        return this.el.nativeElement.disabled;
-    }
-    
     getStyleClass(): string {
-        let styleClass = 'ui-button ui-widget ui-state-default ui-corner-all';
+        let styleClass = 'ui-button ui-widget ui-state-default ' + this.cornerStyleClass;
         if(this.icon) {
             if(this.label != null && this.label != undefined) {
                 if(this.iconPos == 'left')
@@ -110,6 +65,19 @@ export class Button implements AfterViewInit, OnDestroy {
         
         if(this.initialized) {
             this.domHandler.findSingle(this.el.nativeElement, '.ui-button-text').textContent = this._label;
+        }
+    }
+    
+    @Input() get icon(): string {
+        return this._icon;
+    }
+
+    set icon(val: string) {
+        this._icon = val;
+        
+        if(this.initialized) {
+            let iconPosClass = (this.iconPos == 'right') ? 'ui-button-icon-right': 'ui-button-icon-left';
+            this.domHandler.findSingle(this.el.nativeElement, '.fa').className = iconPosClass  + ' ui-c fa fa-fw ' + this.icon;
         }
     }
         

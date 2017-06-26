@@ -14,10 +14,6 @@ upload.php
 .git
 .gitignore
 
-# type definition
-typings
-typings.json
-
 # config
 tsconfig.json
 tsconfig-aot.json
@@ -29,8 +25,11 @@ gulpfile.js
 aot
 
 # misc
+.github
+.vscode
 *.log
 prod
+.editorconfig
 
 
 

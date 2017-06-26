@@ -1,7 +1,8 @@
-import {NgModule,Component,ElementRef,AfterViewInit,OnDestroy,Input,Output,EventEmitter,Renderer,ContentChild,trigger,state,style,transition,animate} from '@angular/core';
+import {NgModule,Component,ElementRef,AfterViewInit,OnDestroy,Input,Output,EventEmitter,Renderer2,ContentChild} from '@angular/core';
+import {trigger,state,style,transition,animate} from '@angular/animations';
 import {CommonModule} from '@angular/common';
 import {DomHandler} from '../dom/domhandler';
-import {Header,Footer} from '../common/shared';
+import {Header,Footer,SharedModule} from '../common/shared';
 import {ButtonModule} from '../button/button';
 import {ConfirmationService,Confirmation} from '../common/api';
 import {Subscription}   from 'rxjs/Subscription';
@@ -13,17 +14,16 @@ import {Subscription}   from 'rxjs/Subscription';
             [style.display]="visible ? 'block' : 'none'" [style.width.px]="width" [style.height.px]="height" (mousedown)="moveOnTop()" [@dialogState]="visible ? 'visible' : 'hidden'">
             <div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top">
                 <span class="ui-dialog-title" *ngIf="header">{{header}}</span>
-                <a [ngClass]="{'ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all':true,'ui-state-hover':hoverCloseIcon}" href="#" role="button" *ngIf="closable" 
-                    (click)="hide($event)" (mouseenter)="hoverCloseIcon=true" (mouseleave)="hoverCloseIcon=false">
+                <a *ngIf="closable"  [ngClass]="{'ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all':true}" href="#" role="button" (click)="hide($event)">
                     <span class="fa fa-fw fa-close"></span>
                 </a>
             </div>
             <div class="ui-dialog-content ui-widget-content">
                 <i [class]="icon"></i>
-                <span class="ui-confirmdialog-message">{{message}}</span>
+                <span class="ui-confirmdialog-message" [innerHTML]="message"></span>
             </div>
             <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix" *ngIf="footer">
-                <ng-content select="footer"></ng-content>
+                <ng-content select="p-footer"></ng-content>
             </div>
             <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix" *ngIf="!footer">
                 <button type="button" pButton [icon]="rejectIcon" [label]="rejectLabel" (click)="reject()" *ngIf="rejectVisible"></button>
@@ -78,6 +78,8 @@ export class ConfirmDialog implements AfterViewInit,OnDestroy {
     @Input() responsive: boolean = true;
     
     @Input() appendTo: any;
+    
+    @Input() key: string;
         
     @ContentChild(Footer) footer;
     
@@ -98,26 +100,28 @@ export class ConfirmDialog implements AfterViewInit,OnDestroy {
     subscription: Subscription;
             
     constructor(public el: ElementRef, public domHandler: DomHandler, 
-            public renderer: Renderer, private confirmationService: ConfirmationService) {
+            public renderer: Renderer2, private confirmationService: ConfirmationService) {
         this.subscription = confirmationService.requireConfirmation$.subscribe(confirmation => {
-            this.confirmation = confirmation;
-            this.message = this.confirmation.message||this.message;
-            this.icon = this.confirmation.icon||this.icon;
-            this.header = this.confirmation.header||this.header;
-            this.rejectVisible = this.confirmation.rejectVisible === false ? false : this.rejectVisible;
-            this.acceptVisible = this.confirmation.acceptVisible === false ? false : this.acceptVisible;
-            
-            if(this.confirmation.accept) {
-                this.confirmation.acceptEvent = new EventEmitter();
-                this.confirmation.acceptEvent.subscribe(this.confirmation.accept);
-            }
-            
-            if(this.confirmation.reject) {
-                this.confirmation.rejectEvent = new EventEmitter();
-                this.confirmation.rejectEvent.subscribe(this.confirmation.reject);
-            }
+            if(confirmation.key === this.key) {
+                this.confirmation = confirmation;
+                this.message = this.confirmation.message||this.message;
+                this.icon = this.confirmation.icon||this.icon;
+                this.header = this.confirmation.header||this.header;
+                this.rejectVisible = this.confirmation.rejectVisible == null ? this.rejectVisible : this.confirmation.rejectVisible;
+                this.acceptVisible = this.confirmation.acceptVisible == null ? this.acceptVisible : this.confirmation.acceptVisible;
+                
+                if(this.confirmation.accept) {
+                    this.confirmation.acceptEvent = new EventEmitter();
+                    this.confirmation.acceptEvent.subscribe(this.confirmation.accept);
+                }
+                
+                if(this.confirmation.reject) {
+                    this.confirmation.rejectEvent = new EventEmitter();
+                    this.confirmation.rejectEvent.subscribe(this.confirmation.reject);
+                }
 
-            this.visible = true;
+                this.visible = true;
+            }
         });         
     }
     
@@ -147,13 +151,13 @@ export class ConfirmDialog implements AfterViewInit,OnDestroy {
         this.contentContainer = this.domHandler.findSingle(this.el.nativeElement, '.ui-dialog-content');
         
         if(this.responsive) {
-            this.documentResponsiveListener = this.renderer.listenGlobal('window', 'resize', (event) => {
+            this.documentResponsiveListener = this.renderer.listen('window', 'resize', (event) => {
                 this.center();
             });
         }
         
         if(this.closeOnEscape && this.closable) {
-            this.documentEscapeListener = this.renderer.listenGlobal('body', 'keydown', (event) => {
+            this.documentEscapeListener = this.renderer.listen('document', 'keydown', (event) => {
                 if(event.which == 27) {
                     if(this.el.nativeElement.children[0].style.zIndex == DomHandler.zindex) {
                         this.hide(event);
@@ -166,7 +170,7 @@ export class ConfirmDialog implements AfterViewInit,OnDestroy {
             if(this.appendTo === 'body')
                 document.body.appendChild(this.el.nativeElement);
             else
-                this.appendTo.appendChild(this.el.nativeElement);
+                this.domHandler.appendChild(this.el.nativeElement, this.appendTo);
         }
     }
         
@@ -221,11 +225,11 @@ export class ConfirmDialog implements AfterViewInit,OnDestroy {
     ngOnDestroy() {
         this.disableModality();
                         
-        if(this.responsive) {
+        if(this.documentResponsiveListener) {
             this.documentResponsiveListener();
         }
         
-        if(this.closeOnEscape && this.closable) {
+        if(this.documentEscapeListener) {
             this.documentEscapeListener();
         }
         
@@ -257,7 +261,7 @@ export class ConfirmDialog implements AfterViewInit,OnDestroy {
 
 @NgModule({
     imports: [CommonModule,ButtonModule],
-    exports: [ConfirmDialog,ButtonModule],
+    exports: [ConfirmDialog,ButtonModule,SharedModule],
     declarations: [ConfirmDialog]
 })
 export class ConfirmDialogModule { }

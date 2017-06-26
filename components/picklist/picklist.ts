@@ -1,7 +1,7 @@
-import {NgModule,Component,ElementRef,OnDestroy,AfterViewInit,AfterViewChecked,DoCheck,Input,Output,ContentChild,TemplateRef,EventEmitter} from '@angular/core';
+import {NgModule,Component,ElementRef,OnDestroy,AfterViewInit,AfterContentInit,AfterViewChecked,DoCheck,Input,Output,ContentChildren,QueryList,TemplateRef,EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ButtonModule} from '../button/button';
-import {SharedModule} from '../common/shared';
+import {SharedModule,PrimeTemplate} from '../common/shared';
 import {DomHandler} from '../dom/domhandler';
 
 @Component({
@@ -10,18 +10,18 @@ import {DomHandler} from '../dom/domhandler';
         <div [class]="styleClass" [ngStyle]="style" [ngClass]="{'ui-picklist ui-widget ui-helper-clearfix': true,'ui-picklist-responsive': responsive}">
             <div class="ui-picklist-source-controls ui-picklist-buttons" *ngIf="showSourceControls">
                 <div class="ui-picklist-buttons-cell">
-                    <button type="button" pButton icon="fa-angle-up" (click)="moveUp(sourcelist,source)"></button>
-                    <button type="button" pButton icon="fa-angle-double-up" (click)="moveTop(sourcelist,source)"></button>
-                    <button type="button" pButton icon="fa-angle-down" (click)="moveDown(sourcelist,source)"></button>
-                    <button type="button" pButton icon="fa-angle-double-down" (click)="moveBottom(sourcelist,source)"></button>
+                    <button type="button" pButton icon="fa-angle-up" (click)="moveUp(sourcelist,source,selectedItemsSource,onSourceReorder)"></button>
+                    <button type="button" pButton icon="fa-angle-double-up" (click)="moveTop(sourcelist,source,selectedItemsSource,onSourceReorder)"></button>
+                    <button type="button" pButton icon="fa-angle-down" (click)="moveDown(sourcelist,source,selectedItemsSource,onSourceReorder)"></button>
+                    <button type="button" pButton icon="fa-angle-double-down" (click)="moveBottom(sourcelist,source,selectedItemsSource,onSourceReorder)"></button>
                 </div>
             </div>
             <div class="ui-picklist-listwrapper ui-picklist-source-wrapper" [ngClass]="{'ui-picklist-listwrapper-nocontrols':!showSourceControls}">
                 <div class="ui-picklist-caption ui-widget-header ui-corner-tl ui-corner-tr" *ngIf="sourceHeader">{{sourceHeader}}</div>
                 <ul #sourcelist class="ui-widget-content ui-picklist-list ui-picklist-source ui-corner-bottom" [ngStyle]="sourceStyle">
-                    <li *ngFor="let item of source" [ngClass]="{'ui-picklist-item':true,'ui-state-hover':(hoveredItem==item),'ui-state-highlight':isSelected(item)}"
-                        (mouseenter)="hoveredItem=item" (mouseleave)="hoveredItem=null" (click)="selectItem($event,item)">
-                        <template [pTemplateWrapper]="itemTemplate" [item]="item"></template>
+                    <li *ngFor="let item of source" [ngClass]="{'ui-picklist-item':true,'ui-state-highlight':isSelected(item,selectedItemsSource)}"
+                        (click)="onItemClick($event,item,selectedItemsSource)" (touchend)="onItemTouchEnd($event)">
+                        <ng-template [pTemplateWrapper]="itemTemplate" [item]="item"></ng-template>
                     </li>
                 </ul>
             </div>
@@ -33,28 +33,28 @@ import {DomHandler} from '../dom/domhandler';
                     <button type="button" pButton icon="fa-angle-double-left" (click)="moveAllLeft()"></button>
                 </div>
             </div>
-            <div class="ui-picklist-listwrapper ui-picklist-target-wrapper" [ngClass]="{'ui-picklist-listwrapper-nocontrols':!showSourceControls}">
+            <div class="ui-picklist-listwrapper ui-picklist-target-wrapper" [ngClass]="{'ui-picklist-listwrapper-nocontrols':!showTargetControls}">
                 <div class="ui-picklist-caption ui-widget-header ui-corner-tl ui-corner-tr" *ngIf="targetHeader">{{targetHeader}}</div>
                 <ul #targetlist class="ui-widget-content ui-picklist-list ui-picklist-target ui-corner-bottom" [ngStyle]="targetStyle">
-                    <li *ngFor="let item of target" [ngClass]="{'ui-picklist-item':true,'ui-state-hover':(hoveredItem==item),'ui-state-highlight':isSelected(item)}"
-                        (mouseenter)="hoveredItem=item" (mouseleave)="hoveredItem=null" (click)="selectItem($event,item)">
-                        <template [pTemplateWrapper]="itemTemplate" [item]="item"></template>
+                    <li *ngFor="let item of target" [ngClass]="{'ui-picklist-item':true,'ui-state-highlight':isSelected(item,selectedItemsTarget)}"
+                        (click)="onItemClick($event,item,selectedItemsTarget)" (touchend)="onItemTouchEnd($event)">
+                        <ng-template [pTemplateWrapper]="itemTemplate" [item]="item"></ng-template>
                     </li>
                 </ul>
             </div>
             <div class="ui-picklist-target-controls ui-picklist-buttons" *ngIf="showTargetControls">
                 <div class="ui-picklist-buttons-cell">
-                    <button type="button" pButton icon="fa-angle-up" (click)="moveUp(targetlist,target)"></button>
-                    <button type="button" pButton icon="fa-angle-double-up" (click)="moveTop(targetlist,target)"></button>
-                    <button type="button" pButton icon="fa-angle-down" (click)="moveDown(targetlist,target)"></button>
-                    <button type="button" pButton icon="fa-angle-double-down" (click)="moveBottom(targetlist,target)"></button>
+                    <button type="button" pButton icon="fa-angle-up" (click)="moveUp(targetlist,target,selectedItemsTarget,onTargetReorder)"></button>
+                    <button type="button" pButton icon="fa-angle-double-up" (click)="moveTop(targetlist,target,selectedItemsTarget,onTargetReorder)"></button>
+                    <button type="button" pButton icon="fa-angle-down" (click)="moveDown(targetlist,target,selectedItemsTarget,onTargetReorder)"></button>
+                    <button type="button" pButton icon="fa-angle-double-down" (click)="moveBottom(targetlist,target,selectedItemsTarget,onTargetReorder)"></button>
                 </div>
             </div>
         </div>
     `,
     providers: [DomHandler]
 })
-export class PickList implements OnDestroy,AfterViewChecked {
+export class PickList implements OnDestroy,AfterViewChecked,AfterContentInit {
 
     @Input() source: any[];
 
@@ -65,6 +65,8 @@ export class PickList implements OnDestroy,AfterViewChecked {
     @Input() targetHeader: string;
 
     @Input() responsive: boolean;
+    
+    @Input() metaKeySelection: boolean = true;
 
     @Input() style: any;
 
@@ -78,23 +80,45 @@ export class PickList implements OnDestroy,AfterViewChecked {
     
     @Input() showTargetControls: boolean = true;
     
-    @Output() onMovetoSource: EventEmitter<any> = new EventEmitter();
+    @Output() onMoveToSource: EventEmitter<any> = new EventEmitter();
     
     @Output() onMoveToTarget: EventEmitter<any> = new EventEmitter();
+    
+    @Output() onSourceReorder: EventEmitter<any> = new EventEmitter();
+    
+    @Output() onTargetReorder: EventEmitter<any> = new EventEmitter();
 
-    @ContentChild(TemplateRef) itemTemplate: TemplateRef<any>;
+    @ContentChildren(PrimeTemplate) templates: QueryList<any>;
     
-    hoveredItem: any;
+    public itemTemplate: TemplateRef<any>;
+        
+    selectedItemsSource: any[] = [];
     
-    selectedItems: any[];
+    selectedItemsTarget: any[] = [];
         
     reorderedListElement: any;
     
     movedUp: boolean;
     
     movedDown: boolean;
+    
+    itemTouched: boolean;
 
     constructor(public el: ElementRef, public domHandler: DomHandler) {}
+    
+    ngAfterContentInit() {
+        this.templates.forEach((item) => {
+            switch(item.getType()) {
+                case 'item':
+                    this.itemTemplate = item.template;
+                break;
+                
+                default:
+                    this.itemTemplate = item.template;
+                break;
+            }
+        });
+    }
         
     ngAfterViewChecked() {
         if(this.movedUp||this.movedDown) {
@@ -113,24 +137,43 @@ export class PickList implements OnDestroy,AfterViewChecked {
         }
     }
     
-    selectItem(event, item: any) {
-        let metaKey = (event.metaKey||event.ctrlKey);
-        let index = this.findIndexInSelection(item);
+    onItemClick(event, item: any, selectedItems: any[]) {
+        let index = this.findIndexInSelection(item,selectedItems);
         let selected = (index != -1);
+        let metaSelection = this.itemTouched ? false : this.metaKeySelection;
         
-        if(selected && metaKey) {
-            this.selectedItems.splice(index, 1);
+        if(metaSelection) {
+            let metaKey = (event.metaKey||event.ctrlKey);
+            
+            if(selected && metaKey) {
+                selectedItems.splice(index, 1);
+            }
+            else {
+                if(!metaKey) {
+                    selectedItems.length = 0;
+                }         
+                selectedItems.push(item);
+            }
         }
         else {
-            this.selectedItems = (metaKey) ? this.selectedItems||[] : [];            
-            this.selectedItems.push(item);
+            if(selected)
+                selectedItems.splice(index, 1);
+            else
+                selectedItems.push(item);
         }
+        
+        
+        this.itemTouched = false;
+    }
+    
+    onItemTouchEnd(event) {
+        this.itemTouched = true;
     }
 
-    moveUp(listElement, list) {
-        if(this.selectedItems && this.selectedItems.length) {
-            for(let i = 0; i < this.selectedItems.length; i++) {
-                let selectedItem = this.selectedItems[i];
+    moveUp(listElement, list, selectedItems, callback) {
+        if(selectedItems && selectedItems.length) {
+            for(let i = 0; i < selectedItems.length; i++) {
+                let selectedItem = selectedItems[i];
                 let selectedItemIndex: number = this.findIndexInList(selectedItem, list);
 
                 if(selectedItemIndex != 0) {
@@ -146,13 +189,14 @@ export class PickList implements OnDestroy,AfterViewChecked {
             
             this.movedUp = true;
             this.reorderedListElement = listElement;
+            callback.emit({items: selectedItems});
         }
     }
 
-    moveTop(listElement, list) {
-        if(this.selectedItems && this.selectedItems.length) {
-            for(let i = 0; i < this.selectedItems.length; i++) {
-                let selectedItem = this.selectedItems[i];
+    moveTop(listElement, list, selectedItems, callback) {
+        if(selectedItems && selectedItems.length) {
+            for(let i = 0; i < selectedItems.length; i++) {
+                let selectedItem = selectedItems[i];
                 let selectedItemIndex: number = this.findIndexInList(selectedItem, list);
 
                 if(selectedItemIndex != 0) {
@@ -165,13 +209,14 @@ export class PickList implements OnDestroy,AfterViewChecked {
             }
             
             listElement.scrollTop = 0;
+            callback.emit({items: selectedItems});
         }
     }
 
-    moveDown(listElement, list) {
-        if(this.selectedItems && this.selectedItems.length) {
-            for(let i = this.selectedItems.length - 1; i >= 0; i--) {
-                let selectedItem = this.selectedItems[i];
+    moveDown(listElement, list, selectedItems, callback) {
+        if(selectedItems && selectedItems.length) {
+            for(let i = selectedItems.length - 1; i >= 0; i--) {
+                let selectedItem = selectedItems[i];
                 let selectedItemIndex: number = this.findIndexInList(selectedItem, list);
 
                 if(selectedItemIndex != (list.length - 1)) {
@@ -187,13 +232,14 @@ export class PickList implements OnDestroy,AfterViewChecked {
             
             this.movedDown = true;
             this.reorderedListElement = listElement;
+            callback.emit({items: selectedItems});
         }
     }
 
-    moveBottom(listElement, list) {
-        if(this.selectedItems && this.selectedItems.length) {
-            for(let i = this.selectedItems.length - 1; i >= 0; i--) {
-                let selectedItem = this.selectedItems[i];
+    moveBottom(listElement, list, selectedItems, callback) {
+        if(selectedItems && selectedItems.length) {
+            for(let i = selectedItems.length - 1; i >= 0; i--) {
+                let selectedItem = selectedItems[i];
                 let selectedItemIndex: number = this.findIndexInList(selectedItem, list);
 
                 if(selectedItemIndex != (list.length - 1)) {
@@ -206,21 +252,22 @@ export class PickList implements OnDestroy,AfterViewChecked {
             }
             
             listElement.scrollTop = listElement.scrollHeight;
+            callback.emit({items: selectedItems});
         }
     }
 
     moveRight(targetListElement) {
-        if(this.selectedItems && this.selectedItems.length) {
-            for(let i = 0; i < this.selectedItems.length; i++) {
-                let selectedItem = this.selectedItems[i];
+        if(this.selectedItemsSource && this.selectedItemsSource.length) {
+            for(let i = 0; i < this.selectedItemsSource.length; i++) {
+                let selectedItem = this.selectedItemsSource[i];
                 if(this.findIndexInList(selectedItem, this.target) == -1) {
                     this.target.push(this.source.splice(this.findIndexInList(selectedItem, this.source),1)[0]);
                 }
             }
             this.onMoveToTarget.emit({
-                items: this.selectedItems
+                items: this.selectedItemsSource
             });
-            this.selectedItems = [];
+            this.selectedItemsSource = [];
         }
     }
 
@@ -233,22 +280,22 @@ export class PickList implements OnDestroy,AfterViewChecked {
                 items: this.source
             });
             this.source.splice(0, this.source.length);
-            this.selectedItems = [];
+            this.selectedItemsSource = [];
         }
     }
 
     moveLeft(sourceListElement) {
-        if(this.selectedItems && this.selectedItems.length) {
-            for(let i = 0; i < this.selectedItems.length; i++) {
-                let selectedItem = this.selectedItems[i];
+        if(this.selectedItemsTarget && this.selectedItemsTarget.length) {
+            for(let i = 0; i < this.selectedItemsTarget.length; i++) {
+                let selectedItem = this.selectedItemsTarget[i];
                 if(this.findIndexInList(selectedItem, this.source) == -1) {
                     this.source.push(this.target.splice(this.findIndexInList(selectedItem, this.target),1)[0]);
                 }
             }
-            this.onMovetoSource.emit({
-                items: this.selectedItems
+            this.onMoveToSource.emit({
+                items: this.selectedItemsTarget
             });
-            this.selectedItems = [];
+            this.selectedItemsTarget = [];
         }
     }
 
@@ -257,20 +304,20 @@ export class PickList implements OnDestroy,AfterViewChecked {
             for(let i = 0; i < this.target.length; i++) {
                 this.source.push(this.target[i]);
             }
-            this.onMovetoSource.emit({
+            this.onMoveToSource.emit({
                 items: this.target
             });
             this.target.splice(0, this.target.length);
-            this.selectedItems = [];
+            this.selectedItemsTarget = [];
         }
     }
 
-    isSelected(item: any) {
-        return this.findIndexInSelection(item) != -1;
+    isSelected(item: any, selectedItems: any[]) {
+        return this.findIndexInSelection(item, selectedItems) != -1;
     }
     
-    findIndexInSelection(item: any): number {
-        return this.findIndexInList(item, this.selectedItems);
+    findIndexInSelection(item: any, selectedItems: any[]): number {
+        return this.findIndexInList(item, selectedItems);
     }
     
     findIndexInList(item: any, list: any): number {

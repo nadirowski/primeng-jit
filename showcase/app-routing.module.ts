@@ -31,6 +31,11 @@ import {HomePageComponent} from './homepage.component';
                 resolve(require('./demo/blockui/blockuidemo.module')['BlockUIDemoModule']);
               });
             })},
+            {path: 'captcha', loadChildren: () => new Promise(function (resolve) {
+              (require as any).ensure([], function (require: any) {
+                resolve(require('./demo/captcha/captchademo.module')['CaptchaDemoModule']);
+              });
+            })},
             {path: 'breadcrumb', loadChildren: () => new Promise(function (resolve) {
               (require as any).ensure([], function (require: any) {
                 resolve(require('./demo/breadcrumb/breadcrumbdemo.module')['BreadcrumbDemoModule']);
@@ -59,6 +64,11 @@ import {HomePageComponent} from './homepage.component';
             {path: 'checkbox', loadChildren: () => new Promise(function (resolve) {
               (require as any).ensure([], function (require: any) {
                 resolve(require('./demo/checkbox/checkboxdemo.module')['CheckboxDemoModule']);
+              });
+            })},
+            {path: 'chips', loadChildren: () => new Promise(function (resolve) {
+              (require as any).ensure([], function (require: any) {
+                resolve(require('./demo/chips/chipsdemo.module')['ChipsDemoModule']);
               });
             })},
             {path: 'codehighlighter', loadChildren: () => new Promise(function (resolve) {
@@ -94,6 +104,11 @@ import {HomePageComponent} from './homepage.component';
             {path: 'datatable', loadChildren: () => new Promise(function (resolve) {
               (require as any).ensure([], function (require: any) {
                 resolve(require('./demo/datatable/datatabledemo.module')['DataTableDemoModule']);
+              });
+            })},
+            {path: 'defer', loadChildren: () => new Promise(function (resolve) {
+              (require as any).ensure([], function (require: any) {
+                resolve(require('./demo/defer/deferdemo.module')['DeferDemoModule']);
               });
             })},
             {path: 'dialog', loadChildren: () => new Promise(function (resolve) {
@@ -264,6 +279,11 @@ import {HomePageComponent} from './homepage.component';
             {path: 'responsive', loadChildren: () => new Promise(function (resolve) {
               (require as any).ensure([], function (require: any) {
                 resolve(require('./demo/responsive/responsivedemo.module')['ResponsiveDemoModule']);
+              });
+            })},
+            {path: 'rtl', loadChildren: () => new Promise(function (resolve) {
+              (require as any).ensure([], function (require: any) {
+                resolve(require('./demo/rtl/rtldemo.module')['RTLDemoModule']);
               });
             })},
             {path: 'schedule', loadChildren: () => new Promise(function (resolve) {

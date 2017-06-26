@@ -11,16 +11,14 @@ showcase/theming/*.js
 *.map
 
 # production showcase bundle
-prod
+dist
 
 # distribution resources
-resources/*.css
+resources/**/*.css
 resources/images
 
 # type definition
-typings
 *.d.ts
-!showcase/resources/primeui/primeui.d.ts
 
 # aot
 aot
@@ -30,3 +28,5 @@ components/**/*.metadata.json
 *.log
 .DS_STORE
 .idea
+.vscode
+.sass-cache

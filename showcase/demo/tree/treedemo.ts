@@ -2,10 +2,17 @@ import {Component,OnInit,ViewChild} from '@angular/core';
 import {NodeService} from '../service/nodeservice';
 import {Message,MenuItem,TreeNode} from '../../../components/common/api';
 import {Tree} from '../../../components/tree/tree';
-
+import {TreeDragDropService} from '../../../components/common/api';
 
 @Component({
-    templateUrl: 'showcase/demo/tree/treedemo.html'
+    templateUrl: 'showcase/demo/tree/treedemo.html',
+    styles:[`
+        h4 {
+            text-align: center;
+            margin: 0 0 8px 0;
+        }
+    `],
+    providers: [TreeDragDropService]
 })
 export class TreeDemo implements OnInit {
     
@@ -21,6 +28,10 @@ export class TreeDemo implements OnInit {
     filesTree5: TreeNode[];
     filesTree6: TreeNode[];
     filesTree7: TreeNode[];
+    filesTree8: TreeNode[];
+    filesTree9: TreeNode[];
+    filesTree10: TreeNode[];
+    filesTree11: TreeNode[];
     
     lazyFiles: TreeNode[];
     
@@ -31,6 +42,8 @@ export class TreeDemo implements OnInit {
     selectedFile3: TreeNode;
     
     selectedFiles: TreeNode[];
+    
+    selectedFiles2: TreeNode[];
     
     items: MenuItem[];
         
@@ -43,8 +56,26 @@ export class TreeDemo implements OnInit {
         this.nodeService.getFiles().then(files => this.filesTree4 = files);
         this.nodeService.getFiles().then(files => this.filesTree5 = files);
         this.nodeService.getFiles().then(files => this.filesTree6 = files);
+        this.nodeService.getFiles().then(files => this.filesTree7 = files);
+        this.filesTree8 = [
+            {
+                label: "Backup",
+                data: "Backup Folder",
+                expandedIcon: "fa-folder-open",
+                collapsedIcon: "fa-folder"
+            }
+        ];
+        this.filesTree9 = [
+            {
+                label: "Storage",
+                data: "Storage Folder",
+                expandedIcon: "fa-folder-open",
+                collapsedIcon: "fa-folder"
+            }
+        ];
+        this.nodeService.getFiles().then(files => this.filesTree10 = files);
         this.nodeService.getFiles().then(files => {
-            this.filesTree7 = [{
+            this.filesTree11 = [{
                 label: 'Root',
                 children: files
             }];
@@ -89,23 +120,18 @@ export class TreeDemo implements OnInit {
         this.selectedFile2 = null;
     }
 
-    expandToNode(){
-        const invoicesNode: TreeNode = this.filesTree6[0].children[1].children[0]
-        this.expandingTree.expandToNode(invoicesNode);
-    }
-
     expandAll(){
-        this.filesTree6.forEach( node => {
+        this.filesTree10.forEach( node => {
             this.expandRecursive(node, true);
         } );
     }
 
     collapseAll(){
-        this.filesTree6.forEach( node => {
+        this.filesTree10.forEach( node => {
             this.expandRecursive(node, false);
         } );
     }
-
+    
     private expandRecursive(node:TreeNode, isExpand:boolean){
         node.expanded = isExpand;
         if(node.children){
@@ -114,5 +140,4 @@ export class TreeDemo implements OnInit {
             } );
         }
     }
-
 }

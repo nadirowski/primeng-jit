@@ -1,4 +1,4 @@
-import {NgModule,Directive,ElementRef,HostListener,Input} from '@angular/core';
+import {NgModule,Directive,ElementRef,HostListener,Input,DoCheck} from '@angular/core';
 import {CommonModule} from '@angular/common';
 
 @Directive({
@@ -8,46 +8,27 @@ import {CommonModule} from '@angular/common';
         '[class.ui-corner-all]': 'true',
         '[class.ui-state-default]': 'true',
         '[class.ui-widget]': 'true',
-        '[class.ui-state-hover]': 'hover',
-        '[class.ui-state-focus]': 'focus',
-        '[class.ui-state-disabled]': 'disabled',
         '[class.ui-state-filled]': 'filled'
     }
 })
-export class InputText {
+export class InputText implements DoCheck {
 
-    hover: boolean;
-    
-    focus: boolean;
-    
+    filled: boolean;
+
     constructor(public el: ElementRef) {}
-    
-    @HostListener('mouseover', ['$event']) 
-    onMouseover(e) {
-        this.hover = true;
+        
+    ngDoCheck() {
+        this.updateFilledState();
     }
     
-    @HostListener('mouseout', ['$event']) 
-    onMouseout(e) {
-        this.hover = false;
+    //To trigger change detection to manage ui-state-filled for material labels when there is no value binding
+    @HostListener('input', ['$event']) 
+    onInput(e) {
+        this.updateFilledState();
     }
     
-    @HostListener('focus', ['$event']) 
-    onFocus(e) {
-        this.focus = true;
-    }
-    
-    @HostListener('blur', ['$event']) 
-    onBlur(e) {
-        this.focus = false;
-    }
-    
-    get disabled(): boolean {
-        return this.el.nativeElement.disabled;
-    }
-    
-    get filled(): boolean {
-        return this.el.nativeElement.value&&this.el.nativeElement.value.length;
+    updateFilledState() {
+        this.filled = this.el.nativeElement.value && this.el.nativeElement.value.length;
     }
 }
 
