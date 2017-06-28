@@ -354,6 +354,7 @@ export class Dialog implements AfterViewInit,OnDestroy {
     }
     
     bindDocumentDragListener() {
+        this.unbindDocumentDragListener(); // HACK: show() is called twice leaking events
         this.documentDragListener = this.renderer.listen('document', 'mousemove', (event) => {
             this.onDrag(event);
         });
@@ -367,6 +368,7 @@ export class Dialog implements AfterViewInit,OnDestroy {
     }
     
     bindDocumentResizeListeners() {
+        this.unbindDocumentResizeListeners(); // HACK: show() is called twice leaking events
         this.documentResizeListener = this.renderer.listen('document', 'mousemove', (event) => {
             this.onResize(event);
         });
@@ -388,6 +390,7 @@ export class Dialog implements AfterViewInit,OnDestroy {
     }
     
     bindDocumentResponsiveListener() {
+        this.unbindDocumentResponseListener(); // HACK: show() is called twice leaking events
         this.documentResponsiveListener = this.renderer.listen('window', 'resize', (event) => {
             let viewport = this.domHandler.getViewport();
             let width = this.domHandler.getOuterWidth(this.containerViewChild.nativeElement);
@@ -413,6 +416,7 @@ export class Dialog implements AfterViewInit,OnDestroy {
     }
     
     bindDocumentEscapeListener() {
+        this.unbindDocumentEscapeListener(); // HACK: show() is called twice leaking events
         this.documentEscapeListener = this.renderer.listen('document', 'keydown', (event) => {
             if(event.which == 27) {
                 if(parseInt(this.containerViewChild.nativeElement.style.zIndex) == DomHandler.zindex) {
@@ -430,6 +434,7 @@ export class Dialog implements AfterViewInit,OnDestroy {
     }
 
     bindDocumentTabListener() {
+        this.unbindDocumentTabListener(); // HACK: show() is called twice leaking events
         this.documentTabListener = this.renderer.listen('document', 'keydown', (event) => {
             if(event.which === 9) {
                 //List of html elements which can be focused by tabbing.
