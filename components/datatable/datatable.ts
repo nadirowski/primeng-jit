@@ -1476,7 +1476,9 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
             event.stopPropagation();
         }
         else {
-            event.target.dispatchEvent(new Event('keyup'));
+            if (this.filters[field] == null || this.filters[field].value != event.target.value) {
+                event.target.dispatchEvent(new Event('keyup'));
+            }
         }
     }
 
