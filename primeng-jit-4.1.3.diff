@@ -1,0 +1,1052 @@
+diff --git a/README.md b/README.md
+index 2afbe42..c423628 100644
+--- a/README.md
++++ b/README.md
+@@ -4,3 +4,29 @@ UI Components for Angular
+ See [PrimeNG homepage](http://www.primefaces.org/primeng) for live showcase and documentation.
+ 
+ ![alt text](https://www.primefaces.org/primeng/assets/showcase/images/primeng-sidebar.svg "PrimeNG")
++
++This is a JIT fork of this library
++
++### How to use this package
++
++- download primeng-{version}-JIT.tar.gz from sources
++- install it as your package: `npm install /your/download/folder/primeng-{version}-JIT.tar.gz`
++
++### How to develop this package
++
++Fetch dependencies:
++```bash
++npm install
++```
++Build and run the showcase:
++```bash
++npm start
++```
++Pack into tar.gz
++```bash
++#!/bin/bash
++./node_modules/.bin/ngc -p tsconfig-release.json
++./node_modules/.bin/gulp build-assets
++./node_modules/.bin/node-sass --source-comments --source-map resources/themes resources/themes -o resources/themes
++npm pack
++```
+diff --git a/package-lock.json b/package-lock.json
+index 94317de..19eac4b 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "primeng",
+-  "version": "4.1.3",
++  "version": "4.1.3-JIT.1",
+   "lockfileVersion": 1,
+   "requires": true,
+   "dependencies": {
+diff --git a/package.json b/package.json
+index 329bf51..c4bb645 100644
+--- a/package.json
++++ b/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "primeng",
+-  "version": "4.1.3",
++  "version": "4.1.3-JIT.1",
+   "license": "MIT",
+   "scripts": {
+     "ng": "ng",
+diff --git a/src/app/components/accordion/accordion.ts b/src/app/components/accordion/accordion.ts
+index 74a9da3..a93612f 100644
+--- a/src/app/components/accordion/accordion.ts
++++ b/src/app/components/accordion/accordion.ts
+@@ -25,6 +25,8 @@ export class Accordion implements BlockableUI {
+     @Input() styleClass: string;
+     
+     @Input() lazy: boolean;
++
++    @Input() businessObject: any;
+     
+     private _activeIndex: any;
+     
+@@ -100,6 +102,8 @@ export class AccordionTab implements OnDestroy {
+     @Input() selected: boolean;
+ 
+     @Input() disabled: boolean;
++
++    @Input() name: string;
+     
+     @Output() selectedChange: EventEmitter<any> = new EventEmitter();
+ 
+diff --git a/src/app/components/breadcrumb/breadcrumb.ts b/src/app/components/breadcrumb/breadcrumb.ts
+index 93e7d69..2a18fd6 100644
+--- a/src/app/components/breadcrumb/breadcrumb.ts
++++ b/src/app/components/breadcrumb/breadcrumb.ts
+@@ -22,7 +22,7 @@ import {RouterModule} from '@angular/router';
+                 </li>
+                 <li class="ui-breadcrumb-chevron fa fa-chevron-right" *ngIf="model"></li>
+                 <ng-template ngFor let-item let-end="last" [ngForOf]="model">
+-                    <li role="menuitem">
++                    <li role="menuitem" [id]="item.id || ''">
+                         <a *ngIf="!item.routerLink" [href]="item.url||'#'" class="ui-menuitem-link" (click)="itemClick($event, item)" 
+                             [ngClass]="{'ui-state-disabled':item.disabled}" [attr.target]="item.target">
+                             <span class="ui-menuitem-text">{{item.label}}</span>
+diff --git a/src/app/components/common/lazyloadevent.ts b/src/app/components/common/lazyloadevent.ts
+index fa96203..e649501 100644
+--- a/src/app/components/common/lazyloadevent.ts
++++ b/src/app/components/common/lazyloadevent.ts
+@@ -9,4 +9,5 @@ export interface LazyLoadEvent {
+     multiSortMeta?: SortMeta[];
+     filters?: {[s: string]: FilterMetadata;};
+     globalFilter?: any;
++    origin?: any;
+ }
+\ No newline at end of file
+diff --git a/src/app/components/common/menuitem.ts b/src/app/components/common/menuitem.ts
+index 2c31cec..e563c90 100644
+--- a/src/app/components/common/menuitem.ts
++++ b/src/app/components/common/menuitem.ts
+@@ -1,6 +1,7 @@
+ import {EventEmitter} from '@angular/core';
+ 
+ export interface MenuItem {
++    id?: string;
+     label?: string;
+     icon?: string;
+     command?: (event?: any) => void;
+diff --git a/src/app/components/common/shared.ts b/src/app/components/common/shared.ts
+index 4073bbf..689aaff 100644
+--- a/src/app/components/common/shared.ts
++++ b/src/app/components/common/shared.ts
+@@ -1,6 +1,7 @@
+ import {NgModule,EventEmitter,Directive,ViewContainerRef,Input,Output,ContentChildren,ContentChild,TemplateRef,OnInit,OnChanges,OnDestroy,AfterContentInit,QueryList,SimpleChanges,EmbeddedViewRef} from '@angular/core';
+ import {CommonModule} from '@angular/common';
+ import {Component} from '@angular/core';
++import {SelectItem} from './selectitem';
+ 
+ @Component({
+     selector: 'p-header',
+@@ -73,6 +74,8 @@ export class Column implements AfterContentInit{
+     @Input() editable: boolean;
+     @Input() filter: boolean;
+     @Input() filterMatchMode: string;
++    @Input() filterValues: SelectItem[];
++    @Input() defaultFilterValue: SelectItem;
+     @Input() filterType: string = 'text';
+     @Input() rowspan: number;
+     @Input() colspan: number;
+@@ -84,6 +87,11 @@ export class Column implements AfterContentInit{
+     @Input() filterPlaceholder: string;
+     @Input() filterMaxlength: number;
+     @Input() frozen: boolean;
++    @Input() filterAllowDecimals: boolean;
++    @Input() filterNumericMaxValue: number;
++    @Input() filterNumericMinValue: number;
++    @Input() filterNumericStep: number;
++    @Input() isFilterInputNotValid: boolean = false;
+     @Output() sortFunction: EventEmitter<any> = new EventEmitter();
+     @ContentChildren(PrimeTemplate) templates: QueryList<any>;
+     @ContentChild(TemplateRef) template: TemplateRef<any>;
+diff --git a/src/app/components/contextmenu/contextmenu.ts b/src/app/components/contextmenu/contextmenu.ts
+index 9063b71..1fee6ef 100644
+--- a/src/app/components/contextmenu/contextmenu.ts
++++ b/src/app/components/contextmenu/contextmenu.ts
+@@ -13,6 +13,7 @@ import {RouterModule} from '@angular/router';
+             <ng-template ngFor let-child [ngForOf]="(root ? item : item.items)">
+                 <li *ngIf="child.separator" class="ui-menu-separator ui-widget-content">
+                 <li *ngIf="!child.separator" #item [ngClass]="{'ui-menuitem ui-widget ui-corner-all':true,'ui-menu-parent':child.items,'ui-menuitem-active':item==activeItem}"
++                    [id]="item.id || ''"
+                     (mouseenter)="onItemMouseEnter($event,item,child)" (mouseleave)="onItemMouseLeave($event,item)" [style.display]="child.visible === false ? 'none' : 'block'">
+                     <a *ngIf="!child.routerLink" [href]="child.url||'#'" [attr.target]="child.target" (click)="itemClick($event, child)"
+                         [ngClass]="{'ui-menuitem-link ui-corner-all':true,'ui-state-disabled':child.disabled}" [ngStyle]="child.style" [class]="child.styleClass">
+diff --git a/src/app/components/datatable/datatable.css b/src/app/components/datatable/datatable.css
+index 56f383b..7116aca 100644
+--- a/src/app/components/datatable/datatable.css
++++ b/src/app/components/datatable/datatable.css
+@@ -205,6 +205,10 @@
+     margin-top: .25em;
+ }
+ 
++.ui-datatable .ui-column-filter-error {
++    border: 1px solid #f44336 !important;
++}
++
+ /* Editing */
+ .ui-datatable .ui-editable-column input {
+     width: 100%;
+diff --git a/src/app/components/datatable/datatable.ts b/src/app/components/datatable/datatable.ts
+index 4e77616..5718eef 100644
+--- a/src/app/components/datatable/datatable.ts
++++ b/src/app/components/datatable/datatable.ts
+@@ -6,7 +6,7 @@
+ import {CommonModule} from '@angular/common';
+ import {FormsModule} from '@angular/forms'
+ import {SharedModule} from '../common/shared';
+-import {PaginatorModule} from '../paginator/paginator';
++import {Paginator,PaginatorModule} from '../paginator/paginator';
+ import {Column,Header,Footer,HeaderColumnGroup,FooterColumnGroup,PrimeTemplate} from '../common/shared';
+ import {LazyLoadEvent} from '../common/lazyloadevent';
+ import {FilterMetadata} from '../common/filtermetadata';
+@@ -15,6 +15,7 @@ import {DomHandler} from '../dom/domhandler';
+ import {ObjectUtils} from '../utils/objectutils';
+ import {Subscription} from 'rxjs/Subscription';
+ import {BlockableUI} from '../common/blockableui';
++import {NumericFilterColumnHelper} from './numericFilterColumnHelper';
+ 
+ @Component({
+     selector: 'p-dtRadioButton',
+@@ -113,14 +114,21 @@ export class RowExpansionLoader implements OnInit, OnDestroy {
+                 (dragstart)="dt.onColumnDragStart($event)" (dragleave)="dt.onColumnDragleave($event)" (drop)="dt.onColumnDrop($event)" (mousedown)="dt.onHeaderMousedown($event,headerCell)"
+                 [attr.tabindex]="col.sortable ? tabindex : null" (keydown)="dt.onHeaderKeydown($event,col)">
+                 <span class="ui-column-resizer ui-clickable" *ngIf="dt.resizableColumns && ((dt.columnResizeMode == 'fit' && !lastCol) || dt.columnResizeMode == 'expand')" (mousedown)="dt.initColumnResize($event)"></span>
+-                <span class="ui-column-title" *ngIf="!col.selectionMode&&!col.headerTemplate">{{col.header}}</span>
++                <span class="ui-column-title" title="{{col.header}}" *ngIf="!col.selectionMode&&!col.headerTemplate">{{col.header}}</span>
+                 <span class="ui-column-title" *ngIf="col.headerTemplate">
+                     <p-columnHeaderTemplateLoader [column]="col"></p-columnHeaderTemplateLoader>
+                 </span>
+                 <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
+                      [ngClass]="{'fa-sort-desc': (dt.getSortOrder(col) == -1),'fa-sort-asc': (dt.getSortOrder(col) == 1)}"></span>
+-                <input [attr.type]="col.filterType" class="ui-column-filter ui-inputtext ui-widget ui-state-default ui-corner-all" [attr.maxlength]="col.filterMaxlength" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter&&!col.filterTemplate" [value]="dt.filters[col.field] ? dt.filters[col.field].value : ''" 
++                <input [attr.type]="col.filterType" class="ui-column-filter ui-inputtext ui-widget ui-state-default ui-corner-all" [attr.maxlength]="col.filterMaxlength" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter&&!col.filterTemplate&&!col.filterValues"
++                    [ngClass]="{'ui-column-filter-error': col.isFilterInputNotValid}" [attr.name]="col.field"
++                    [attr.min]="col.filterType === 'number' && col.filterNumericMinValue != undefined ? col.filterNumericMinValue : undefined" [attr.max]="col.filterType === 'number' && col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : undefined"
++                    [attr.step]="col.filterType === 'number' ? (col.filterNumericStep != undefined ? col.filterNumericStep : 1) : undefined" [attr.value]="col.defaultFilterValue ? col.defaultFilterValue.value : undefined"
++                    (change)="dt.onFilterInputChange($event, col.field)"
+                     (click)="dt.onFilterInputClick($event)" (input)="dt.onFilterKeyup($event.target.value, col.field, col.filterMatchMode)"/>
++                <select class="ui-column-filter" *ngIf="col.filter && col.filterValues && !col.filterTemplate" (change)="dt.onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="dt.onFilterInputClick($event)" [name]="col.field">
++                    <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
++                </select>
+                 <p-columnFilterTemplateLoader [column]="col" *ngIf="col.filterTemplate"></p-columnFilterTemplateLoader>
+                 <p-dtCheckbox *ngIf="col.selectionMode=='multiple'" (onChange)="dt.toggleRowsWithCheckbox($event)" [checked]="dt.allSelected" [disabled]="dt.isEmpty()"></p-dtCheckbox>
+             </th>
+@@ -171,10 +179,12 @@ export class ColumnFooters {
+                 </td>
+             </tr>
+             <tr #rowElement *ngIf="!dt.expandableRowGroups||dt.isRowGroupExpanded(rowData)"
++                    tabindex="{{dt.calculateIndex(rowIndex)}}" (keydown)="dt.rowKeyDown($event, rowIndex)"
+                     (click)="dt.handleRowClick($event, rowData, rowIndex)" (dblclick)="dt.rowDblclick($event,rowData)" (contextmenu)="dt.onRowRightClick($event,rowData)" (touchend)="dt.handleRowTouchEnd($event)"
+                     [ngClass]="[even&&dt.rowGroupMode!='rowspan'? 'ui-datatable-even':'',
+                                 odd&&dt.rowGroupMode!='rowspan'?'ui-datatable-odd':'',
+                                 dt.isSelected(rowData)? 'ui-state-highlight': '', 
++                                'ui-datatable-tabbable',
+                                 dt.getRowStyleClass(rowData,rowIndex)]">
+                 <ng-template ngFor let-col [ngForOf]="columns" let-colIndex="index">
+                     <td #cell *ngIf="!dt.rowGroupMode || (dt.rowGroupMode == 'subheader') ||
+@@ -431,6 +441,7 @@ export class ScrollableView implements AfterViewInit,AfterViewChecked,OnDestroy
+                 <ng-content select="p-header"></ng-content>
+             </div>
+             <p-paginator [rows]="rows" [first]="first" [totalRecords]="totalRecords" [pageLinkSize]="pageLinks" styleClass="ui-paginator-top" [alwaysShow]="alwaysShowPaginator"
++                #topPaginator
+                 (onPageChange)="onPageChange($event)" [rowsPerPageOptions]="rowsPerPageOptions" *ngIf="paginator && paginatorPosition =='top' || paginatorPosition =='both'"></p-paginator>
+             <div class="ui-datatable-tablewrapper" *ngIf="!scrollable">
+                 <table [class]="tableStyleClass" [ngStyle]="tableStyle">
+@@ -461,6 +472,7 @@ export class ScrollableView implements AfterViewInit,AfterViewChecked,OnDestroy
+             </ng-template>
+             
+             <p-paginator [rows]="rows" [first]="first" [totalRecords]="totalRecords" [pageLinkSize]="pageLinks" styleClass="ui-paginator-bottom" [alwaysShow]="alwaysShowPaginator"
++                #bottomPaginator
+                 (onPageChange)="onPageChange($event)" [rowsPerPageOptions]="rowsPerPageOptions" *ngIf="paginator && paginatorPosition =='bottom' || paginatorPosition =='both'"></p-paginator>
+             <div class="ui-datatable-footer ui-widget-header" *ngIf="footer">
+                 <ng-content select="p-footer"></ng-content>
+@@ -471,9 +483,11 @@ export class ScrollableView implements AfterViewInit,AfterViewChecked,OnDestroy
+             <span class="fa fa-arrow-up ui-datatable-reorder-indicator-down" style="position: absolute; display: none;"></span>
+         </div>
+     `,
+-    providers: [DomHandler,ObjectUtils]
++    providers: [DomHandler,ObjectUtils,NumericFilterColumnHelper]
+ })
+-export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentInit,OnInit,OnDestroy,BlockableUI {
++export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentInit,OnDestroy,BlockableUI {
++
++    @Input() seqNum: number = 1;
+ 
+     @Input() paginator: boolean;
+ 
+@@ -501,13 +515,15 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
+ 
+     @Output() onRowDblclick: EventEmitter<any> = new EventEmitter();
+     
++    @Output() onRowKeyDown: EventEmitter<any> = new EventEmitter();
++
+     @Output() onHeaderCheckboxToggle: EventEmitter<any> = new EventEmitter();
+     
+     @Input() headerCheckboxToggleAllPages: boolean;
+     
+     @Output() onContextMenuSelect: EventEmitter<any> = new EventEmitter();
+ 
+-    @Input() filterDelay: number = 300;
++    @Input() filterDelay: number = 400;
+ 
+     @Input() lazy: boolean;
+ 
+@@ -649,6 +665,10 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
+     
+     @ContentChild(FooterColumnGroup) footerColumnGroup: FooterColumnGroup;
+     
++    @ViewChild("bottomPaginator") bottomPaginator: Paginator;
++
++    @ViewChild("topPaginator") topPaginator: Paginator;
++
+     public _value: any[];
+         
+     public dataToRender: any[];
+@@ -661,6 +681,8 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
+ 
+     public columns: Column[];
+     
++    public columnsDictionary: {[s: string]: Column;} = {};
++
+     public frozenColumns: Column[];
+     
+     public scrollableColumns: Column[];
+@@ -669,6 +691,8 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
+         
+     public sortColumn: Column;
+     
++    public sortInitialSettings: {[s: string]: boolean;} = {};
++
+     public columnResizing: boolean;
+     
+     public lastResizerHelperX: number;
+@@ -743,19 +767,25 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
+     
+     constructor(public el: ElementRef, public domHandler: DomHandler, public differs: IterableDiffers,
+             public renderer: Renderer2, public changeDetector: ChangeDetectorRef, public objectUtils: ObjectUtils,
++            public numericFilterColumnHelper: NumericFilterColumnHelper,
+             public zone: NgZone) {
+     	this.differ = differs.find([]).create(null);
+     }
+-
+-    ngOnInit() {
+-        if(this.lazy) {
+-            this.onLazyLoad.emit(this.createLazyLoadMetadata());
+-        }
+-    }
+     
+     ngAfterContentInit() {
+         this.initColumns();
+         
++        this.applyDefaultFilters();
++        if(this.lazy) {
++            this.onLazyLoad.emit(this.createLazyLoadMetadata());
++        }
++        else if(this.hasFilter()) {
++            this.filterTimeout = setTimeout(() => {
++                this._filter();
++                this.filterTimeout = null;
++            });
++        }
++
+         this.columnsSubscription = this.cols.changes.subscribe(_ => {
+             this.initColumns();
+             this.changeDetector.markForCheck();
+@@ -778,6 +808,26 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
+         });
+     }
+ 
++    applyDefaultFilters() {
++        if(this.columns) {
++            this.columns.forEach(column => {
++                if(column.filterValues) {
++                    // initial filter value for dropdown
++                    if(column.defaultFilterValue) {
++                        this.filters[column.field] = {value: column.defaultFilterValue.value, matchMode: undefined};
++                    }
++                    else if(column.filterValues.length > 0) {
++                        this.filters[column.field] = {value: column.filterValues[0].value, matchMode: undefined};
++                    }
++                }
++                else if(column.defaultFilterValue) {
++                    // initial filter value for text input
++                    this.filters[column.field] = {value: column.defaultFilterValue.value, matchMode: column.filterMatchMode};
++                }
++            });
++        }
++    }
++
+     ngAfterViewChecked() {
+         if(this.columnsChanged && this.el.nativeElement.offsetParent) {
+             if(this.resizableColumns) {
+@@ -923,6 +973,21 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
+         }
+         
+         this.columnsChanged = true;
++
++        if(this.headerColumnGroup) {
++            this.headerColumnGroup.rows.forEach(row => {
++                row.columns.forEach(column => {
++                    this.columnsDictionary[column.field] = column;
++                    this.sortInitialSettings[column.field] = column.sortable;
++                });
++            });
++        }
++        else {
++            this.columns.forEach(column => {
++                this.columnsDictionary[column.field] = column;
++                this.sortInitialSettings[column.field] = column.sortable;
++            });
++        }
+     }
+ 
+     resolveFieldData(data: any, field: string): any {
+@@ -1307,8 +1372,75 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
+             this.onRowSelect.emit({originalEvent: event, data: rangeRowData, type: 'row'});
+         }
+     }
++
++    rowKeyDown(event: KeyboardEvent, index: number) {
++        let tabindex = this.calculateIndex(index);
++        if(event.code === 'ArrowDown') {
++            event.preventDefault();
++            if(this.dataToRender.length - 1 > index) {
++                this.handleRowClick(event, this.dataToRender[index + 1], index, true);
++                this.focusOnRowWithTabIndex(tabindex - 1);
++            }
++        }
++        else if(event.code === 'ArrowUp') {
++            event.preventDefault();
++            if(index > 0) {
++                this.handleRowClick(event, this.dataToRender[index - 1], index, true);
++                this.focusOnRowWithTabIndex(tabindex + 1);
++            }
++        }
++        else if(event.keyCode == 13) {
++            this.rowDblclick(event, this.dataToRender[index]);
++            (<HTMLElement>event.target).blur();
++        }
++        else if(event.code === 'ArrowRight') {
++            if(this.paginator) {
++                if(this.bottomPaginator) {
++                    this.bottomPaginator.changePageToNext(event);
++                }
++                else if(this.topPaginator) {
++                    this.topPaginator.changePageToNext(event);
++                }
++            }
++        }
++        else if(event.code === 'ArrowLeft') {
++            if(this.paginator) {
++                if(this.bottomPaginator) {
++                    this.bottomPaginator.changePageToPrev(event);
++                }
++                else if (this.topPaginator) {
++                    this.topPaginator.changePageToPrev(event);
++                }
++            }
++        }
++        this.onRowKeyDown.emit({originalEvent: event, rowIndex: index, data: this.dataToRender[index]});
++    }
++
++    focusOnRowWithTabIndex(index) {
++        let tabbables = document.getElementsByClassName("ui-datatable-tabbable"); //get all tabable elements
++        for(let i = 0; i < tabbables.length; i++) { //loop through each element
++            if((<HTMLElement>tabbables[i]).tabIndex == (index)) { //check the tabindex to see if it's the element we want
++                (<HTMLElement>tabbables[i]).focus(); //if it's the one we want, focus it and exit the loop
++                break;
++            }
++        }
++    }
++
++    focusOnRowWithItem(item) {
++        if(this.dataToRender){
++            for(let i = 0; i < this.dataToRender.length; i++){
++                if(item === this.dataToRender[i]){
++                    this.focusOnRowWithTabIndex(this.calculateIndex(i));
++                }
++            }
++        }
++    }
++
++    calculateIndex(index) {
++        return -(index + this.seqNum * 100);
++    }
+     
+-    handleRowClick(event: MouseEvent, rowData: any, index: number) {
++    handleRowClick(event: MouseEvent | KeyboardEvent, rowData: any, index: number, forceRowClick?: boolean) {
+         if(this.preventRowClickPropagation) {
+             this.preventRowClickPropagation = false;
+             return;
+@@ -1327,7 +1459,9 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
+         }
+                 
+         if(targetNode == 'INPUT' || targetNode == 'BUTTON' || targetNode == 'A' || (this.domHandler.hasClass(event.target, 'ui-clickable'))) {
+-            return;
++            if(!forceRowClick) {
++                return;
++            }
+         }
+                 
+         this.onRowClick.next({originalEvent: event, data: rowData});
+@@ -1531,6 +1665,14 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
+     }
+ 
+     rowDblclick(event, rowData) {
++        let tabindex = 0;
++        for (let i = 0; i < this.dataToRender.length; i++) {
++            if (rowData === this.dataToRender[i]) {
++                tabindex = i;
++            }
++        }
++        event.returnTabIndex = this.calculateIndex(tabindex);
++        event.origin = this;
+         this.onRowDblclick.emit({originalEvent: event, data: rowData});
+     }
+ 
+@@ -1597,23 +1739,79 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
+         }
+     }
+ 
+-    onFilterKeyup(value, field, matchMode) {
++    //for supporting spinner arrows on number typed input
++    onFilterInputChange(event, field) {
++        if(this.numericFilterColumnHelper.isNumericFilterNotValid(event.target.value, this.columnsDictionary[field])) {
++            event.stopPropagation();
++        }
++        else {
++            if (this.filters[field] == null || this.filters[field].value != event.target.value) {
++                event.target.dispatchEvent(new Event('keyup'));
++            }
++        }
++    }
++
++    onFilterKeyup(event, field, matchMode) {
++        //space
++        if(event.keyCode === 32) {
++            event.preventDefault();
++        }
++
+         if(this.filterTimeout) {
+             clearTimeout(this.filterTimeout);
+         }
+ 
++        this.setFilterValue(event.target.value, field, matchMode);
++        this.columnsDictionary[field].isFilterInputNotValid = event.target.validity.badInput;
++        let filterTimeoutDelay = this.filterDelay;
++
++        if(this.areFiltersValuesInvalid()) {
++            //setTimeout using a 32 bit int to store the delay so the max value allowed would be:
++            filterTimeoutDelay = 2147483647;
++        }
++        //enter
++        else if (event.keyCode == 13) {
++            filterTimeoutDelay = -1;
++        }
++
+         this.filterTimeout = setTimeout(() => {
+-            this.filter(value, field, matchMode);
++            this._filter();
+             this.filterTimeout = null;            
+-        }, this.filterDelay);
++        }, filterTimeoutDelay);
++    }
++
++    areFiltersValuesInvalid() {
++        let filterInputNotValid = false;
++        for(let prop in this.filters) {
++            let filter = this.filters[prop];
++            let column = this.columnsDictionary[prop];
++
++            if(column != undefined && column.filterType === 'number') {
++                filterInputNotValid = column.isFilterInputNotValid || this.numericFilterColumnHelper.isNumericFilterNotValid(filter.value, column);
++                column.isFilterInputNotValid = filterInputNotValid;
++
++                if(this.headerColumnGroup) {
++                    this.numericFilterColumnHelper.setFilterInputInHeaderColumnGroup(this.headerColumnGroup, prop, filterInputNotValid)
++                }
++
++                if(filterInputNotValid) {
++                    break;
++                }
++            }
++        }
++
++        if(this.headerColumnGroup) {
++            this.numericFilterColumnHelper.changeHeaderColumnGroupSortSetting(this.headerColumnGroup, this.sortInitialSettings, !filterInputNotValid);
++        }
++        else {
++            this.numericFilterColumnHelper.changeColumnSortSetting(this.columnsDictionary, this.sortInitialSettings, !filterInputNotValid);
++        }
++
++        return filterInputNotValid;
+     }
+     
+     filter(value, field, matchMode) {
+-        if(!this.isFilterBlank(value))
+-            this.filters[field] = {value: value, matchMode: matchMode};
+-        else if(this.filters[field])
+-            delete this.filters[field];
+-        
++        this.setFilterValue(value, field, matchMode);
+         this._filter(); 
+     }
+     
+@@ -1627,6 +1825,13 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
+         return true;
+     }
+ 
++    setFilterValue(value, field, matchMode) {
++        if(!this.isFilterBlank(value))
++            this.filters[field] = {value: value, matchMode: matchMode};
++        else if(this.filters[field])
++            delete this.filters[field];
++    }
++
+     _filter() {
+         this._first = 0;
+         
+@@ -1636,6 +1841,9 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
+         else {
+             this.filteredValue = [];
+ 
++            if(this.value == null) {
++                return;
++            }
+             for(let i = 0; i < this.value.length; i++) {
+                 let localMatch = true;
+                 let globalMatch = false;
+@@ -2238,7 +2446,8 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
+             sortOrder: this.sortOrder,
+             filters: this.filters,
+             globalFilter: this.globalFilter ? this.globalFilter.value : null,
+-            multiSortMeta: this.multiSortMeta
++            multiSortMeta: this.multiSortMeta,
++            origin: this
+         };
+     }
+     
+diff --git a/src/app/components/datatable/numericFilterColumnHelper.ts b/src/app/components/datatable/numericFilterColumnHelper.ts
+new file mode 100644
+index 0000000..262f77f
+--- /dev/null
++++ b/src/app/components/datatable/numericFilterColumnHelper.ts
+@@ -0,0 +1,58 @@
++import {Injectable} from "@angular/core";
++import {Column, HeaderColumnGroup} from "../common/shared";
++
++@Injectable()
++export class NumericFilterColumnHelper {
++
++    public static MAX_INT_VALUE = 2147483647;
++
++    isNumericFilterNotValid(filterValue: any, column: Column) {
++        if(column.filterType === 'number' && filterValue != "") {
++            if (isNaN(Number(filterValue))) {
++                return true;
++            }
++
++            if(!column.filterAllowDecimals) {
++                let valueParts = (filterValue + "").split(".");
++                if (valueParts[1] && valueParts[1] != "") {
++                    return true;
++                }
++            }
++
++            if((column.filterNumericMaxValue != undefined ? filterValue > column.filterNumericMaxValue : false ) || filterValue > NumericFilterColumnHelper.MAX_INT_VALUE) {
++                return true;
++            }
++
++            if((column.filterNumericMinValue != undefined ? filterValue < column.filterNumericMinValue : false) || filterValue < 0) {
++                return true;
++            }
++        }
++        return false;
++    }
++
++    changeColumnSortSetting(columnsDictionary, sortInitialSettings, globalSortingEnabled: boolean) {
++        for(let prop in columnsDictionary) {
++            if(!columnsDictionary.hasOwnProperty(prop)) {
++                continue;
++            }
++            columnsDictionary[prop].sortable = globalSortingEnabled && sortInitialSettings[prop];
++        }
++    }
++
++    changeHeaderColumnGroupSortSetting(headerColumnGroup: HeaderColumnGroup, sortInitialSettings, globalSortingEnabled: boolean) {
++        headerColumnGroup.rows.forEach(row => {
++            row.columns.forEach(column => {
++                column.sortable = globalSortingEnabled && sortInitialSettings[column.field];
++            });
++        });
++    }
++
++    setFilterInputInHeaderColumnGroup(headerColumnGroup: HeaderColumnGroup, prop: string, filterInputNotValid: boolean) {
++        headerColumnGroup.rows.forEach(row => {
++            let columnFound = row.columns.find(column => column.field == prop);
++            if(columnFound) {
++                columnFound.isFilterInputNotValid = filterInputNotValid;
++            }
++        });
++    }
++}
+diff --git a/src/app/components/dialog/dialog.ts b/src/app/components/dialog/dialog.ts
+index e988d15..36cf177 100644
+--- a/src/app/components/dialog/dialog.ts
++++ b/src/app/components/dialog/dialog.ts
+@@ -122,6 +122,8 @@ export class Dialog implements AfterViewInit,AfterViewChecked,OnDestroy {
+     documentEscapeListener: Function;
+ 	
+     maskClickListener: Function;
++
++    documentTabListener: Function;
+     
+     lastPageX: number;
+     
+@@ -201,6 +203,7 @@ export class Dialog implements AfterViewInit,AfterViewChecked,OnDestroy {
+         this.onHide.emit({});
+         this.unbindMaskClickListener();
+         this.unbindGlobalListeners();
++        this.unbindDocumentTabListener();
+         
+         if(this.modal) {
+             this.disableModality();
+@@ -374,6 +377,10 @@ export class Dialog implements AfterViewInit,AfterViewChecked,OnDestroy {
+         if(this.closeOnEscape && this.closable) {
+             this.bindDocumentEscapeListener();
+         }
++
++        if(this.modal) {
++            this.bindDocumentTabListener();
++        }
+     }
+     
+     unbindGlobalListeners() {
+@@ -384,6 +391,7 @@ export class Dialog implements AfterViewInit,AfterViewChecked,OnDestroy {
+     }
+     
+     bindDocumentDragListener() {
++        this.unbindDocumentDragListener(); // HACK: show() is called twice leaking events
+         this.documentDragListener = this.renderer.listen('document', 'mousemove', (event) => {
+             this.onDrag(event);
+         });
+@@ -397,6 +405,7 @@ export class Dialog implements AfterViewInit,AfterViewChecked,OnDestroy {
+     }
+     
+     bindDocumentResizeListeners() {
++        this.unbindDocumentResizeListeners(); // HACK: show() is called twice leaking events
+         this.documentResizeListener = this.renderer.listen('document', 'mousemove', (event) => {
+             this.onResize(event);
+         });
+@@ -418,6 +427,7 @@ export class Dialog implements AfterViewInit,AfterViewChecked,OnDestroy {
+     }
+     
+     bindDocumentResponsiveListener() {
++        this.unbindDocumentResponsiveListener(); // HACK: show() is called twice leaking events
+         this.documentResponsiveListener = this.renderer.listen('window', 'resize', (event) => {
+             let viewport = this.domHandler.getViewport();
+             let width = this.domHandler.getOuterWidth(this.containerViewChild.nativeElement);
+@@ -443,6 +453,7 @@ export class Dialog implements AfterViewInit,AfterViewChecked,OnDestroy {
+     }
+     
+     bindDocumentEscapeListener() {
++        this.unbindDocumentEscapeListener(); // HACK: show() is called twice leaking events
+         this.documentEscapeListener = this.renderer.listen('document', 'keydown', (event) => {
+             if(event.which == 27) {
+                 if(parseInt(this.containerViewChild.nativeElement.style.zIndex) == DomHandler.zindex) {
+@@ -458,6 +469,47 @@ export class Dialog implements AfterViewInit,AfterViewChecked,OnDestroy {
+             this.documentEscapeListener = null;
+         }
+     }
++
++    bindDocumentTabListener() {
++        this.unbindDocumentTabListener(); // HACK: show() is called twice leaking events
++        this.documentTabListener = this.renderer.listen('document', 'keydown', (event) => {
++            if(event.which === 9) {
++                //List of html elements which can be focused by tabbing.
++                let focusableElementsInModal = this.containerViewChild.nativeElement.querySelectorAll('a[href], input:not([disabled]), ' +
++                    'select:not([disabled]), textarea:not([disabled]), button:not([disabled]), object:not([disabled]), [tabindex]');
++                let focusables = [];
++                let numberOfElements = focusableElementsInModal.length;
++                for(let i = 0; i < numberOfElements; ++i) {
++                    let element = focusableElementsInModal[i];
++                    if(!element.hasAttribute('tabindex') || parseInt(element.getAttribute('tabindex')) >= 0) {
++                        focusables.push(element);
++                    }
++                }
++                let firstTabElement = <HTMLElement>focusables[0];
++                let lastTabElement = <HTMLElement>focusables[focusables.length - 1];
++                let currentFocusedElementIsNotInDialog = focusables.indexOf(document.activeElement) === -1;
++                if(event.shiftKey) {
++                    if(document.activeElement === firstTabElement || currentFocusedElementIsNotInDialog) {
++                        event.preventDefault();
++                        lastTabElement.focus();
++                    }
++                }
++                else {
++                    if(document.activeElement === lastTabElement || currentFocusedElementIsNotInDialog) {
++                        event.preventDefault();
++                        firstTabElement.focus();
++                    }
++                }
++            }
++        });
++    }
++
++    unbindDocumentTabListener() {
++        if(this.documentTabListener) {
++            this.documentTabListener();
++            this.documentTabListener = null;
++        }
++    }
+     
+     ngOnDestroy() {
+         this.initialized = false;
+@@ -471,6 +523,7 @@ export class Dialog implements AfterViewInit,AfterViewChecked,OnDestroy {
+         }
+ 		
+ 		this.unbindMaskClickListener();
++        this.unbindDocumentTabListener();
+     }
+ 
+ }
+diff --git a/src/app/components/megamenu/megamenu.ts b/src/app/components/megamenu/megamenu.ts
+index 3d7a0d9..f020a9b 100644
+--- a/src/app/components/megamenu/megamenu.ts
++++ b/src/app/components/megamenu/megamenu.ts
+@@ -14,6 +14,7 @@ import {RouterModule} from '@angular/router';
+                 <ng-template ngFor let-category [ngForOf]="model">
+                     <li *ngIf="category.separator" class="ui-menu-separator ui-widget-content">
+                     <li *ngIf="!category.separator" #item [ngClass]="{'ui-menuitem ui-widget ui-corner-all':true,'ui-menu-parent':category.items,'ui-menuitem-active':item==activeItem}"
++                        [id]="item.id || ''"
+                         (mouseenter)="onItemMouseEnter($event, item, category)" (mouseleave)="onItemMouseLeave($event, item)">
+                         <a class="ui-menuitem-link ui-corner-all ui-submenu-link" [ngClass]="{'ui-state-disabled':category.disabled}">
+                             <span class="ui-menuitem-icon fa fa-fw" [ngClass]="category.icon"></span>
+@@ -29,7 +30,7 @@ import {RouterModule} from '@angular/router';
+                                                 <li class="ui-widget-header ui-corner-all"><h3>{{submenu.label}}</h3></li>
+                                                 <ng-template ngFor let-item [ngForOf]="submenu.items">
+                                                     <li *ngIf="item.separator" class="ui-menu-separator ui-widget-content">
+-                                                    <li *ngIf="!item.separator" class="ui-menuitem ui-widget ui-corner-all">
++                                                    <li *ngIf="!item.separator" class="ui-menuitem ui-widget ui-corner-all" [id]="item.id || ''">
+                                                         <a *ngIf="!item.routerLink" [href]="item.url||'#'" class="ui-menuitem-link ui-corner-all" [attr.target]="item.target"
+                                                             [ngClass]="{'ui-state-disabled':item.disabled}" (click)="itemClick($event, item)">
+                                                             <span class="ui-menuitem-icon fa fa-fw" *ngIf="item.icon" [ngClass]="item.icon"></span>
+diff --git a/src/app/components/menu/menu.ts b/src/app/components/menu/menu.ts
+index 3809401..a5f3112 100644
+--- a/src/app/components/menu/menu.ts
++++ b/src/app/components/menu/menu.ts
+@@ -37,12 +37,12 @@ export class MenuItemContent {
+                     <li class="ui-widget-header ui-corner-all" *ngIf="!submenu.separator"><h3>{{submenu.label}}</h3></li>
+                     <ng-template ngFor let-item [ngForOf]="submenu.items">
+                         <li class="ui-menu-separator ui-widget-content" *ngIf="item.separator">
+-                        <li class="ui-menuitem ui-widget ui-corner-all" *ngIf="!item.separator" [pMenuItemContent]="item"></li>
++                        <li class="ui-menuitem ui-widget ui-corner-all" *ngIf="!item.separator" [pMenuItemContent]="item" [id]="item.id || ''"></li>
+                     </ng-template>
+                 </ng-template>
+                 <ng-template ngFor let-item [ngForOf]="model" *ngIf="!hasSubMenu()">
+                     <li class="ui-menu-separator ui-widget-content" *ngIf="item.separator">
+-                    <li class="ui-menuitem ui-widget ui-corner-all" *ngIf="!item.separator" [pMenuItemContent]="item"></li>
++                    <li class="ui-menuitem ui-widget ui-corner-all" *ngIf="!item.separator" [pMenuItemContent]="item" [id]="item.id || ''"></li>
+                 </ng-template>
+             </ul>
+         </div>
+diff --git a/src/app/components/menubar/menubar.ts b/src/app/components/menubar/menubar.ts
+index 3b3068a..31f1d19 100644
+--- a/src/app/components/menubar/menubar.ts
++++ b/src/app/components/menubar/menubar.ts
+@@ -13,6 +13,7 @@ import {RouterModule} from '@angular/router';
+             <ng-template ngFor let-child [ngForOf]="(root ? item : item.items)">
+                 <li *ngIf="child.separator" class="ui-menu-separator ui-widget-content">
+                 <li *ngIf="!child.separator" #listItem [ngClass]="{'ui-menuitem ui-widget ui-corner-all':true,'ui-menu-parent':child.items,'ui-menuitem-active':listItem==activeItem}"
++                    [id]="child.id || ''"
+                     (mouseenter)="onItemMouseEnter($event,listItem,child)" (mouseleave)="onItemMouseLeave($event)">
+                     <a *ngIf="!child.routerLink" [href]="child.url||'#'" [attr.target]="child.target" (click)="itemClick($event, child)"
+                          [ngClass]="{'ui-menuitem-link ui-corner-all':true,'ui-state-disabled':child.disabled}" [ngStyle]="child.style" [class]="child.styleClass">
+diff --git a/src/app/components/multiselect/multiselect.ts b/src/app/components/multiselect/multiselect.ts
+index 59af0fb..8b2dfad 100644
+--- a/src/app/components/multiselect/multiselect.ts
++++ b/src/app/components/multiselect/multiselect.ts
+@@ -50,7 +50,7 @@ export const MULTISELECT_VALUE_ACCESSOR: any = {
+                             [style.display]="isItemVisible(option) ? 'block' : 'none'" [ngClass]="{'ui-state-highlight':isSelected(option.value)}">
+                             <div class="ui-chkbox ui-widget">
+                                 <div class="ui-helper-hidden-accessible">
+-                                    <input type="checkbox" readonly="readonly" [checked]="isSelected(option.value)">
++                                    <input type="checkbox" readonly="readonly" [checked]="isSelected(option.value)" [value]="option.valueStr || ''">
+                                 </div>
+                                 <div class="ui-chkbox-box ui-widget ui-corner-all ui-state-default" [ngClass]="{'ui-state-active':isSelected(option.value)}">
+                                     <span class="ui-chkbox-icon ui-clickable" [ngClass]="{'fa fa-check':isSelected(option.value)}"></span>
+@@ -77,6 +77,8 @@ export class MultiSelect implements OnInit,AfterViewInit,AfterViewChecked,DoChec
+     
+     @Input() defaultLabel: string = 'Choose';
+ 
++    @Input() updateLabelFunction: Function = () => this.updateLabel();
++
+     @Input() style: any;
+ 
+     @Input() styleClass: string;
+@@ -141,7 +143,7 @@ export class MultiSelect implements OnInit,AfterViewInit,AfterViewChecked,DoChec
+     }
+     
+     ngOnInit() {
+-        this.updateLabel();
++        this.valuesAsString = this.updateLabelFunction(this.value, this.defaultLabel);
+     }
+     
+     ngAfterViewInit() {
+@@ -176,7 +178,7 @@ export class MultiSelect implements OnInit,AfterViewInit,AfterViewChecked,DoChec
+         let optionChanges = this.optionsDiffer.diff(this.options);
+         
+         if(valueChanges||optionChanges) {
+-            this.updateLabel();
++            this.valuesAsString = this.updateLabelFunction(this.value, this.defaultLabel);
+         }
+     }
+     
+@@ -374,7 +376,7 @@ export class MultiSelect implements OnInit,AfterViewInit,AfterViewChecked,DoChec
+             let items = [];
+             for(let i = 0; i < this.options.length; i++) {
+                 let option = this.options[i];
+-                if(option.label.toLowerCase().includes(this.filterValue.toLowerCase())) {
++                if(option.label.toLowerCase().indexOf(this.filterValue.toLowerCase()) > -1) {
+                     items.push(option);
+                 }
+             }
+diff --git a/src/app/components/panelmenu/panelmenu.ts b/src/app/components/panelmenu/panelmenu.ts
+index 93209ba..3ed3895 100644
+--- a/src/app/components/panelmenu/panelmenu.ts
++++ b/src/app/components/panelmenu/panelmenu.ts
+@@ -33,7 +33,7 @@ export class BasePanelMenuItem {
+         <ul class="ui-menu-list ui-helper-reset" [@submenu]="expanded ? 'visible' : 'hidden'">
+             <ng-template ngFor let-child [ngForOf]="item.items">
+                 <li *ngIf="child.separator" class="ui-menu-separator ui-widget-content">
+-                <li *ngIf="!child.separator" class="ui-menuitem ui-corner-all" [ngClass]="{'ui-menu-parent':child.items}" [class]="child.styleClass" [ngStyle]="child.style">
++                <li *ngIf="!child.separator" class="ui-menuitem ui-corner-all" [ngClass]="{'ui-menu-parent':child.items}" [class]="child.styleClass" [ngStyle]="child.style" [id]="child.id || ''">
+                     <a *ngIf="!child.routerLink" [href]="child.url||'#'" class="ui-menuitem-link ui-corner-all" [attr.tabindex]="item.expanded ? null : '-1'"
+                         [ngClass]="{'ui-menuitem-link-hasicon':child.icon&&child.items,'ui-state-disabled':child.disabled}" 
+                         (click)="handleClick($event,child)" [attr.target]="child.target">
+@@ -79,7 +79,7 @@ export class PanelMenuSub extends BasePanelMenuItem {
+         <div [class]="styleClass" [ngStyle]="style" [ngClass]="'ui-panelmenu ui-widget'">
+             <div *ngFor="let item of model;let f=first;let l=last;" class="ui-panelmenu-panel">
+                 <div [ngClass]="{'ui-widget ui-panelmenu-header ui-state-default':true,'ui-corner-top':f,'ui-corner-bottom':l&&!item.expanded,
+-                    'ui-state-active':item.expanded,'ui-state-disabled':item.disabled}" [class]="item.styleClass" [ngStyle]="item.style">
++                    'ui-state-active':item.expanded,'ui-state-disabled':item.disabled}" [class]="item.styleClass" [ngStyle]="item.style" [id]="item.id || ''">
+                     <a *ngIf="!item.routerLink" [href]="item.url||'#'" [ngClass]="{'ui-panelmenu-headerlink-hasicon':item.icon}" (click)="handleClick($event,item)"
+                         [attr.target]="item.target">
+                         <span *ngIf="item.items" class="ui-panelmenu-icon fa" [ngClass]="{'fa-caret-right':!item.expanded,'fa-caret-down':item.expanded}"></span
+diff --git a/src/app/components/slidemenu/slidemenu.ts b/src/app/components/slidemenu/slidemenu.ts
+index 3a1eb24..e1aca44 100644
+--- a/src/app/components/slidemenu/slidemenu.ts
++++ b/src/app/components/slidemenu/slidemenu.ts
+@@ -13,7 +13,7 @@ import {RouterModule} from '@angular/router';
+             [style.transitionProperty]="root ? 'left' : 'none'" [style.transitionDuration]="effectDuration + 'ms'" [style.transitionTimingFunction]="easing">
+             <ng-template ngFor let-child [ngForOf]="(root ? item : item.items)">
+                 <li *ngIf="child.separator" class="ui-menu-separator ui-widget-content">
+-                <li *ngIf="!child.separator" #listitem [ngClass]="{'ui-menuitem ui-widget ui-corner-all':true,'ui-menu-parent':child.items,'ui-slidemenuitem-active':listitem==activeItem}">
++                <li *ngIf="!child.separator" #listitem [ngClass]="{'ui-menuitem ui-widget ui-corner-all':true,'ui-menu-parent':child.items,'ui-slidemenuitem-active':listitem==activeItem}" [id]="child.id || ''">
+                     <a *ngIf="!child.routerLink" [href]="child.url||'#'" class="ui-menuitem-link ui-corner-all" [attr.target]="child.target"
+                         [ngClass]="{'ui-menuitem-link-parent':child.items,'ui-state-disabled':child.disabled}" 
+                         (click)="itemClick($event, child, listitem)">
+diff --git a/src/app/components/splitbutton/splitbutton.ts b/src/app/components/splitbutton/splitbutton.ts
+index 53349a8..5c93e11 100644
+--- a/src/app/components/splitbutton/splitbutton.ts
++++ b/src/app/components/splitbutton/splitbutton.ts
+@@ -16,7 +16,7 @@ import {RouterModule} from '@angular/router';
+             <div #overlay [ngClass]="'ui-menu ui-menu-dynamic ui-widget ui-widget-content ui-corner-all ui-helper-clearfix ui-shadow'" [style.display]="menuVisible ? 'block' : 'none'"
+                     [ngStyle]="menuStyle" [class]="menuStyleClass" [@overlayState]="menuVisible ? 'visible' : 'hidden'">
+                 <ul class="ui-menu-list ui-helper-reset">
+-                    <li class="ui-menuitem ui-widget ui-corner-all" role="menuitem" *ngFor="let item of model">
++                    <li class="ui-menuitem ui-widget ui-corner-all" role="menuitem" *ngFor="let item of model" [id]="item.id || ''">
+                         <a *ngIf="!item.routerLink" [href]="item.url||'#'" class="ui-menuitem-link ui-corner-all" [attr.target]="item.target"
+                             [ngClass]="{'ui-state-disabled':item.disabled}" (click)="itemClick($event, item)">
+                             <span [ngClass]="'ui-menuitem-icon fa fa-fw'" [class]="item.icon" *ngIf="item.icon"></span>
+diff --git a/src/app/components/steps/steps.ts b/src/app/components/steps/steps.ts
+index c709768..1875fe9 100644
+--- a/src/app/components/steps/steps.ts
++++ b/src/app/components/steps/steps.ts
+@@ -10,7 +10,7 @@ import {RouterModule} from '@angular/router';
+             <ul role="tablist">
+                 <li *ngFor="let item of model; let i = index" class="ui-steps-item" #menuitem
+                     [ngClass]="{'ui-state-highlight':(i === activeIndex),'ui-state-default':(i !== activeIndex),
+-                        'ui-state-disabled':item.disabled||(i !== activeIndex && readonly)}">
++                        'ui-state-disabled':item.disabled||(i !== activeIndex && readonly)}" [id]="item.id || ''">
+                     <a *ngIf="!item.routerLink" [href]="item.url||'#'" class="ui-menuitem-link" (click)="itemClick($event, item, i)" [attr.target]="item.target">
+                         <span class="ui-steps-number">{{i + 1}}</span>
+                         <span class="ui-steps-title">{{item.label}}</span>
+diff --git a/src/app/components/tabmenu/tabmenu.ts b/src/app/components/tabmenu/tabmenu.ts
+index cb3c3a9..b69dc4d 100644
+--- a/src/app/components/tabmenu/tabmenu.ts
++++ b/src/app/components/tabmenu/tabmenu.ts
+@@ -10,7 +10,7 @@ import {RouterModule} from '@angular/router';
+     template: `
+         <div [ngClass]="'ui-tabmenu ui-widget ui-widget-content ui-corner-all'" [ngStyle]="style" [class]="styleClass">
+             <ul class="ui-tabmenu-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" role="tablist">
+-                <li *ngFor="let item of model" 
++                <li *ngFor="let item of model" [id]="item.id || ''"
+                     [ngClass]="{'ui-tabmenuitem ui-state-default ui-corner-top':true,'ui-state-disabled':item.disabled,
+                         'ui-tabmenuitem-hasicon':item.icon,'ui-state-active':activeItem==item}">
+                     <a *ngIf="!item.routerLink" [href]="item.url||'#'" class="ui-menuitem-link ui-corner-all" (click)="itemClick($event,item)"
+diff --git a/src/app/components/tieredmenu/tieredmenu.ts b/src/app/components/tieredmenu/tieredmenu.ts
+index f97c6ab..1382603 100644
+--- a/src/app/components/tieredmenu/tieredmenu.ts
++++ b/src/app/components/tieredmenu/tieredmenu.ts
+@@ -12,7 +12,7 @@ import {RouterModule} from '@angular/router';
+             <ng-template ngFor let-child [ngForOf]="(root ? item : item.items)">
+                 <li *ngIf="child.separator" class="ui-menu-separator ui-widget-content">
+                 <li *ngIf="!child.separator" #listItem [ngClass]="{'ui-menuitem ui-widget ui-corner-all':true,'ui-menu-parent':child.items,'ui-menuitem-active':listItem==activeItem}"
+-                    (mouseenter)="onItemMouseEnter($event, listItem, child)" (mouseleave)="onItemMouseLeave($event)">
++                    (mouseenter)="onItemMouseEnter($event, listItem, child)" (mouseleave)="onItemMouseLeave($event)" [id]="child.id || ''">
+                     <a *ngIf="!child.routerLink" [href]="child.url||'#'" class="ui-menuitem-link ui-corner-all" [attr.target]="child.target"
+                         [ngClass]="{'ui-state-disabled':child.disabled}" (click)="itemClick($event, child)">
+                         <span class="ui-submenu-icon fa fa-fw fa-caret-right" *ngIf="child.items"></span>
+diff --git a/src/assets/components/themes/vincent/theme.scss b/src/assets/components/themes/vincent/theme.scss
+new file mode 100644
+index 0000000..7405d00
+--- /dev/null
++++ b/src/assets/components/themes/vincent/theme.scss
+@@ -0,0 +1,57 @@
++$fontFamily: openSans, segoe ui, Arial;
++$fontSize: 1em;
++$borderRadius: 3px;
++$disabledOpacity: 0.35;
++
++//Header
++$headerBorderWidth: 1px;
++$headerBorderColor: #606f74;
++$headerBgColor: #ffffff;
++$headerTextColor: #232e34;
++$headerFontWeight: bold;
++$headerIconTextColor: #222222;
++
++//Content
++$contentBorderWidth: 1px;
++$contentBorderColor: #aaaaaa;
++$contentBgColor: #ffffff;
++$contentTextColor: #222222;
++
++//Default State
++$stateDefaultBorderWidth: 1px;
++$stateDefaultBorderColor: #aaaaaa;
++$stateDefaultBgColor: #606f74;
++$stateDefaultTextColor: #ffffff;
++
++//Active State
++$stateActiveBorderColor: #0061af;
++$stateActiveBgColor: #0061af;
++$stateActiveTextColor: #ffffff;
++
++//Highlight State
++$stateHighlightBorderColor: #ffffff;
++$stateHighlightBgColor: #c5ddfc;
++$stateHighlightTextColor: #333333;
++
++//Focus State
++$stateFocusBorderColor: #2293f7;
++$stateFocusBgColor: #0061af;
++$stateFocusTextColor: #ffffff;
++
++//Error State
++$stateErrorBorderColor: #e69700;
++$stateErrorBgColor: #e69700;
++$stateErrorTextColor: #ffffff;
++
++//Hover State
++$stateHoverBorderColor: #2293f7;
++$stateHoverBgColor: #0061af;
++$stateHoverTextColor: #ffffff;
++
++//Forms
++$inputBgColor: #ffffff;
++$inputTextColor: #2293f7;
++$invalidInputBorderColor: #e69700;
++$inputGroupTextColor: #ffffff;
++
++@import '../_theme';
+\ No newline at end of file
