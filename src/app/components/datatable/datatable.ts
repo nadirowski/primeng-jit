@@ -125,7 +125,7 @@ export class RowExpansionLoader implements OnInit, OnDestroy {
                     [attr.min]="col.filterType === 'number' && col.filterNumericMinValue != undefined ? col.filterNumericMinValue : undefined" [attr.max]="col.filterType === 'number' && col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : undefined"
                     [attr.step]="col.filterType === 'number' ? (col.filterNumericStep != undefined ? col.filterNumericStep : 1) : undefined" [attr.value]="col.defaultFilterValue ? col.defaultFilterValue.value : undefined"
                     (change)="dt.onFilterInputChange($event, col.field)"
-                    (click)="dt.onFilterInputClick($event)" (input)="dt.onFilterKeyup($event.target.value, col.field, col.filterMatchMode)"/>
+                    (click)="dt.onFilterInputClick($event)" (input)="dt.onFilterKeyup($event, col.field, col.filterMatchMode)"/>
                 <select class="ui-column-filter" *ngIf="col.filter && col.filterValues && !col.filterTemplate" (change)="dt.onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="dt.onFilterInputClick($event)" [name]="col.field">
                     <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
                 </select>
