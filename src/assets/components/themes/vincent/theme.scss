@@ -1,6 +1,6 @@
-$fontFamily: openSans, segoe ui, Arial;
+$fontFamily: 'Open Sans', sans-serif;
 $fontSize: 1em;
-$borderRadius: 3px;
+$borderRadius: 2px;
 $disabledOpacity: 0.35;
 
 //Header
@@ -29,29 +29,29 @@ $stateActiveBgColor: #0061af;
 $stateActiveTextColor: #ffffff;
 
 //Highlight State
-$stateHighlightBorderColor: #ffffff;
-$stateHighlightBgColor: #c5ddfc;
+$stateHighlightBorderColor: #f2f2f2;
+$stateHighlightBgColor: #f2f2f2;
 $stateHighlightTextColor: #333333;
 
 //Focus State
-$stateFocusBorderColor: #2293f7;
+$stateFocusBorderColor: #25a3f9;
 $stateFocusBgColor: #0061af;
 $stateFocusTextColor: #ffffff;
 
 //Error State
-$stateErrorBorderColor: #e69700;
-$stateErrorBgColor: #e69700;
+$stateErrorBorderColor: #fab146;
+$stateErrorBgColor: #fab146;
 $stateErrorTextColor: #ffffff;
 
 //Hover State
-$stateHoverBorderColor: #2293f7;
-$stateHoverBgColor: #0061af;
+$stateHoverBorderColor: #25a3f9;
+$stateHoverBgColor: #3d444f;
 $stateHoverTextColor: #ffffff;
 
 //Forms
 $inputBgColor: #ffffff;
-$inputTextColor: #2293f7;
-$invalidInputBorderColor: #e69700;
+$inputTextColor: #000000;
+$invalidInputBorderColor: #fab146;
 $inputGroupTextColor: #ffffff;
 
 @import '../_theme';
