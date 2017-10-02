@@ -1,4 +1,4 @@
-import {NgModule,Component,ElementRef,OnInit,AfterViewInit,AfterViewChecked,DoCheck,OnDestroy,Input,Output,Renderer2,EventEmitter,IterableDiffers,forwardRef,ViewChild,ChangeDetectorRef} from '@angular/core';
+import {NgModule,Component,ElementRef,OnInit,AfterViewInit,AfterViewChecked,DoCheck,OnChanges,OnDestroy,Input,Output,Renderer2,EventEmitter,IterableDiffers,forwardRef,ViewChild,ChangeDetectorRef,SimpleChanges} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {SelectItem} from '../common/selectitem';
 import {DomHandler} from '../dom/domhandler';
@@ -65,7 +65,7 @@ export const MULTISELECT_VALUE_ACCESSOR: any = {
     `,
     providers: [DomHandler,ObjectUtils,MULTISELECT_VALUE_ACCESSOR]
 })
-export class MultiSelect implements OnInit,AfterViewInit,AfterViewChecked,DoCheck,OnDestroy,ControlValueAccessor {
+export class MultiSelect implements OnInit,AfterViewInit,AfterViewChecked,DoCheck,OnChanges,OnDestroy,ControlValueAccessor {
 
     @Input() options: SelectItem[];
 
@@ -76,8 +76,6 @@ export class MultiSelect implements OnInit,AfterViewInit,AfterViewChecked,DoChec
     @Input() scrollHeight: string = '200px';
     
     @Input() defaultLabel: string = 'Choose';
-
-    @Input() updateLabelFunction: Function = () => this.updateLabel();
 
     @Input() style: any;
 
@@ -143,7 +141,7 @@ export class MultiSelect implements OnInit,AfterViewInit,AfterViewChecked,DoChec
     }
     
     ngOnInit() {
-        this.valuesAsString = this.updateLabelFunction(this.value, this.defaultLabel);
+        this.updateLabel();
     }
     
     ngAfterViewInit() {
@@ -178,7 +176,13 @@ export class MultiSelect implements OnInit,AfterViewInit,AfterViewChecked,DoChec
         let optionChanges = this.optionsDiffer.diff(this.options);
         
         if(valueChanges||optionChanges) {
-            this.valuesAsString = this.updateLabelFunction(this.value, this.defaultLabel);
+            this.updateLabel();
+        }
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        if ('defaultLabel' in changes || 'displaySelectedLabel' in changes) {
+            this.updateLabel();
         }
     }
     
