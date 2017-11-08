@@ -24,6 +24,7 @@ node_modules
 .settings/
 *.sublime-workspace
 .editor-config
+*.iml
 
 # IDE - VSCode
 .vscode/*
@@ -41,6 +42,8 @@ npm-debug.log
 testem.log
 /typings
 .gitignore
+*.diff
+*.tgz
 
 # config
 .angular-cli.json
