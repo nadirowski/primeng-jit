@@ -78,7 +78,7 @@ export class Accordion implements BlockableUI {
         </div>
         <div class="ui-accordion-content-wrapper" [@tabContent]="selected ? 'visible' : 'hidden'" (@tabContent.done)="onToggleDone($event)"
             [ngClass]="{'ui-accordion-content-wrapper-overflown': !selected||animating}" role="tabpanel" [attr.aria-hidden]="!selected">
-            <div class="ui-accordion-content ui-widget-content" *ngIf="lazy ? selected : true">
+            <div class="ui-accordion-content ui-widget-content" *ngIf="lazy ? (selected || animating) : true">
                 <ng-content></ng-content>
             </div>
         </div>
