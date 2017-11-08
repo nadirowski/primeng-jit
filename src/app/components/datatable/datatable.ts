@@ -596,6 +596,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
     @Input() compareSelectionBy: string = 'deepEquals';
                 
     @Output() onEditInit: EventEmitter<any> = new EventEmitter();
+    @Output() onEditExit: EventEmitter<any> = new EventEmitter();
 
     @Output() onEditComplete: EventEmitter<any> = new EventEmitter();
 
@@ -2035,6 +2036,7 @@ export class DataTable implements AfterViewChecked,AfterViewInit,AfterContentIni
     
     closeCell() {
         if(this.editingCell) {
+            this.onEditExit.emit();
             this.domHandler.removeClass(this.editingCell, 'ui-cell-editing');
             this.editingCell = null;
             this.unbindDocumentEditListener();
