@@ -114,19 +114,19 @@ export class RowExpansionLoader implements OnInit, OnDestroy {
                 (dragstart)="dt.onColumnDragStart($event)" (dragleave)="dt.onColumnDragleave($event)" (drop)="dt.onColumnDrop($event)" (mousedown)="dt.onHeaderMousedown($event,headerCell)"
                 [attr.tabindex]="col.sortable ? tabindex : null" (keydown)="dt.onHeaderKeydown($event,col)">
                 <span class="ui-column-resizer ui-clickable" *ngIf="dt.resizableColumns && ((dt.columnResizeMode == 'fit' && !lastCol) || dt.columnResizeMode == 'expand')" (mousedown)="dt.initColumnResize($event)"></span>
-                <span class="ui-column-title" title="{{col.header}}" *ngIf="!col.selectionMode&&!col.headerTemplate">{{col.header}}</span>
-                <span class="ui-column-title" *ngIf="col.headerTemplate">
+                <span [ngClass]="{'ui-column-title-underlined': (dt.filters&&dt.filters[col.field]?.value&&!col.filter)}" class="ui-column-title" title="{{col.header}}" *ngIf="!col.selectionMode&&!col.headerTemplate">{{col.header}}</span>
+                <span [ngClass]="{'ui-column-title-underlined': (dt.filters&&dt.filters[col.field]?.value&&!col.filter)}" class="ui-column-title" *ngIf="col.headerTemplate">
                     <p-columnHeaderTemplateLoader [column]="col"></p-columnHeaderTemplateLoader>
                 </span>
                 <span class="ui-sortable-column-icon fa fa-fw fa-sort" *ngIf="col.sortable"
                      [ngClass]="{'fa-sort-desc': (dt.getSortOrder(col) == -1),'fa-sort-asc': (dt.getSortOrder(col) == 1)}"></span>
-                <input [attr.type]="col.filterType" class="ui-column-filter ui-inputtext ui-widget ui-state-default ui-corner-all" [attr.maxlength]="col.filterMaxlength" [attr.placeholder]="col.filterPlaceholder" *ngIf="col.filter&&!col.filterTemplate&&!col.filterValues"
-                    [ngClass]="{'ui-column-filter-error': col.isFilterInputNotValid}" [attr.name]="col.field"
+                <input [attr.type]="col.filterType" class="ui-column-filter ui-inputtext ui-widget ui-state-default ui-corner-all" [attr.maxlength]="col.filterMaxlength" [attr.placeholder]="col.filterPlaceholder" *ngIf="!col.filterTemplate&&!col.filterValues"
+                    [ngClass]="{'ui-column-filter-error': col.isFilterInputNotValid, 'ui-column-filter-invisible': !col.filter}" [attr.name]="col.field"
                     [attr.min]="col.filterType === 'number' && col.filterNumericMinValue != undefined ? col.filterNumericMinValue : undefined" [attr.max]="col.filterType === 'number' && col.filterNumericMaxValue != undefined ? col.filterNumericMaxValue : undefined"
                     [attr.step]="col.filterType === 'number' ? (col.filterNumericStep != undefined ? col.filterNumericStep : 1) : undefined" [attr.value]="col.defaultFilterValue ? col.defaultFilterValue.value : undefined"
                     (change)="dt.onFilterInputChange($event, col.field)"
                     (click)="dt.onFilterInputClick($event)" (input)="dt.onFilterKeyup($event, col.field, col.filterMatchMode)"/>
-                <select class="ui-column-filter" *ngIf="col.filter && col.filterValues && !col.filterTemplate" (change)="dt.onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="dt.onFilterInputClick($event)" [name]="col.field">
+                <select class="ui-column-filter" *ngIf="col.filterValues && !col.filterTemplate" [ngClass]="{'ui-column-filter-invisible': !col.filter}" (change)="dt.onFilterKeyup($event, col.field, col.filterMatchMode)" (click)="dt.onFilterInputClick($event)" [name]="col.field">
                     <option [ngValue]="elem.value" [value]="elem.value" *ngFor="let elem of col.filterValues" [selected]="col.defaultFilterValue && elem.value === col.defaultFilterValue.value">{{elem.label}}</option>
                 </select>
                 <p-columnFilterTemplateLoader [column]="col" *ngIf="col.filterTemplate"></p-columnFilterTemplateLoader>

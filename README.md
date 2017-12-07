@@ -13,6 +13,7 @@ This is a JIT fork of this library
 - install it as your package: `npm install /your/download/folder/primeng-{version}-JIT.tar.gz`
 
 ### How to develop this package
+update version number in package.json
 
 Fetch dependencies:
 ```bash
@@ -29,4 +30,8 @@ Pack into tar.gz
 ./node_modules/.bin/gulp build-assets
 ./node_modules/.bin/node-sass --source-comments --source-map resources/themes resources/themes -o resources/themes
 npm pack
+```
+To clear previous build:
+```bash
+git clean -d -x -f "src/" "components/" "resources/"
 ```
