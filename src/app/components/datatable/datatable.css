@@ -209,6 +209,13 @@
     border: 1px solid #f44336 !important;
 }
 
+.ui-datatable .ui-column-filter-invisible {
+    visibility: hidden;
+    height: 0 !important;
+    padding: 0 0 0 0 !important;
+    margin: 0 0 0 0 !important;
+}
+
 /* Editing */
 .ui-datatable .ui-editable-column input {
     width: 100%;
@@ -267,6 +274,10 @@
     display: inline-block;
     margin: -.4em 1em -.4em -.4em;
     font-weight: bold;
+}
+
+.ui-datatable .ui-column-title-underlined {
+    text-decoration: underline;
 }
 
 .ui-datatable .ui-selection-column .ui-chkbox,
