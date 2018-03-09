@@ -114,6 +114,10 @@ export class PickList implements AfterViewChecked,AfterContentInit {
     @Input() sourceFilterPlaceholder: string;
     
     @Input() targetFilterPlaceholder: string;
+
+    @Input() canMoveToSource: (item) => boolean;
+
+    @Input() canMoveToTarget: (item) => boolean;
     
     @Output() onMoveToSource: EventEmitter<any> = new EventEmitter();
     
@@ -377,14 +381,19 @@ export class PickList implements AfterViewChecked,AfterContentInit {
 
     moveRight() {
         if(this.selectedItemsSource && this.selectedItemsSource.length) {
+            const sourceItems = [];
             for(let i = 0; i < this.selectedItemsSource.length; i++) {
                 let selectedItem = this.selectedItemsSource[i];
-                if(this.findIndexInList(selectedItem, this.target) == -1) {
-                    this.target.push(this.source.splice(this.findIndexInList(selectedItem, this.source),1)[0]);
+                if(!this.canMoveToTarget || this.canMoveToTarget(selectedItem)) {
+                    if(this.findIndexInList(selectedItem, this.target) == -1) {
+                        let movedItem = this.source.splice(this.findIndexInList(selectedItem, this.source), 1)[0];
+                        this.target.push(movedItem);
+                        sourceItems.push(movedItem);
+                    }
                 }
             }
             this.onMoveToTarget.emit({
-                items: this.selectedItemsSource
+                items: sourceItems
             });
             this.selectedItemsSource = [];
         }
@@ -392,11 +401,17 @@ export class PickList implements AfterViewChecked,AfterContentInit {
 
     moveAllRight() {
         if(this.source) {
-            for(let i = 0; i < this.source.length; i++) {
-                this.target.push(this.source[i]);
+            const sourceItems = [];
+            for(let i = 0; i < this.source.length;) {
+                if(!this.canMoveToTarget || this.canMoveToTarget(this.source[i])) {
+                    this.target.push(this.source[i]);
+                    sourceItems.push(this.source[i]);
+                    this.source.splice(i, 1);
+                }
+                else {
+                    ++i;
+                }
             }
-            
-            const sourceItems = this.source.splice(0, this.source.length);
     
             this.onMoveToTarget.emit({
                 items: sourceItems
@@ -412,14 +427,19 @@ export class PickList implements AfterViewChecked,AfterContentInit {
 
     moveLeft() {
         if(this.selectedItemsTarget && this.selectedItemsTarget.length) {
+            const targetItems = [];
             for(let i = 0; i < this.selectedItemsTarget.length; i++) {
                 let selectedItem = this.selectedItemsTarget[i];
-                if(this.findIndexInList(selectedItem, this.source) == -1) {
-                    this.source.push(this.target.splice(this.findIndexInList(selectedItem, this.target),1)[0]);
+                if(!this.canMoveToSource || this.canMoveToSource(selectedItem)) {
+                    if(this.findIndexInList(selectedItem, this.source) == -1) {
+                        let movedItem = this.target.splice(this.findIndexInList(selectedItem, this.target), 1)[0];
+                        this.source.push(movedItem);
+                        targetItems.push(movedItem);
+                    }
                 }
             }
             this.onMoveToSource.emit({
-                items: this.selectedItemsTarget
+                items: targetItems
             });
             
             this.selectedItemsTarget = [];
@@ -428,11 +448,17 @@ export class PickList implements AfterViewChecked,AfterContentInit {
 
     moveAllLeft() {
         if(this.target) {
-            for(let i = 0; i < this.target.length; i++) {
-                this.source.push(this.target[i]);
+            const targetItems = [];
+            for(let i = 0; i < this.target.length;) {
+                if(!this.canMoveToSource || this.canMoveToSource(this.target[i])) {
+                    this.source.push(this.target[i]);
+                    targetItems.push(this.target[i]);
+                    this.target.splice(i, 1);
+                }
+                else {
+                    ++i;
+                }
             }
-            
-            const targetItems = this.target.splice(0, this.target.length);
     
             this.onMoveToSource.emit({
                 items: targetItems
