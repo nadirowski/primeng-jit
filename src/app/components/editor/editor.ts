@@ -101,7 +101,10 @@ export class Editor implements AfterViewInit,ControlValueAccessor {
         
         this.quill = new Quill(editorElement, {
           modules: {
-              toolbar: toolbarElement
+              toolbar: toolbarElement,
+                clipboard: {
+                    matchVisual: false
+                }
           },
           placeholder: this.placeholder,
           readOnly: this.readonly,
