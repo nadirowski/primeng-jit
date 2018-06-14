@@ -1,4 +1,15 @@
-import {NgModule,Component,ElementRef,AfterContentInit,OnDestroy,Input,Output,EventEmitter,ContentChildren,QueryList} from '@angular/core';
+import {
+    NgModule,
+    Component,
+    ElementRef,
+    OnDestroy,
+    Input,
+    Output,
+    EventEmitter,
+    ContentChildren,
+    QueryList,
+    ChangeDetectorRef, AfterViewChecked
+} from '@angular/core';
 import {trigger,state,style,transition,animate} from '@angular/animations';
 import {CommonModule} from '@angular/common';
 import {Header} from '../common/shared';
@@ -95,7 +106,7 @@ export class Accordion implements BlockableUI {
         ])
     ]
 })
-export class AccordionTab implements OnDestroy {
+export class AccordionTab  implements OnDestroy, AfterViewChecked  {
 
     @Input() header: string;
 
@@ -111,8 +122,14 @@ export class AccordionTab implements OnDestroy {
     
     public animating: boolean;
     
-    constructor(public accordion: Accordion) {
+    constructor(public accordion: Accordion,
+                private cdRef: ChangeDetectorRef) {
         this.accordion.addTab(this);
+    }
+
+    ngAfterViewChecked() {
+        //explicit change detection to avoid "expression-has-changed-after-it-was-checked-error"
+        this.cdRef.detectChanges();
     }
 
     toggle(event) {
