@@ -1,5 +1,5 @@
 import {NgModule,Component,ElementRef,AfterContentInit,OnDestroy,Input,Output,EventEmitter,ContentChildren,QueryList} from '@angular/core';
-import {trigger,state,style,transition,animate} from '@angular/animations';
+import {trigger,state,style,transition,animate,AnimationEvent} from '@angular/animations';
 import {CommonModule} from '@angular/common';
 import {Header} from '../common/shared';
 import {BlockableUI} from '../common/blockableui';
@@ -163,8 +163,15 @@ export class AccordionTab implements OnDestroy {
         return this.headerFacet && this.headerFacet.length > 0;
     }
     
-    onToggleDone(event: Event) {
-        this.animating = false;
+    onToggleDone(event: AnimationEvent) {
+        let expectedSelectedValue = event.toState === 'visible';
+        if (expectedSelectedValue === this.selected) {
+            setTimeout(() => {
+                this.animating = false;
+                // fix style when accordion state change is spammed faster than animation duration (400ms)
+                (event.element as HTMLElement).style.height = this.selected ? '' : '0';
+            });
+        }
     }
     
     ngOnDestroy() {
